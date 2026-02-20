@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { LogOut, Settings, User as UserIcon, Menu, X, Moon, Sun, Users, Shield } from 'lucide-react';
+import { LogOut, Settings, User as UserIcon, Menu, X, Moon, Sun, Users, Shield, Home } from 'lucide-react';
 import { useDarkMode } from '../hooks/useDarkMode';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -88,6 +88,13 @@ export default function Layout({ organization }: LayoutProps) {
               </div>
 
               <div className="hidden md:flex items-center space-x-1">
+                <Link
+                  to="/"
+                  className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  <Home className="w-4 h-4" />
+                  <span>Dashboard</span>
+                </Link>
                 {user?.role === 'admin' && (
                   <Link
                     to="/admin"
@@ -172,6 +179,14 @@ export default function Layout({ organization }: LayoutProps) {
                   </Link>
                 </span>
               </div>
+              <Link
+                to="/"
+                className="flex items-center space-x-2 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Home className="w-4 h-4" />
+                <span>Dashboard</span>
+              </Link>
               {user?.role === 'admin' && (
                 <Link
                   to="/admin"
