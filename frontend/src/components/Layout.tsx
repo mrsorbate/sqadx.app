@@ -53,7 +53,7 @@ export default function Layout({ organization }: LayoutProps) {
                         />
                       )}
                       {organizationName !== 'Dein Verein' && (
-                        <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate max-w-[120px] sm:max-w-[220px]">{organizationName}</span>
+                        <span className="block text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 leading-tight max-w-[120px] max-h-8 overflow-hidden break-words sm:max-w-[220px] sm:max-h-none sm:truncate sm:whitespace-nowrap">{organizationName}</span>
                       )}
                     </>
                   )}
