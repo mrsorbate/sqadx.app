@@ -41,6 +41,20 @@ Die App wurde erfolgreich eingerichtet und läuft bereits:
 
 ## 🛠️ Entwicklung
 
+### Toast-Guideline (UI-Feedback)
+
+Verwende im Frontend die globalen Toast-Typen konsistent:
+
+- `success`: Aktion wurde erfolgreich abgeschlossen (z. B. gespeichert, erstellt, gelöscht)
+- `info`: Neutrale Hinweise ohne Handlungsdruck
+- `warning`: Benutzer kann Problem direkt selbst beheben (z. B. falscher Dateityp, Datei zu groß)
+- `error`: Technischer oder serverseitiger Fehler (z. B. API fehlgeschlagen)
+
+Technische Basis:
+- Globaler Provider: `frontend/src/lib/useToast.tsx`
+- Anzeige-Komponente: `frontend/src/components/ToastMessage.tsx`
+- Verwendung in Seiten: `const { showToast } = useToast()`
+
 ### Server stoppen
 Drücke `Ctrl+C` in den Terminal-Fenstern wo Backend und Frontend laufen
 
