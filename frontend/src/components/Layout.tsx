@@ -64,15 +64,19 @@ export default function Layout({ organization }: LayoutProps) {
             <div className="flex items-center space-x-2 sm:space-x-4">
               <div className="hidden md:flex items-center space-x-3">
                 {user?.profile_picture ? (
-                  <img
-                    src={`${API_URL}${user.profile_picture}`}
-                    alt="Profilbild"
-                    className="w-8 h-8 rounded-full object-cover border-2 border-gray-300 dark:border-gray-600"
-                  />
+                  <Link to="/settings" aria-label="Zu den Einstellungen">
+                    <img
+                      src={`${API_URL}${user.profile_picture}`}
+                      alt="Profilbild"
+                      className="w-8 h-8 rounded-full object-cover border-2 border-gray-300 dark:border-gray-600 hover:opacity-90"
+                    />
+                  </Link>
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                    <UserIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                  </div>
+                  <Link to="/settings" aria-label="Zu den Einstellungen">
+                    <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center hover:opacity-90">
+                      <UserIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    </div>
+                  </Link>
                 )}
                 <span className="text-sm text-gray-700 dark:text-gray-300">
                   Hallo,{' '}
@@ -105,15 +109,19 @@ export default function Layout({ organization }: LayoutProps) {
               </div>
               <div className="md:hidden flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300 min-w-0">
                 {user?.profile_picture ? (
-                  <img
-                    src={`${API_URL}${user.profile_picture}`}
-                    alt="Profilbild"
-                    className="w-7 h-7 rounded-full object-cover border border-gray-300 dark:border-gray-600"
-                  />
+                  <Link to="/settings" aria-label="Zu den Einstellungen">
+                    <img
+                      src={`${API_URL}${user.profile_picture}`}
+                      alt="Profilbild"
+                      className="w-7 h-7 rounded-full object-cover border border-gray-300 dark:border-gray-600 hover:opacity-90"
+                    />
+                  </Link>
                 ) : (
-                  <div className="w-7 h-7 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                    <UserIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                  </div>
+                  <Link to="/settings" aria-label="Zu den Einstellungen">
+                    <div className="w-7 h-7 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center hover:opacity-90">
+                      <UserIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    </div>
+                  </Link>
                 )}
                 <Link to="/settings" className="font-medium truncate max-w-[110px] hover:underline">
                   {user?.name}
