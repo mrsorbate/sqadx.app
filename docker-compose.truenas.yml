@@ -10,8 +10,8 @@ services:
       FRONTEND_URL: ${FRONTEND_URL}
       TZ: ${TZ:-Europe/Berlin}
     volumes:
-      - ${BACKEND_DATA_DIR}:/app/data
-      - ${BACKEND_UPLOADS_DIR}:/app/uploads
+      - ${BACKEND_DATA_DIR:-./.data}:/app/data
+      - ${BACKEND_UPLOADS_DIR:-./.uploads}:/app/uploads
     restart: unless-stopped
 
   teampilot-frontend:

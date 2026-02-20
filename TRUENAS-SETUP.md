@@ -30,9 +30,10 @@ Das Skript wird:
 - Datenverzeichnisse erstellen
 - Ein sicheres JWT_SECRET generieren
 - `.env` mit allen nötigen Werten füllen
-- Docker Container starten
+- Docker Container mit diesen Umgebungsvariablen starten
 
-**Ergebnis:** http://TRUENAS-IP:18080
+**Hinweis:** Das Script erstellt automatisch eine `.env`-Datei und lädt diese beim Start.
+Diese Datei sollte **NICHT** ins Repository gepusht werden (wird ignoriert).
 
 ---
 

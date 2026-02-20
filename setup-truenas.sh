@@ -54,7 +54,7 @@ fi
 
 # Docker Compose starten
 echo -e "${BLUE}🐳 Starte Docker Container...${NC}"
-docker compose -f docker-compose.truenas.yml up -d --pull always
+docker compose --env-file "$ENV_FILE" -f docker-compose.truenas.yml up -d --pull always
 
 echo -e "\n${GREEN}✅ Setup erfolgreich!${NC}\n"
 echo -e "${YELLOW}📍 TeamPilot erreichbar unter:${NC}"
@@ -62,7 +62,7 @@ echo -e "   ${GREEN}http://${TRUENAS_IP}:${FRONTEND_PORT}${NC}\n"
 
 # Status anzeigen
 echo -e "${BLUE}Container Status:${NC}"
-docker compose -f docker-compose.truenas.yml ps
+docker compose --env-file "$ENV_FILE" -f docker-compose.truenas.yml ps
 
 echo -e "\n${YELLOW}Logs anzeigen:${NC}"
-echo "docker compose -f docker-compose.truenas.yml logs -f\n"
+echo "docker compose --env-file $ENV_FILE -f docker-compose.truenas.yml logs -f\n"
