@@ -87,6 +87,14 @@ export default function AdminPage() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin-settings'] });
       await queryClient.invalidateQueries({ queryKey: ['organization'] });
+      // Reset file input
+      if (logoFileInputRef.current) {
+        logoFileInputRef.current.value = '';
+      }
+    },
+    onError: (error: any) => {
+      console.error('Logo upload error:', error);
+      alert('Logo-Upload fehlgeschlagen: ' + (error.response?.data?.error || error.message));
     },
   });
 
@@ -140,6 +148,19 @@ export default function AdminPage() {
   const handleLogoFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file size
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Datei ist zu groß. Maximale Größe: 5MB');
+        return;
+      }
+      
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('Ungültiger Dateityp. Erlaubt: JPG, PNG, GIF, WebP');
+        return;
+      }
+      
       uploadLogoMutation.mutate(file);
     }
   };
@@ -259,11 +280,13 @@ export default function AdminPage() {
           <div className="space-y-4">
             <div className="flex items-start space-x-4">
               {settings?.logo && (
-                <img
-                  src={`${API_URL}${settings.logo}`}
-                  alt="Logo"
-                  className="w-20 h-20 rounded-lg object-contain border-2 border-gray-200 dark:border-gray-700"
-                />
+                <div className="flex-shrink-0">
+                  <img
+                    src={`${API_URL}${settings.logo}`}
+                    alt="Vereinslogo"
+                    className="w-24 h-24 rounded-lg object-contain bg-white border-2 border-gray-200 dark:border-gray-700 p-2"
+                  />
+                </div>
               )}
               <div className="flex-1 space-y-2">
                 <div>
@@ -279,8 +302,11 @@ export default function AdminPage() {
 
             <div className="pt-3 border-t dark:border-gray-700">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Vereinslogo
+                Vereinslogo {settings?.logo ? 'ändern' : 'hochladen'}
               </label>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                Erlaubt: JPG, PNG, GIF, WebP (max. 5MB)
+              </p>
               <input
                 type="file"
                 ref={logoFileInputRef}
@@ -296,6 +322,16 @@ export default function AdminPage() {
                 <Upload className="w-4 h-4" />
                 <span>{uploadLogoMutation.isPending ? 'Lädt hoch...' : settings?.logo ? 'Logo ändern' : 'Logo hochladen'}</span>
               </button>
+              {uploadLogoMutation.isError && (
+                <p className="text-sm text-red-600 dark:text-red-400 mt-2">
+                  Upload fehlgeschlagen. Bitte versuche es erneut.
+                </p>
+              )}
+              {uploadLogoMutation.isSuccess && !uploadLogoMutation.isPending && (
+                <p className="text-sm text-green-600 dark:text-green-400 mt-2">
+                  ✓ Logo erfolgreich hochgeladen!
+                </p>
+              )}
             </div>
           </div>
         )}

@@ -302,14 +302,33 @@ router.post('/settings/setup', (req: AuthRequest, res) => {
   }
 });
 
-// Upload organization logo
-router.post('/settings/logo', upload.single('logo') as any, (req: AuthRequest, res) => {
+// Upload organization logo (special handling for file upload with explicit middleware order)
+router.post('/settings/logo', 
+  authenticate,
+  (req: AuthRequest, res, next) => {
+    if (req.user!.role !== 'admin') {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+    next();
+  },
+  upload.single('logo') as any,
+  (req: AuthRequest, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file provided' });
     }
 
     const logoPath = `/uploads/${req.file.filename}`;
+    
+    // Delete old logo file if exists
+    const oldOrg = db.prepare('SELECT logo FROM organizations WHERE id = 1').get() as any;
+    if (oldOrg?.logo) {
+      const oldFilePath = path.join(uploadsDir, path.basename(oldOrg.logo));
+      if (fs.existsSync(oldFilePath)) {
+        fs.unlinkSync(oldFilePath);
+      }
+    }
+    
     db.prepare(`
       UPDATE organizations 
       SET logo = ?, updated_at = CURRENT_TIMESTAMP
