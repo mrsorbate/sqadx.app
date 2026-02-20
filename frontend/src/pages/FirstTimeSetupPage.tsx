@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
 import axios from 'axios';
@@ -30,10 +30,20 @@ export default function FirstTimeSetupPage() {
   const [timezone, setTimezone] = useState('Europe/Berlin');
   const [error, setError] = useState('');
   const [step, setStep] = useState(1);
+  const adminPasswordRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement>(null);
   const setAuth = useAuthStore((state) => state.setAuth);
+
+  const getCurrentPasswords = () => {
+    const currentAdminPassword = adminPasswordRef.current?.value ?? adminPassword;
+    const currentConfirmPassword = confirmPasswordRef.current?.value ?? confirmPassword;
+    return { currentAdminPassword, currentConfirmPassword };
+  };
 
   const setupMutation = useMutation({
     mutationFn: async () => {
+      const { currentAdminPassword, currentConfirmPassword } = getCurrentPasswords();
+
       if (!organizationName.trim()) {
         throw new Error('Vereinsname ist erforderlich');
       }
@@ -43,10 +53,10 @@ export default function FirstTimeSetupPage() {
       if (!adminUsername.trim()) {
         throw new Error('Admin Benutzername ist erforderlich');
       }
-      if (adminPassword.length < 6) {
+      if (currentAdminPassword.length < 6) {
         throw new Error('Passwort muss mindestens 6 Zeichen lang sein');
       }
-      if (adminPassword !== confirmPassword) {
+      if (currentAdminPassword !== currentConfirmPassword) {
         throw new Error('Passwörter stimmen nicht überein');
       }
 
@@ -54,7 +64,7 @@ export default function FirstTimeSetupPage() {
         organizationName,
         adminUsername: adminUsername.trim().toLowerCase(),
         adminEmail,
-        adminPassword,
+        adminPassword: currentAdminPassword,
         timezone,
       });
 
@@ -99,6 +109,8 @@ export default function FirstTimeSetupPage() {
       }
       setStep(2);
     } else if (step === 2) {
+      const { currentAdminPassword, currentConfirmPassword } = getCurrentPasswords();
+
       if (!adminUsername.trim()) {
         setError('Admin Benutzername ist erforderlich');
         return;
@@ -107,11 +119,11 @@ export default function FirstTimeSetupPage() {
         setError('Admin E-Mail ist erforderlich');
         return;
       }
-      if (adminPassword.length < 6) {
+      if (currentAdminPassword.length < 6) {
         setError('Passwort muss mindestens 6 Zeichen lang sein');
         return;
       }
-      if (adminPassword !== confirmPassword) {
+      if (currentAdminPassword !== currentConfirmPassword) {
         setError('Passwörter stimmen nicht überein');
         return;
       }
@@ -271,11 +283,13 @@ export default function FirstTimeSetupPage() {
                 </label>
                 <input
                   id="admin-password"
+                  ref={adminPasswordRef}
                   type="password"
                   required
                   minLength={6}
                   value={adminPassword}
                   onChange={(e) => setAdminPassword(e.target.value)}
+                  onInput={(e) => setAdminPassword((e.target as HTMLInputElement).value)}
                   className="input mt-1"
                   placeholder="••••••••"
                 />
@@ -290,11 +304,13 @@ export default function FirstTimeSetupPage() {
                 </label>
                 <input
                   id="confirm-password"
+                  ref={confirmPasswordRef}
                   type="password"
                   required
                   minLength={6}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
+                  onInput={(e) => setConfirmPassword((e.target as HTMLInputElement).value)}
                   className="input mt-1"
                   placeholder="••••••••"
                 />
