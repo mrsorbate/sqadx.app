@@ -10,11 +10,21 @@ export default function SettingsPage() {
   const { user: authUser } = useAuthStore();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'error') => {
+    setToast({ message, type });
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    toastTimeoutRef.current = setTimeout(() => setToast(null), 3000);
+  };
 
   const { data: profile } = useQuery({
     queryKey: ['profile'],
@@ -47,6 +57,7 @@ export default function SettingsPage() {
     mutationFn: (file: File) => profileAPI.uploadPicture(file),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['profile'] });
+      showToast('Profilbild erfolgreich hochgeladen', 'success');
       // Update auth store with new profile picture
       if (authUser) {
         const updatedUser = { ...authUser, profile_picture: response.data.profile_picture };
@@ -57,12 +68,16 @@ export default function SettingsPage() {
         }
       }
     },
+    onError: () => {
+      showToast('Profilbild konnte nicht hochgeladen werden', 'error');
+    },
   });
 
   const deletePictureMutation = useMutation({
     mutationFn: () => profileAPI.deletePicture(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile'] });
+      showToast('Profilbild erfolgreich entfernt', 'success');
       // Update auth store - remove profile picture
       if (authUser) {
         const updatedUser = { ...authUser, profile_picture: undefined };
@@ -72,6 +87,9 @@ export default function SettingsPage() {
           window.location.reload(); // Reload to update navigation
         }
       }
+    },
+    onError: () => {
+      showToast('Profilbild konnte nicht entfernt werden', 'error');
     },
   });
 
@@ -97,13 +115,13 @@ export default function SettingsPage() {
     if (file) {
       // Check file size (5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('Die Datei ist zu groß. Maximale Größe: 5MB');
+        showToast('Die Datei ist zu groß. Maximale Größe: 5MB', 'error');
         return;
       }
 
       // Check file type
       if (!file.type.startsWith('image/')) {
-        alert('Bitte wähle eine Bilddatei aus');
+        showToast('Bitte wähle eine Bilddatei aus', 'error');
         return;
       }
 
@@ -123,6 +141,14 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-white ${
+          toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'
+        }`}>
+          {toast.message}
+        </div>
+      )}
+
       <div className="flex items-center space-x-3">
         <User className="w-8 h-8 text-primary-600" />
         <div>

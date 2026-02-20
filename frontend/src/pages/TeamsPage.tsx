@@ -9,7 +9,17 @@ export default function TeamsPage() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const [uploadingTeamId, setUploadingTeamId] = useState<number | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileInputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
+
+  const showToast = (message: string, type: 'success' | 'error' = 'error') => {
+    setToast({ message, type });
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    toastTimeoutRef.current = setTimeout(() => setToast(null), 3000);
+  };
 
   const { data: teams, isLoading } = useQuery({
     queryKey: ['teams'],
@@ -26,10 +36,11 @@ export default function TeamsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['teams'] });
       setUploadingTeamId(null);
+      showToast('Mannschaftsbild erfolgreich hochgeladen', 'success');
     },
     onError: (error) => {
       console.error('Upload error:', error);
-      alert('Fehler beim Hochladen des Bildes');
+      showToast('Fehler beim Hochladen des Bildes', 'error');
       setUploadingTeamId(null);
     },
   });
@@ -40,13 +51,13 @@ export default function TeamsPage() {
 
     // Validate file type
     if (!file.type.match(/^image\/(jpeg|jpg|png|gif|webp)$/)) {
-      alert('Nur Bilddateien (JPEG, PNG, GIF, WEBP) sind erlaubt');
+      showToast('Nur Bilddateien (JPEG, PNG, GIF, WEBP) sind erlaubt', 'error');
       return;
     }
 
     // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert('Die Datei ist zu groß. Maximale Größe: 5MB');
+      showToast('Die Datei ist zu groß. Maximale Größe: 5MB', 'error');
       return;
     }
 
@@ -72,6 +83,14 @@ export default function TeamsPage() {
 
   return (
     <div className="space-y-6">
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-white ${
+          toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'
+        }`}>
+          {toast.message}
+        </div>
+      )}
+
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Meine Teams</h1>

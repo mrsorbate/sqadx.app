@@ -19,7 +19,17 @@ export default function TeamPage() {
   const [createdPlayerInfo, setCreatedPlayerInfo] = useState<{ name: string; invite_url: string } | null>(null);
   const [copied, setCopied] = useState(false);
   const [uploadingTeamPicture, setUploadingTeamPicture] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'error') => {
+    setToast({ message, type });
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    toastTimeoutRef.current = setTimeout(() => setToast(null), 3000);
+  };
 
   const { data: team, isLoading: teamLoading } = useQuery({
     queryKey: ['team', teamId],
@@ -71,10 +81,11 @@ export default function TeamPage() {
       queryClient.invalidateQueries({ queryKey: ['team', teamId] });
       queryClient.invalidateQueries({ queryKey: ['teams'] });
       setUploadingTeamPicture(false);
+      showToast('Mannschaftsbild erfolgreich hochgeladen', 'success');
     },
     onError: (error) => {
       console.error('Upload error:', error);
-      alert('Fehler beim Hochladen des Bildes');
+      showToast('Fehler beim Hochladen des Bildes', 'error');
       setUploadingTeamPicture(false);
     },
   });
@@ -94,13 +105,13 @@ export default function TeamPage() {
 
     // Validate file type
     if (!file.type.match(/^image\/(jpeg|jpg|png|gif|webp)$/)) {
-      alert('Nur Bilddateien (JPEG, PNG, GIF, WEBP) sind erlaubt');
+      showToast('Nur Bilddateien (JPEG, PNG, GIF, WEBP) sind erlaubt', 'error');
       return;
     }
 
     // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert('Die Datei ist zu groß. Maximale Größe: 5MB');
+      showToast('Die Datei ist zu groß. Maximale Größe: 5MB', 'error');
       return;
     }
 
@@ -149,6 +160,14 @@ export default function TeamPage() {
 
   return (
     <div className="space-y-6">
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-white ${
+          toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'
+        }`}>
+          {toast.message}
+        </div>
+      )}
+
       <div className="flex items-center space-x-4">
         <Link to="/" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
           <ArrowLeft className="w-6 h-6" />
