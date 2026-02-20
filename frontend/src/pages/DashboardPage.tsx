@@ -77,23 +77,27 @@ export default function DashboardPage() {
               </div>
             )
           ) : (
-            // Multiple teams - side-by-side layout split with "/"
-            <div className="flex items-center justify-center gap-0">
-              {teams.filter((t: any) => getTeamPhotoUrl(t)).slice(0, 2).map((team: any, index: number) => (
-                <div key={team.id} className="flex items-center">
-                  {index > 0 && (
-                    <div className="text-6xl font-thin text-gray-300 mx-2">/</div>
-                  )}
-                  <div className="text-center space-y-2">
-                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-200">{team.name}</h3>
+            // Multiple teams - overlapping layout
+            <div className="flex flex-col items-center">
+              <div className="flex items-center justify-center">
+                {teams.filter((t: any) => getTeamPhotoUrl(t)).slice(0, 2).map((team: any, index: number) => (
+                  <div key={team.id} className={`${index > 0 ? '-ml-16' : ''} relative`}>
                     <img
                       src={getTeamPhotoUrl(team)!}
                       alt={team.name}
-                      className="w-48 h-48 object-cover rounded-lg shadow-lg"
+                      className="w-48 h-48 object-cover rounded-2xl shadow-lg border-4 border-white dark:border-gray-800"
                     />
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              <div className="mt-3 flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-200">
+                {teams.filter((t: any) => getTeamPhotoUrl(t)).slice(0, 2).map((team: any, index: number) => (
+                  <span key={`team-name-${team.id}`} className="flex items-center gap-2">
+                    {team.name}
+                    {index === 0 && <span className="text-gray-400 dark:text-gray-500">•</span>}
+                  </span>
+                ))}
+              </div>
             </div>
           )}
         </div>
