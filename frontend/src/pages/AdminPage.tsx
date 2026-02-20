@@ -461,7 +461,11 @@ export default function AdminPage() {
 
   const handleCopyTrainerLink = async () => {
     if (!trainerInviteLink) return;
-    await navigator.clipboard.writeText(trainerInviteLink);
+    const copied = await copyTextToClipboard(trainerInviteLink);
+    if (!copied) {
+      showToast('Einladungslink konnte nicht kopiert werden', 'error');
+      return;
+    }
     setCopiedTrainerLink(true);
     setTimeout(() => setCopiedTrainerLink(false), 2000);
     showToast('Einladungslink wurde in die Zwischenablage kopiert', 'info');
@@ -469,7 +473,7 @@ export default function AdminPage() {
 
   const handleShareTrainerLink = async () => {
     if (!trainerInviteLink) return;
-    if ((navigator as any).share) {
+    if (typeof navigator !== 'undefined' && typeof (navigator as any).share === 'function') {
       try {
         await (navigator as any).share({
           title: 'Trainer-Registrierung',
@@ -479,6 +483,13 @@ export default function AdminPage() {
         showToast('Einladungslink erfolgreich geteilt', 'success');
       } catch (error: any) {
         if (error?.name === 'AbortError') return;
+        const copied = await copyTextToClipboard(trainerInviteLink);
+        if (copied) {
+          setCopiedTrainerLink(true);
+          setTimeout(() => setCopiedTrainerLink(false), 2000);
+          showToast('Teilen nicht verfügbar – Link wurde stattdessen kopiert', 'info');
+          return;
+        }
         showToast('Einladungslink konnte nicht geteilt werden', 'error');
       }
       return;
@@ -542,7 +553,11 @@ export default function AdminPage() {
 
   const handleCopyResendTrainerLink = async () => {
     if (!resendTrainerLink) return;
-    await navigator.clipboard.writeText(resendTrainerLink);
+    const copied = await copyTextToClipboard(resendTrainerLink);
+    if (!copied) {
+      showToast('Neuer Einladungslink konnte nicht kopiert werden', 'error');
+      return;
+    }
     setCopiedResendTrainerLink(true);
     setTimeout(() => setCopiedResendTrainerLink(false), 2000);
     showToast('Neuer Einladungslink wurde in die Zwischenablage kopiert', 'info');
@@ -550,7 +565,7 @@ export default function AdminPage() {
 
   const handleShareResendTrainerLink = async () => {
     if (!resendTrainerLink) return;
-    if ((navigator as any).share) {
+    if (typeof navigator !== 'undefined' && typeof (navigator as any).share === 'function') {
       try {
         await (navigator as any).share({
           title: 'Trainer-Registrierung',
@@ -560,11 +575,48 @@ export default function AdminPage() {
         showToast('Einladungslink erfolgreich geteilt', 'success');
       } catch (error: any) {
         if (error?.name === 'AbortError') return;
+        const copied = await copyTextToClipboard(resendTrainerLink);
+        if (copied) {
+          setCopiedResendTrainerLink(true);
+          setTimeout(() => setCopiedResendTrainerLink(false), 2000);
+          showToast('Teilen nicht verfügbar – Link wurde stattdessen kopiert', 'info');
+          return;
+        }
         showToast('Einladungslink konnte nicht geteilt werden', 'error');
       }
       return;
     }
     await handleCopyResendTrainerLink();
+  };
+
+  const copyTextToClipboard = async (text: string): Promise<boolean> => {
+    if (!text) return false;
+
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (_error) {
+      // Fallback below
+    }
+
+    try {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.setAttribute('readonly', '');
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+      textArea.style.left = '-9999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      return successful;
+    } catch (_error) {
+      return false;
+    }
   };
 
   const handleResetUserPassword = async (userItem: any) => {
