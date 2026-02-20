@@ -851,19 +851,19 @@ export default function AdminPage() {
           />
         </div>
         
-        <div className="space-y-3">
+        <div className="space-y-2">
           {filteredTeams.map((team: any) => (
-            <div key={team.id} className="p-4 bg-gray-50 rounded-lg">
+            <div key={team.id} className="p-3 bg-gray-50/80 border border-gray-200 rounded-md">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900">{team.name}</h3>
+                  <h3 className="text-sm font-semibold text-gray-900">{team.name}</h3>
                   {team.description && (
-                    <p className="text-sm text-gray-600 mt-1">{team.description}</p>
+                    <p className="text-xs text-gray-600 mt-0.5">{team.description}</p>
                   )}
-                  <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+                  <div className="flex items-center space-x-3 mt-1 text-xs text-gray-500">
                     <span>👥 {team.member_count} Mitglieder</span>
                   </div>
-                  <div className="mt-2 text-sm text-gray-600">
+                  <div className="mt-1 text-xs text-gray-600">
                     <span className="font-medium">Trainer:</span> {team.trainer_names || '-'}
                   </div>
                 </div>
@@ -874,27 +874,27 @@ export default function AdminPage() {
                       setSelectedTeam(team.id);
                       setShowAssignTrainer(true);
                     }}
-                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
                     title="Trainer zuweisen"
                   >
-                    <Shield className="w-5 h-5" />
+                    <Shield className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => {
                       setSelectedTeam(team.id);
                       setShowRemoveTrainer(true);
                     }}
-                    className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                    className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-md transition-colors"
                     title="Trainer entfernen"
                   >
-                    <UserMinus className="w-5 h-5" />
+                    <UserMinus className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDeleteTeam(team)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    className="p-1.5 text-red-600 hover:bg-red-50 rounded-md transition-colors"
                     title="Team löschen"
                   >
-                    <Trash2 className="w-5 h-5" />
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
