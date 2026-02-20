@@ -3,6 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import multer from 'multer';
 import path from 'path';
+import helmet from 'helmet';
+import { rateLimit } from 'express-rate-limit';
 import './database/init';
 import authRoutes from './routes/auth';
 import teamsRoutes from './routes/teams';
@@ -17,10 +19,33 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const apiRateLimitWindowMs = Number(process.env.API_RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000);
+const apiRateLimitMax = Number(process.env.API_RATE_LIMIT_MAX || 300);
+const authRateLimitMax = Number(process.env.AUTH_RATE_LIMIT_MAX || 20);
 const corsOrigins = String(process.env.CORS_ORIGIN || '')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
+
+const apiLimiter = rateLimit({
+  windowMs: Number.isFinite(apiRateLimitWindowMs) && apiRateLimitWindowMs > 0
+    ? apiRateLimitWindowMs
+    : 15 * 60 * 1000,
+  max: Number.isFinite(apiRateLimitMax) && apiRateLimitMax > 0 ? apiRateLimitMax : 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later.' },
+});
+
+const authLimiter = rateLimit({
+  windowMs: Number.isFinite(apiRateLimitWindowMs) && apiRateLimitWindowMs > 0
+    ? apiRateLimitWindowMs
+    : 15 * 60 * 1000,
+  max: Number.isFinite(authRateLimitMax) && authRateLimitMax > 0 ? authRateLimitMax : 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many auth attempts, please try again later.' },
+});
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -49,6 +74,12 @@ const upload = multer({
 // Middleware
 app.set('trust proxy', 1);
 
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+  })
+);
+
 if (corsOrigins.length > 0) {
   app.use(cors({ origin: corsOrigins }));
 } else {
@@ -56,6 +87,7 @@ if (corsOrigins.length > 0) {
 }
 
 app.use(express.json());
+app.use('/api', apiLimiter);
 
 // Serve uploaded files
 app.use('/uploads', express.static('uploads'));
@@ -100,7 +132,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Routes
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/teams', teamsRoutes);
 app.use('/api/events', eventsRoutes);
 app.use('/api/stats', statsRoutes);

@@ -168,6 +168,12 @@ Danach läuft die App unter:
 Hinweise:
 - `FRONTEND_URL` und `CORS_ORIGIN` werden im Prod-Stack automatisch auf `https://<DOMAIN>` gesetzt.
 - Invite-Links werden damit ebenfalls korrekt als HTTPS-Domain erzeugt.
+- Backend nutzt Security-Header (`helmet`) und Rate-Limits für API/Auth.
+
+Optionale Feineinstellungen in `.env`:
+- `API_RATE_LIMIT_WINDOW_MS` (Standard `900000` = 15 Min)
+- `API_RATE_LIMIT_MAX` (Standard `300` Requests/Window)
+- `AUTH_RATE_LIMIT_MAX` (Standard `20` Requests/Window)
 
 ## Lizenz
 
