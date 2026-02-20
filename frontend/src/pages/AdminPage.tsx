@@ -658,6 +658,7 @@ export default function AdminPage() {
   const auditHeaderCellClass = 'py-1.5 pr-3';
   const auditCellClass = 'py-1.5 pr-3';
   const auditExpandedRowClass = 'py-2 px-2 bg-gray-50 dark:bg-gray-800';
+  const tableSearchInputClass = 'input text-sm py-2';
 
   return (
     <div className="space-y-6">
@@ -816,7 +817,7 @@ export default function AdminPage() {
             type="text"
             value={teamSearch}
             onChange={(e) => setTeamSearch(e.target.value)}
-            className="input"
+            className={tableSearchInputClass}
             placeholder="Teams durchsuchen..."
           />
         </div>
@@ -1053,7 +1054,7 @@ export default function AdminPage() {
                 type="text"
                 value={trainerSearch}
                 onChange={(e) => setTrainerSearch(e.target.value)}
-                className="input"
+                className={tableSearchInputClass}
                 placeholder="Trainer durchsuchen..."
               />
             </div>
@@ -1149,7 +1150,7 @@ export default function AdminPage() {
                 type="text"
                 value={playerSearch}
                 onChange={(e) => setPlayerSearch(e.target.value)}
-                className="input"
+                className={tableSearchInputClass}
                 placeholder="Spieler durchsuchen..."
               />
             </div>
