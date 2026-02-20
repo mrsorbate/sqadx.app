@@ -36,24 +36,24 @@ export default function Layout({ organization }: LayoutProps) {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <nav className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
+          <div className="flex justify-between h-14 sm:h-16">
             <div className="flex items-center">
-              <Link to={user?.role === 'admin' ? '/admin' : '/'} className="flex items-center space-x-2">
+              <Link to={user?.role === 'admin' ? '/admin' : '/'} className="flex items-center space-x-2 min-w-0">
                 <img src="/sqadx-logo.svg" alt="sqadX.app logo" className="w-6 h-6" />
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">sqadX.app</span>
+                <div className="flex items-center space-x-2 min-w-0">
+                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap">sqadX.app</span>
                   {(organizationLogo || organizationName !== 'Dein Verein') && (
                     <>
-                      <span className="text-gray-400 dark:text-gray-500">-</span>
+                      <span className="hidden sm:inline text-gray-400 dark:text-gray-500">-</span>
                       {organizationLogo && (
                         <img 
                           src={`${API_URL}${organizationLogo}`} 
                           alt="Vereinslogo" 
-                          className="h-6 w-auto object-contain"
+                          className="hidden sm:block h-6 w-auto object-contain"
                         />
                       )}
                       {organizationName !== 'Dein Verein' && (
-                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">{organizationName}</span>
+                        <span className="hidden sm:inline text-sm font-medium text-gray-600 dark:text-gray-400 truncate max-w-[220px]">{organizationName}</span>
                       )}
                     </>
                   )}
@@ -61,7 +61,7 @@ export default function Layout({ organization }: LayoutProps) {
               </Link>
             </div>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <div className="hidden md:flex items-center space-x-3">
                 {user?.profile_picture ? (
                   <img
@@ -100,7 +100,7 @@ export default function Layout({ organization }: LayoutProps) {
                   </Link>
                 )}
               </div>
-              <div className="md:hidden flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300">
+              <div className="md:hidden flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300 min-w-0">
                 {user?.profile_picture ? (
                   <img
                     src={`${API_URL}${user.profile_picture}`}
@@ -112,7 +112,7 @@ export default function Layout({ organization }: LayoutProps) {
                     <UserIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                   </div>
                 )}
-                <span className="font-medium">{user?.name}</span>
+                <span className="font-medium truncate max-w-[110px]">{user?.name}</span>
               </div>
               <Link
                 to="/settings"
@@ -140,7 +140,7 @@ export default function Layout({ organization }: LayoutProps) {
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen((prev) => !prev)}
-                className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="md:hidden inline-flex items-center justify-center p-2.5 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 aria-label="Menue"
                 aria-expanded={mobileMenuOpen}
               >
@@ -157,7 +157,7 @@ export default function Layout({ organization }: LayoutProps) {
               {user?.role === 'admin' && (
                 <Link
                   to="/admin"
-                  className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                  className="flex items-center space-x-2 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Shield className="w-4 h-4" />
@@ -167,7 +167,7 @@ export default function Layout({ organization }: LayoutProps) {
               {user?.role !== 'admin' && (
                 <Link
                   to="/teams"
-                  className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                  className="flex items-center space-x-2 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Users className="w-4 h-4" />
@@ -176,7 +176,7 @@ export default function Layout({ organization }: LayoutProps) {
               )}
               <Link
                 to="/settings"
-                className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                className="flex items-center space-x-2 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <Settings className="w-4 h-4" />
@@ -187,14 +187,14 @@ export default function Layout({ organization }: LayoutProps) {
                   toggleDarkMode();
                   setMobileMenuOpen(false);
                 }}
-                className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg w-full"
+                className="flex items-center space-x-2 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg w-full"
               >
                 {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                 <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>
               </button>
               <button
                 onClick={handleLogout}
-                className="flex w-full items-center space-x-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                className="flex w-full items-center space-x-2 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Logout</span>
@@ -204,7 +204,7 @@ export default function Layout({ organization }: LayoutProps) {
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         <Outlet />
       </main>
     </div>
