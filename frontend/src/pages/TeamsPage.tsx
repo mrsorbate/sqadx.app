@@ -6,6 +6,8 @@ import { Users, Calendar, BarChart, Upload, Image as ImageIcon } from 'lucide-re
 import { useState, useRef } from 'react';
 import { useToast } from '../lib/useToast';
 
+const API_URL = import.meta.env.VITE_API_URL || '';
+
 export default function TeamsPage() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
@@ -30,9 +32,9 @@ export default function TeamsPage() {
       setUploadingTeamId(null);
       showToast('Mannschaftsbild erfolgreich hochgeladen', 'success');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Upload error:', error);
-      showToast('Fehler beim Hochladen des Bildes', 'error');
+      showToast(error?.response?.data?.error || 'Fehler beim Hochladen des Bildes', 'error');
       setUploadingTeamId(null);
     },
   });
@@ -59,7 +61,7 @@ export default function TeamsPage() {
 
   const getTeamPhotoUrl = (team: any): string | undefined => {
     if (team.team_picture) {
-      return `http://localhost:3001${team.team_picture}`;
+      return API_URL ? `${API_URL}${team.team_picture}` : team.team_picture;
     }
     return undefined;
   };

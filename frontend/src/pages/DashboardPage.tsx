@@ -4,6 +4,8 @@ import { eventsAPI, teamsAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import { Calendar, MapPin, Clock, CheckCircle, XCircle, HelpCircle, AlertCircle, Users } from 'lucide-react';
 
+const API_URL = import.meta.env.VITE_API_URL || '';
+
 export default function DashboardPage() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
@@ -41,7 +43,7 @@ export default function DashboardPage() {
 
   const getTeamPhotoUrl = (team: any): string | undefined => {
     if (team.team_picture) {
-      return `http://localhost:3001${team.team_picture}`;
+      return API_URL ? `${API_URL}${team.team_picture}` : team.team_picture;
     }
     return undefined;
   };
