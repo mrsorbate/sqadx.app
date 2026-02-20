@@ -12,15 +12,32 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 router.post('/teams/:teamId/invites', authenticate, (req: AuthRequest, res) => {
   try {
     const teamId = parseInt(req.params.teamId);
-    const { role = 'player', expiresInDays = 7, maxUses = null } = req.body;
+    const { role, expiresInDays = 7, maxUses = null, inviteeName } = req.body;
+
+    const normalizedInviteeName = String(inviteeName || '').trim();
+    if (!normalizedInviteeName) {
+      return res.status(400).json({ error: 'Invitee name is required' });
+    }
 
     // Check if user is trainer of this team
     const membership = db.prepare(
       'SELECT role FROM team_members WHERE team_id = ? AND user_id = ?'
     ).get(teamId, req.user!.id) as any;
 
-    if (!membership || membership.role !== 'trainer') {
-      return res.status(403).json({ error: 'Only trainers can create invites' });
+    let inviteRole: 'trainer' | 'player';
+
+    if (req.user!.role === 'admin') {
+      inviteRole = 'trainer';
+      if (role && role !== 'trainer') {
+        return res.status(403).json({ error: 'Admins can only invite trainers' });
+      }
+    } else if (membership?.role === 'trainer') {
+      inviteRole = 'player';
+      if (role && role !== 'player') {
+        return res.status(403).json({ error: 'Trainers can only invite players' });
+      }
+    } else {
+      return res.status(403).json({ error: 'Only admins or team trainers can create invites' });
     }
 
     // Generate unique token
@@ -36,9 +53,9 @@ router.post('/teams/:teamId/invites', authenticate, (req: AuthRequest, res) => {
 
     // Create invite
     const stmt = db.prepare(
-      'INSERT INTO team_invites (team_id, token, role, created_by, expires_at, max_uses) VALUES (?, ?, ?, ?, ?, ?)'
+      'INSERT INTO team_invites (team_id, token, role, created_by, expires_at, max_uses, player_name) VALUES (?, ?, ?, ?, ?, ?, ?)'
     );
-    const result = stmt.run(teamId, token, role, req.user!.id, expiresAt, maxUses);
+    const result = stmt.run(teamId, token, inviteRole, req.user!.id, expiresAt, maxUses, normalizedInviteeName);
 
     // Get team name for response
     const team = db.prepare('SELECT name FROM teams WHERE id = ?').get(teamId) as any;
@@ -48,7 +65,8 @@ router.post('/teams/:teamId/invites', authenticate, (req: AuthRequest, res) => {
       token,
       team_id: teamId,
       team_name: team.name,
-      role,
+      role: inviteRole,
+      invitee_name: normalizedInviteeName,
       expires_at: expiresAt,
       max_uses: maxUses,
       invite_url: `${process.env.FRONTEND_URL || 'http://localhost:5174'}/invite/${token}`
@@ -69,8 +87,8 @@ router.get('/teams/:teamId/invites', authenticate, (req: AuthRequest, res) => {
       'SELECT role FROM team_members WHERE team_id = ? AND user_id = ?'
     ).get(teamId, req.user!.id) as any;
 
-    if (!membership || membership.role !== 'trainer') {
-      return res.status(403).json({ error: 'Only trainers can view invites' });
+    if (req.user!.role !== 'admin' && (!membership || membership.role !== 'trainer')) {
+      return res.status(403).json({ error: 'Only admins or trainers can view invites' });
     }
 
     const invites = db.prepare(`
@@ -227,8 +245,8 @@ router.delete('/invites/:id', authenticate, (req: AuthRequest, res) => {
       'SELECT role FROM team_members WHERE team_id = ? AND user_id = ?'
     ).get(invite.team_id, req.user!.id) as any;
 
-    if (!membership || membership.role !== 'trainer') {
-      return res.status(403).json({ error: 'Only trainers can delete invites' });
+    if (req.user!.role !== 'admin' && (!membership || membership.role !== 'trainer')) {
+      return res.status(403).json({ error: 'Only admins or trainers can delete invites' });
     }
 
     db.prepare('DELETE FROM team_invites WHERE id = ?').run(inviteId);

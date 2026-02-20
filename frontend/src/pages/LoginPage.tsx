@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
 import { authAPI, settingsAPI } from '../lib/api';
@@ -125,10 +124,7 @@ export default function LoginPage() {
           </button>
 
           <p className="text-center text-sm text-gray-600">
-            Noch kein Account?{' '}
-            <Link to="/register" className="font-medium text-primary-600 hover:text-primary-500">
-              Jetzt registrieren
-            </Link>
+            Registrierung nur per persönlichem Einladungslink.
           </p>
         </form>
       </div>

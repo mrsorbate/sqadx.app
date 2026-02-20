@@ -38,6 +38,7 @@ export default function TeamPage() {
   });
 
   const isTrainer = members?.find((m: any) => m.id === user?.id)?.role === 'trainer';
+  const isAdmin = user?.role === 'admin';
 
   const { data: invites } = useQuery({
     queryKey: ['team-invites', teamId],
@@ -45,7 +46,7 @@ export default function TeamPage() {
       const response = await invitesAPI.getTeamInvites(teamId);
       return response.data;
     },
-    enabled: isTrainer && !!members, // Only load if user is trainer and members are loaded
+    enabled: (isTrainer || isAdmin) && !!members, // Only load if user is trainer/admin and members are loaded
   });
 
   const createPlayerMutation = useMutation({
@@ -248,8 +249,8 @@ export default function TeamPage() {
         </Link>
       </div>
 
-      {/* Invite Manager - nur für Trainer */}
-      {isTrainer && (
+      {/* Invite Manager - für Trainer und Admin */}
+      {(isTrainer || isAdmin) && (
         <InviteManager teamId={teamId} teamName={team?.name || ''} />
       )}
 

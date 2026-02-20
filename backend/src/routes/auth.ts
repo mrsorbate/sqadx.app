@@ -2,77 +2,13 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import db from '../database/init';
-import { CreateUserDTO } from '../types';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-// Register
-router.post('/register', async (req, res) => {
-  try {
-    const { username, email, password, name, role = 'player' }: CreateUserDTO = req.body;
-
-    // Validate input
-    if (!username || !email || !password || !name) {
-      return res.status(400).json({ error: 'Username, email, password and name are required' });
-    }
-
-    const normalizedUsername = String(username).trim().toLowerCase();
-    if (!/^[a-z0-9_]{3,30}$/.test(normalizedUsername)) {
-      return res.status(400).json({ error: 'Username must be 3-30 chars and can only contain letters, numbers and underscores' });
-    }
-
-    if (password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters' });
-    }
-
-    // Validate role
-    const validRoles = ['admin', 'trainer', 'player'];
-    if (!validRoles.includes(role as string)) {
-      return res.status(400).json({ error: 'Invalid role. Must be admin, trainer, or player' });
-    }
-
-    // Check if username or email is already used
-    const existingUsername = db.prepare('SELECT id FROM users WHERE LOWER(username) = ?').get(normalizedUsername);
-    if (existingUsername) {
-      return res.status(409).json({ error: 'Username already exists' });
-    }
-
-    const existingEmail = db.prepare('SELECT id FROM users WHERE LOWER(email) = LOWER(?)').get(email);
-    if (existingEmail) {
-      return res.status(409).json({ error: 'Email already exists' });
-    }
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create user
-    const stmt = db.prepare(
-      'INSERT INTO users (username, email, password, name, role) VALUES (?, ?, ?, ?, ?)'
-    );
-    const result = stmt.run(normalizedUsername, email, hashedPassword, name, role);
-
-    // Generate token
-    const token = jwt.sign(
-      { id: result.lastInsertRowid, username: normalizedUsername, email, role },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    res.status(201).json({
-      token,
-      user: {
-        id: result.lastInsertRowid,
-        username: normalizedUsername,
-        email,
-        name,
-        role
-      }
-    });
-  } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({ error: 'Registration failed' });
-  }
+// Register (invite-only)
+router.post('/register', async (_req, res) => {
+  return res.status(403).json({ error: 'Registration is invite-only. Please use your personal invite link.' });
 });
 
 // Login

@@ -111,7 +111,7 @@ export const statsAPI = {
 
 // Invites API
 export const invitesAPI = {
-  createInvite: (teamId: number, data: { role?: string; expiresInDays?: number; maxUses?: number }) =>
+  createInvite: (teamId: number, data: { role?: string; inviteeName: string; expiresInDays?: number; maxUses?: number }) =>
     api.post(`/teams/${teamId}/invites`, data),
   
   getTeamInvites: (teamId: number) => api.get(`/teams/${teamId}/invites`),

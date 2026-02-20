@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { invitesAPI, authAPI, settingsAPI } from '../lib/api';
+import { invitesAPI, settingsAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import { CheckCircle, XCircle, Clock } from 'lucide-react';
 
@@ -14,7 +14,6 @@ export default function InvitePage() {
   const [showRegister, setShowRegister] = useState(false);
 
   // Registrierungsformular-State
-  const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -55,37 +54,22 @@ export default function InvitePage() {
 
   const registerAndAcceptMutation = useMutation({
     mutationFn: async () => {
-      // Check if this is a player invite (with predefined player data)
-      if (invite?.player_name) {
-        // Use the new register-with-invite endpoint
-        const response = await invitesAPI.registerWithInvite(token!, { username: username.trim().toLowerCase(), email, password });
-        return response;
-      } else {
-        // Regular registration flow
-        const registerResponse = await authAPI.register({ name, username: username.trim().toLowerCase(), email, password, role: 'player' });
-        return registerResponse;
+      if (!invite?.player_name) {
+        throw new Error('Für diese Einladung ist kein fester Name hinterlegt.');
       }
+
+      const response = await invitesAPI.registerWithInvite(token!, { username: username.trim().toLowerCase(), email, password });
+      return response;
     },
-    onSuccess: async (registerResponse) => {
+    onSuccess: (registerResponse) => {
       // Set auth after registration
       const authStore = useAuthStore.getState();
       authStore.setAuth(registerResponse.data.token, registerResponse.data.user);
-      
-      // For player invites, registration already accepted the invite
-      if (invite?.player_name) {
-        navigate(`/teams/${invite.team_id}`);
-      } else {
-        // For regular invites, need to accept separately
-        try {
-          const acceptResponse = await invitesAPI.acceptInvite(token!);
-          navigate(`/teams/${acceptResponse.data.team_id}`);
-        } catch (err: any) {
-          setError(err.response?.data?.error || 'Fehler beim Beitreten');
-        }
-      }
+
+      navigate(`/teams/${invite.team_id}`);
     },
     onError: (err: any) => {
-      setError(err.response?.data?.error || 'Registrierung fehlgeschlagen');
+      setError(err.response?.data?.error || err.message || 'Registrierung fehlgeschlagen');
     },
   });
 
@@ -168,6 +152,11 @@ export default function InvitePage() {
             {invite.team_description && (
               <p className="text-gray-600 mt-2">{invite.team_description}</p>
             )}
+            {invite.player_name && (
+              <p className="text-sm text-blue-700 mt-3 font-medium">
+                Registrierung ist fest zugeordnet: {invite.player_name}
+              </p>
+            )}
             <p className="text-sm text-gray-500 mt-4">
               Eingeladen von <span className="font-medium">{invite.invited_by_name}</span>
             </p>
@@ -242,10 +231,16 @@ export default function InvitePage() {
               </div>
               <button
                 onClick={() => setShowRegister(true)}
+                disabled={!invite.player_name}
                 className="btn btn-secondary w-full"
               >
                 Neuen Account erstellen
               </button>
+              {!invite.player_name && (
+                <p className="text-xs text-center text-red-600">
+                  Für diesen Link ist keine Registrierung möglich, da kein fester Name hinterlegt ist.
+                </p>
+              )}
               <p className="text-center text-sm text-gray-600">
                 Bereits einen Account?{' '}
                 <Link to={`/login?redirect=/invite/${token}`} className="font-medium text-primary-600 hover:text-primary-500">
@@ -256,41 +251,25 @@ export default function InvitePage() {
           ) : (
             // Registration form
             <form onSubmit={handleRegisterAndAccept} className="space-y-4">
-              {invite.player_name ? (
-                // Player invite - show predefined name
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-sm text-blue-800">
-                    <span className="font-medium">Registrierung für:</span> {invite.player_name}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-sm text-blue-800">
+                  <span className="font-medium">Registrierung für:</span> {invite.player_name || 'Nicht hinterlegt'}
+                </p>
+                {invite.player_birth_date && (
+                  <p className="text-sm text-blue-800 mt-1">
+                    <span className="font-medium">Geburtsdatum:</span>{' '}
+                    {new Date(invite.player_birth_date).toLocaleDateString('de-DE')}
                   </p>
-                  {invite.player_birth_date && (
-                    <p className="text-sm text-blue-800 mt-1">
-                      <span className="font-medium">Geburtsdatum:</span>{' '}
-                      {new Date(invite.player_birth_date).toLocaleDateString('de-DE')}
-                    </p>
-                  )}
-                  {invite.player_jersey_number && (
-                    <p className="text-sm text-blue-800 mt-1">
-                      <span className="font-medium">Trikotnummer:</span> {invite.player_jersey_number}
-                    </p>
-                  )}
-                </div>
-              ) : (
-                // Regular invite - require name input
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                    Name *
-                  </label>
-                  <input
-                    id="name"
-                    type="text"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="input mt-1"
-                    placeholder="Max Mustermann"
-                  />
-                </div>
-              )}
+                )}
+                {invite.player_jersey_number && (
+                  <p className="text-sm text-blue-800 mt-1">
+                    <span className="font-medium">Trikotnummer:</span> {invite.player_jersey_number}
+                  </p>
+                )}
+                <p className="text-xs text-blue-700 mt-2">
+                  Der Name ist durch die Einladung fest vorgegeben und kann nicht geändert werden.
+                </p>
+              </div>
 
               <div>
                 <label htmlFor="username" className="block text-sm font-medium text-gray-700">
@@ -340,7 +319,7 @@ export default function InvitePage() {
 
               <button
                 type="submit"
-                disabled={registerAndAcceptMutation.isPending}
+                disabled={registerAndAcceptMutation.isPending || !invite.player_name}
                 className="btn btn-primary w-full"
               >
                 {registerAndAcceptMutation.isPending ? 'Registriert...' : 'Registrieren & Beitreten'}

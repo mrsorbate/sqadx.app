@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { invitesAPI } from '../lib/api';
+import { useAuthStore } from '../store/authStore';
 import { Copy, Plus, Trash2, Link as LinkIcon, Check } from 'lucide-react';
 
 interface InviteManagerProps {
@@ -10,11 +11,15 @@ interface InviteManagerProps {
 
 export default function InviteManager({ teamId }: InviteManagerProps) {
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
+  const inviteRole = user?.role === 'admin' ? 'trainer' : 'player';
+  const inviteRoleLabel = inviteRole === 'trainer' ? 'Trainer' : 'Spieler';
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
   
   const [inviteData, setInviteData] = useState({
-    role: 'player',
+    role: inviteRole,
+    inviteeName: '',
     expiresInDays: 7,
     maxUses: undefined as number | undefined,
   });
@@ -32,7 +37,7 @@ export default function InviteManager({ teamId }: InviteManagerProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['team-invites', teamId] });
       setShowCreateForm(false);
-      setInviteData({ role: 'player', expiresInDays: 7, maxUses: undefined });
+      setInviteData({ role: inviteRole, inviteeName: '', expiresInDays: 7, maxUses: undefined });
     },
   });
 
@@ -52,6 +57,9 @@ export default function InviteManager({ teamId }: InviteManagerProps) {
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!inviteData.inviteeName.trim()) {
+      return;
+    }
     createMutation.mutate();
   };
 
@@ -80,23 +88,37 @@ export default function InviteManager({ teamId }: InviteManagerProps) {
       {showCreateForm && (
         <form onSubmit={handleCreate} className="mb-6 p-4 bg-gray-50 rounded-lg space-y-4">
           <h3 className="font-semibold">Neuen Einladungslink erstellen</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Rolle
-              </label>
-              <select
-                value={inviteData.role}
-                onChange={(e) => setInviteData({ ...inviteData, role: e.target.value })}
-                className="input"
-              >
-                <option value="player">Spieler</option>
-                <option value="trainer">Trainer</option>
-                <option value="staff">Staff</option>
-              </select>
-            </div>
 
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Einladungsart
+            </label>
+            <input
+              type="text"
+              value={inviteRoleLabel}
+              readOnly
+              className="input bg-gray-100"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Vorgegebener Name
+            </label>
+            <input
+              type="text"
+              required
+              value={inviteData.inviteeName}
+              onChange={(e) => setInviteData({ ...inviteData, inviteeName: e.target.value })}
+              className="input"
+              placeholder={inviteRole === 'trainer' ? 'z. B. Max Trainer' : 'z. B. Lena Spieler'}
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Der Name wird bei der Registrierung fest übernommen und kann nicht geändert werden.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Gültig für (Tage)
@@ -173,6 +195,11 @@ export default function InviteManager({ teamId }: InviteManagerProps) {
                     </div>
                     
                     <div className="text-sm text-gray-600 space-y-1">
+                      {invite.player_name && (
+                        <p>
+                          Vorgabe: <span className="font-medium">{invite.player_name}</span>
+                        </p>
+                      )}
                       <p>
                         Verwendet: {invite.used_count}
                         {invite.max_uses && ` / ${invite.max_uses}`}
@@ -234,7 +261,7 @@ export default function InviteManager({ teamId }: InviteManagerProps) {
         <div className="text-center py-8 text-gray-500">
           <LinkIcon className="w-12 h-12 mx-auto mb-3 text-gray-300" />
           <p>Noch keine Einladungslinks erstellt</p>
-          <p className="text-sm mt-1">Erstelle einen Link, um Spieler einzuladen</p>
+          <p className="text-sm mt-1">Erstelle einen Link, um {inviteRoleLabel.toLowerCase()} einzuladen</p>
         </div>
       )}
     </div>
