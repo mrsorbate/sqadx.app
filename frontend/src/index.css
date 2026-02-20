@@ -29,3 +29,25 @@
     @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400;
   }
 }
+
+@layer utilities {
+  .dark .text-gray-900 {
+    @apply text-gray-100;
+  }
+
+  .dark .text-gray-800 {
+    @apply text-gray-200;
+  }
+
+  .dark .text-gray-700 {
+    @apply text-gray-300;
+  }
+
+  .dark .text-gray-600 {
+    @apply text-gray-300;
+  }
+
+  .dark .text-gray-500 {
+    @apply text-gray-400;
+  }
+}
