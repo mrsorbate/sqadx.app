@@ -22,7 +22,7 @@ error_exit() {
 
 # Überprüfe, ob wir im korrekten Verzeichnis sind
 if [ ! -f "docker-compose.build.yml" ]; then
-    error_exit "Nicht im sqadX.app-Verzeichnis. Bitte ausführen im ./sqadX.app Ordner"
+    error_exit "Nicht im sqadx.app-Verzeichnis. Bitte ausführen im ./sqadx.app Ordner"
 fi
 
 # Backup erstellen (optional aber empfohlen)

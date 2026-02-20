@@ -53,8 +53,8 @@ ssh root@<TRUENAS-IP>
 
 # Repository klonen
 cd /mnt/DATA/docker
-git clone https://github.com/mrsorbate/sqadX.app.git
-cd sqadX.app
+git clone https://github.com/mrsorbate/sqadx.app.git
+cd sqadx.app
 
 # Initial Setup (5-10 Min)
 chmod +x setup-truenas-build.sh
