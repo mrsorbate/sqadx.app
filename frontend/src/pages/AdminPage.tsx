@@ -473,27 +473,26 @@ export default function AdminPage() {
 
   const handleShareTrainerLink = async () => {
     if (!trainerInviteLink) return;
-    if (typeof navigator !== 'undefined' && typeof (navigator as any).share === 'function') {
-      try {
-        await (navigator as any).share({
-          title: 'Trainer-Registrierung',
-          text: `Einladungslink für Trainer ${trainerName}`,
-          url: trainerInviteLink,
-        });
-        showToast('Einladungslink erfolgreich geteilt', 'success');
-      } catch (error: any) {
-        if (error?.name === 'AbortError') return;
-        const copied = await copyTextToClipboard(trainerInviteLink);
-        if (copied) {
-          setCopiedTrainerLink(true);
-          setTimeout(() => setCopiedTrainerLink(false), 2000);
-          showToast('Teilen nicht verfügbar – Link wurde stattdessen kopiert', 'info');
-          return;
-        }
-        showToast('Einladungslink konnte nicht geteilt werden', 'error');
-      }
+    const shareState = await shareInviteLink(
+      trainerInviteLink,
+      'Trainer-Registrierung',
+      `Einladungslink für Trainer ${trainerName}`
+    );
+
+    if (shareState === 'shared') {
+      showToast('Einladungslink erfolgreich geteilt', 'success');
       return;
     }
+
+    if (shareState === 'aborted') {
+      return;
+    }
+
+    if (shareState === 'fallback-opened') {
+      showToast('Teilen nicht verfügbar – WhatsApp Share geöffnet', 'info');
+      return;
+    }
+
     await handleCopyTrainerLink();
   };
 
@@ -565,28 +564,59 @@ export default function AdminPage() {
 
   const handleShareResendTrainerLink = async () => {
     if (!resendTrainerLink) return;
-    if (typeof navigator !== 'undefined' && typeof (navigator as any).share === 'function') {
-      try {
-        await (navigator as any).share({
-          title: 'Trainer-Registrierung',
-          text: `Einladungslink für Trainer ${resendTrainerName}`,
-          url: resendTrainerLink,
-        });
-        showToast('Einladungslink erfolgreich geteilt', 'success');
-      } catch (error: any) {
-        if (error?.name === 'AbortError') return;
-        const copied = await copyTextToClipboard(resendTrainerLink);
-        if (copied) {
-          setCopiedResendTrainerLink(true);
-          setTimeout(() => setCopiedResendTrainerLink(false), 2000);
-          showToast('Teilen nicht verfügbar – Link wurde stattdessen kopiert', 'info');
-          return;
-        }
-        showToast('Einladungslink konnte nicht geteilt werden', 'error');
-      }
+    const shareState = await shareInviteLink(
+      resendTrainerLink,
+      'Trainer-Registrierung',
+      `Einladungslink für Trainer ${resendTrainerName}`
+    );
+
+    if (shareState === 'shared') {
+      showToast('Einladungslink erfolgreich geteilt', 'success');
       return;
     }
+
+    if (shareState === 'aborted') {
+      return;
+    }
+
+    if (shareState === 'fallback-opened') {
+      showToast('Teilen nicht verfügbar – WhatsApp Share geöffnet', 'info');
+      return;
+    }
+
     await handleCopyResendTrainerLink();
+  };
+
+  const shareInviteLink = async (
+    url: string,
+    title: string,
+    text: string
+  ): Promise<'shared' | 'aborted' | 'fallback-opened' | 'unavailable'> => {
+    try {
+      const nav = typeof navigator !== 'undefined' ? (navigator as any) : undefined;
+      if (window.isSecureContext && nav && typeof nav.share === 'function') {
+        if (typeof nav.canShare !== 'function' || nav.canShare({ url })) {
+          await nav.share({ title, text, url });
+          return 'shared';
+        }
+      }
+    } catch (error: any) {
+      if (error?.name === 'AbortError') return 'aborted';
+    }
+
+    if (isLikelyMobileDevice()) {
+      const shareText = `${text} ${url}`.trim();
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+      return 'fallback-opened';
+    }
+
+    return 'unavailable';
+  };
+
+  const isLikelyMobileDevice = () => {
+    if (typeof navigator === 'undefined') return false;
+    return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '');
   };
 
   const copyTextToClipboard = async (text: string): Promise<boolean> => {
