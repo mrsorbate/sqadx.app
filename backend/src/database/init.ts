@@ -119,6 +119,19 @@ db.exec(`
     FOREIGN KEY (created_by) REFERENCES users(id)
   );
 
+  -- Trainer onboarding invites (one link can assign multiple teams)
+  CREATE TABLE IF NOT EXISTS trainer_invites (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    token TEXT UNIQUE NOT NULL,
+    invited_name TEXT NOT NULL,
+    team_ids TEXT NOT NULL,
+    created_by INTEGER NOT NULL,
+    expires_at DATETIME,
+    used_count INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(id)
+  );
+
   -- Create indexes for better performance
   CREATE INDEX IF NOT EXISTS idx_team_members_team ON team_members(team_id);
   CREATE INDEX IF NOT EXISTS idx_team_members_user ON team_members(user_id);
@@ -128,6 +141,7 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_event_responses_user ON event_responses(user_id);
   CREATE INDEX IF NOT EXISTS idx_team_invites_token ON team_invites(token);
   CREATE INDEX IF NOT EXISTS idx_team_invites_team ON team_invites(team_id);
+  CREATE INDEX IF NOT EXISTS idx_trainer_invites_token ON trainer_invites(token);
 `);
 
 // Migration: Add profile_picture column if it doesn't exist

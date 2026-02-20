@@ -66,7 +66,8 @@ export default function InvitePage() {
       const authStore = useAuthStore.getState();
       authStore.setAuth(registerResponse.data.token, registerResponse.data.user);
 
-      navigate(`/teams/${invite.team_id}`);
+      const targetTeamId = registerResponse.data.team_id || invite.team_id;
+      navigate(targetTeamId ? `/teams/${targetTeamId}` : '/');
     },
     onError: (err: any) => {
       setError(err.response?.data?.error || err.message || 'Registrierung fehlgeschlagen');
@@ -142,15 +143,20 @@ export default function InvitePage() {
           </div>
 
           <p className="mt-2 text-lg font-semibold text-primary-600 dark:text-primary-400">
-            Einladung zum Team
+            {invite.invite_type === 'trainer_setup' ? 'Einladung als Trainer' : 'Einladung zum Team'}
           </p>
         </div>
 
         <div className="card">
           <div className="text-center mb-6">
-            <h3 className="text-2xl font-bold text-gray-900">{invite.team_name}</h3>
+            {invite.team_name && <h3 className="text-2xl font-bold text-gray-900">{invite.team_name}</h3>}
             {invite.team_description && (
               <p className="text-gray-600 mt-2">{invite.team_description}</p>
+            )}
+            {invite.invite_type === 'trainer_setup' && Array.isArray(invite.team_names) && invite.team_names.length > 0 && (
+              <div className="mt-2 text-sm text-gray-700">
+                <span className="font-medium">Zugewiesene Teams:</span> {invite.team_names.join(', ')}
+              </div>
             )}
             {invite.player_name && (
               <p className="text-sm text-blue-700 mt-3 font-medium">
@@ -188,16 +194,22 @@ export default function InvitePage() {
                   Angemeldet als <span className="font-medium">{user.name}</span>
                 </p>
               </div>
-              <button
-                onClick={handleAccept}
-                disabled={acceptMutation.isPending}
-                className="btn btn-primary w-full flex items-center justify-center space-x-2"
-              >
-                <CheckCircle className="w-5 h-5" />
-                <span>
-                  {acceptMutation.isPending ? 'Trete bei...' : 'Team beitreten'}
-                </span>
-              </button>
+              {invite.invite_type !== 'trainer_setup' ? (
+                <button
+                  onClick={handleAccept}
+                  disabled={acceptMutation.isPending}
+                  className="btn btn-primary w-full flex items-center justify-center space-x-2"
+                >
+                  <CheckCircle className="w-5 h-5" />
+                  <span>
+                    {acceptMutation.isPending ? 'Trete bei...' : 'Team beitreten'}
+                  </span>
+                </button>
+              ) : (
+                <p className="text-sm text-blue-800 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  Für diese Trainer-Einladung bitte zuerst abmelden und den Account über den Link registrieren.
+                </p>
+              )}
               <p className="text-center text-sm text-gray-600">
                 Nicht {user.name}?{' '}
                 <button
@@ -214,39 +226,50 @@ export default function InvitePage() {
           ) : !showRegister ? (
             // User not logged in - show login/register options
             <div className="space-y-4">
-              <button
-                onClick={handleAccept}
-                disabled={acceptMutation.isPending}
-                className="btn btn-primary w-full"
-              >
-                Mit bestehendem Account beitreten
-              </button>
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
+              {invite.invite_type !== 'trainer_setup' && (
+                <>
+                  <button
+                    onClick={handleAccept}
+                    disabled={acceptMutation.isPending}
+                    className="btn btn-primary w-full"
+                  >
+                    Mit bestehendem Account beitreten
+                  </button>
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-2 bg-white text-gray-500">oder</span>
+                    </div>
+                  </div>
+                </>
+              )}
+              {invite.invite_type === 'trainer_setup' && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+                  Richte jetzt deinen Trainer-Account ein und lege Benutzername, E-Mail und Passwort selbst fest.
                 </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">oder</span>
-                </div>
-              </div>
+              )}
               <button
                 onClick={() => setShowRegister(true)}
                 disabled={!invite.player_name}
                 className="btn btn-secondary w-full"
               >
-                Neuen Account erstellen
+                {invite.invite_type === 'trainer_setup' ? 'Trainer-Account einrichten' : 'Neuen Account erstellen'}
               </button>
               {!invite.player_name && (
                 <p className="text-xs text-center text-red-600">
                   Für diesen Link ist keine Registrierung möglich, da kein fester Name hinterlegt ist.
                 </p>
               )}
-              <p className="text-center text-sm text-gray-600">
-                Bereits einen Account?{' '}
-                <Link to={`/login?redirect=/invite/${token}`} className="font-medium text-primary-600 hover:text-primary-500">
-                  Jetzt anmelden
-                </Link>
-              </p>
+              {invite.invite_type !== 'trainer_setup' && (
+                <p className="text-center text-sm text-gray-600">
+                  Bereits einen Account?{' '}
+                  <Link to={`/login?redirect=/invite/${token}`} className="font-medium text-primary-600 hover:text-primary-500">
+                    Jetzt anmelden
+                  </Link>
+                </p>
+              )}
             </div>
           ) : (
             // Registration form

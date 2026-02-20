@@ -115,6 +115,58 @@ router.get('/invites/:token', (req, res) => {
   try {
     const { token } = req.params;
 
+    const trainerInvite = db.prepare(`
+      SELECT 
+        ti.id,
+        ti.invited_name,
+        ti.team_ids,
+        ti.expires_at,
+        ti.used_count,
+        u.name as invited_by_name
+      FROM trainer_invites ti
+      INNER JOIN users u ON ti.created_by = u.id
+      WHERE ti.token = ?
+    `).get(token) as any;
+
+    if (trainerInvite) {
+      if (trainerInvite.expires_at && new Date(trainerInvite.expires_at) < new Date()) {
+        return res.status(410).json({ error: 'Invite has expired' });
+      }
+
+      if ((trainerInvite.used_count || 0) >= 1) {
+        return res.status(410).json({ error: 'Invite has already been used' });
+      }
+
+      let teamIds: number[] = [];
+      try {
+        const parsed = JSON.parse(trainerInvite.team_ids || '[]');
+        if (Array.isArray(parsed)) {
+          teamIds = parsed.map((id: any) => Number(id)).filter((id: number) => Number.isInteger(id) && id > 0);
+        }
+      } catch {
+        teamIds = [];
+      }
+
+      const teamNames = teamIds.length
+        ? (db.prepare(`SELECT id, name FROM teams WHERE id IN (${teamIds.map(() => '?').join(', ')})`).all(...teamIds) as Array<{ id: number; name: string }>).map((t) => t.name)
+        : [];
+
+      return res.json({
+        id: trainerInvite.id,
+        invite_type: 'trainer_setup',
+        role: 'trainer',
+        player_name: trainerInvite.invited_name,
+        team_id: null,
+        team_name: teamNames.join(', '),
+        team_names: teamNames,
+        team_description: null,
+        invited_by_name: trainerInvite.invited_by_name,
+        expires_at: trainerInvite.expires_at,
+        max_uses: 1,
+        used_count: trainerInvite.used_count || 0,
+      });
+    }
+
     const invite = db.prepare(`
       SELECT 
         ti.id,
@@ -275,6 +327,104 @@ router.post('/invites/:token/register', async (req, res) => {
 
     if (password.length < 6) {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    const trainerInvite = db.prepare(`
+      SELECT id, invited_name, team_ids, expires_at, used_count
+      FROM trainer_invites
+      WHERE token = ?
+    `).get(token) as any;
+
+    if (trainerInvite) {
+      if (trainerInvite.expires_at && new Date(trainerInvite.expires_at) < new Date()) {
+        return res.status(410).json({ error: 'Invite has expired' });
+      }
+
+      if ((trainerInvite.used_count || 0) >= 1) {
+        return res.status(410).json({ error: 'Invite has already been used' });
+      }
+
+      const existingUsername = db.prepare('SELECT id FROM users WHERE LOWER(username) = ?').get(normalizedUsername);
+      if (existingUsername) {
+        return res.status(409).json({ error: 'Username already exists' });
+      }
+
+      const existingUser = db.prepare('SELECT id FROM users WHERE LOWER(email) = LOWER(?)').get(email);
+      if (existingUser) {
+        return res.status(409).json({ error: 'User with this email already exists' });
+      }
+
+      let teamIds: number[] = [];
+      try {
+        const parsed = JSON.parse(trainerInvite.team_ids || '[]');
+        if (Array.isArray(parsed)) {
+          teamIds = parsed.map((id: any) => Number(id)).filter((id: number) => Number.isInteger(id) && id > 0);
+        }
+      } catch {
+        teamIds = [];
+      }
+
+      if (teamIds.length === 0) {
+        return res.status(400).json({ error: 'This trainer invite has no teams assigned' });
+      }
+
+      const existingTeams = db.prepare(`SELECT id FROM teams WHERE id IN (${teamIds.map(() => '?').join(', ')})`).all(...teamIds) as Array<{ id: number }>;
+      const validTeamIds = existingTeams.map((team) => team.id);
+      if (validTeamIds.length === 0) {
+        return res.status(400).json({ error: 'Assigned teams no longer exist' });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const userStmt = db.prepare(
+        'INSERT INTO users (username, email, password, name, role) VALUES (?, ?, ?, ?, ?)'
+      );
+      const userResult = userStmt.run(normalizedUsername, email, hashedPassword, trainerInvite.invited_name, 'trainer');
+
+      const addMemberStmt = db.prepare(
+        'INSERT INTO team_members (team_id, user_id, role) VALUES (?, ?, ?)'
+      );
+
+      const responseStmt = db.prepare(
+        'INSERT INTO event_responses (event_id, user_id, status) VALUES (?, ?, ?)' 
+      );
+
+      const seenEvents = new Set<number>();
+
+      for (const teamId of validTeamIds) {
+        addMemberStmt.run(teamId, userResult.lastInsertRowid, 'trainer');
+
+        const upcomingEvents = db.prepare(
+          'SELECT id FROM events WHERE team_id = ? AND start_time >= datetime("now")'
+        ).all(teamId) as Array<{ id: number }>;
+
+        for (const event of upcomingEvents) {
+          if (!seenEvents.has(event.id)) {
+            responseStmt.run(event.id, userResult.lastInsertRowid, 'pending');
+            seenEvents.add(event.id);
+          }
+        }
+      }
+
+      db.prepare('UPDATE trainer_invites SET used_count = used_count + 1 WHERE id = ?').run(trainerInvite.id);
+
+      const authToken = jwt.sign(
+        { id: userResult.lastInsertRowid, username: normalizedUsername, email, role: 'trainer' },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+
+      return res.status(201).json({
+        token: authToken,
+        user: {
+          id: userResult.lastInsertRowid,
+          username: normalizedUsername,
+          email,
+          name: trainerInvite.invited_name,
+          role: 'trainer'
+        },
+        team_id: validTeamIds[0]
+      });
     }
 
     const invite = db.prepare(`

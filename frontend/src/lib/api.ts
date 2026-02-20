@@ -134,6 +134,9 @@ export const adminAPI = {
 
   createTrainer: (data: { name: string; username: string; email: string; password: string }) =>
     api.post('/admin/users/trainer', data),
+
+  createTrainerInvite: (data: { name: string; teamIds: number[]; expiresInDays?: number }) =>
+    api.post('/admin/trainer-invites', data),
   
   getSettings: () => api.get('/admin/settings'),
   

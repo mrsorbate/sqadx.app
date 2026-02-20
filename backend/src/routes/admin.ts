@@ -2,6 +2,7 @@ import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import db from '../database/init';
@@ -179,6 +180,59 @@ router.get('/users', (req: AuthRequest, res) => {
   } catch (error) {
     console.error('Get all users error:', error);
     res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
+// Create trainer setup invite link (admin only)
+router.post('/trainer-invites', (req: AuthRequest, res) => {
+  try {
+    const { name, teamIds, expiresInDays = 7 } = req.body;
+
+    const normalizedName = String(name || '').trim();
+    if (!normalizedName) {
+      return res.status(400).json({ error: 'Trainer name is required' });
+    }
+
+    if (!Array.isArray(teamIds) || teamIds.length === 0) {
+      return res.status(400).json({ error: 'At least one team must be selected' });
+    }
+
+    const normalizedTeamIds = [...new Set(teamIds.map((id: any) => Number(id)).filter((id: number) => Number.isInteger(id) && id > 0))];
+    if (normalizedTeamIds.length === 0) {
+      return res.status(400).json({ error: 'At least one valid team must be selected' });
+    }
+
+    const placeholders = normalizedTeamIds.map(() => '?').join(', ');
+    const existingTeams = db.prepare(`SELECT id, name FROM teams WHERE id IN (${placeholders})`).all(...normalizedTeamIds) as Array<{ id: number; name: string }>;
+    if (existingTeams.length !== normalizedTeamIds.length) {
+      return res.status(400).json({ error: 'One or more selected teams do not exist' });
+    }
+
+    const token = crypto.randomBytes(24).toString('hex');
+
+    let expiresAt = null;
+    if (expiresInDays) {
+      const expiry = new Date();
+      expiry.setDate(expiry.getDate() + Number(expiresInDays));
+      expiresAt = expiry.toISOString();
+    }
+
+    const result = db.prepare(
+      'INSERT INTO trainer_invites (token, invited_name, team_ids, created_by, expires_at) VALUES (?, ?, ?, ?, ?)'
+    ).run(token, normalizedName, JSON.stringify(normalizedTeamIds), req.user!.id, expiresAt);
+
+    res.status(201).json({
+      id: result.lastInsertRowid,
+      token,
+      invited_name: normalizedName,
+      team_ids: normalizedTeamIds,
+      team_names: existingTeams.map((team) => team.name),
+      expires_at: expiresAt,
+      invite_url: `${process.env.FRONTEND_URL || 'http://localhost:5174'}/invite/${token}`
+    });
+  } catch (error) {
+    console.error('Create trainer invite error:', error);
+    res.status(500).json({ error: 'Failed to create trainer invite' });
   }
 });
 
@@ -376,6 +430,7 @@ router.delete('/organization', (req: AuthRequest, res) => {
     db.prepare('DELETE FROM event_responses').run();
     db.prepare('DELETE FROM events').run();
     db.prepare('DELETE FROM team_invites').run();
+    db.prepare('DELETE FROM trainer_invites').run();
     db.prepare('DELETE FROM teams').run();
     db.prepare('DELETE FROM users').run();
 

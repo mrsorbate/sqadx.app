@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import { Navigate } from 'react-router-dom';
-import { Plus, Trash2, Users, UserPlus, Shield, Settings, Upload } from 'lucide-react';
+import { Plus, Trash2, Users, UserPlus, Shield, Settings, Upload, Copy, Share2, Check } from 'lucide-react';
 import InviteManager from '../components/InviteManager';
 
 const TIMEZONES = [
@@ -46,9 +46,9 @@ export default function AdminPage() {
   const [deleteOrganizationConfirmText, setDeleteOrganizationConfirmText] = useState('');
   const [showCreateTrainer, setShowCreateTrainer] = useState(false);
   const [trainerName, setTrainerName] = useState('');
-  const [trainerUsername, setTrainerUsername] = useState('');
-  const [trainerEmail, setTrainerEmail] = useState('');
-  const [trainerPassword, setTrainerPassword] = useState('');
+  const [trainerTeamIds, setTrainerTeamIds] = useState<number[]>([]);
+  const [trainerInviteLink, setTrainerInviteLink] = useState('');
+  const [copiedTrainerLink, setCopiedTrainerLink] = useState(false);
 
   // Redirect if not admin
   if (user?.role !== 'admin') {
@@ -158,16 +158,11 @@ export default function AdminPage() {
   });
 
   const createTrainerMutation = useMutation({
-    mutationFn: (data: { name: string; username: string; email: string; password: string }) =>
-      adminAPI.createTrainer(data),
+    mutationFn: (data: { name: string; teamIds: number[]; expiresInDays?: number }) =>
+      adminAPI.createTrainerInvite(data),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-      await queryClient.refetchQueries({ queryKey: ['admin-users'] });
-      setShowCreateTrainer(false);
-      setTrainerName('');
-      setTrainerUsername('');
-      setTrainerEmail('');
-      setTrainerPassword('');
+      await queryClient.invalidateQueries({ queryKey: ['admin-teams'] });
+      await queryClient.refetchQueries({ queryKey: ['admin-teams'] });
     },
   });
 
@@ -227,12 +222,43 @@ export default function AdminPage() {
 
   const handleCreateTrainer = (e: React.FormEvent) => {
     e.preventDefault();
+    setTrainerInviteLink('');
+    setCopiedTrainerLink(false);
     createTrainerMutation.mutate({
       name: trainerName,
-      username: trainerUsername.trim().toLowerCase(),
-      email: trainerEmail,
-      password: trainerPassword,
+      teamIds: trainerTeamIds,
+      expiresInDays: 7,
+    }, {
+      onSuccess: (response: any) => {
+        setTrainerInviteLink(response.data.invite_url || '');
+      }
     });
+  };
+
+  const toggleTrainerTeam = (teamId: number) => {
+    setTrainerTeamIds((prev) =>
+      prev.includes(teamId) ? prev.filter((id) => id !== teamId) : [...prev, teamId]
+    );
+  };
+
+  const handleCopyTrainerLink = async () => {
+    if (!trainerInviteLink) return;
+    await navigator.clipboard.writeText(trainerInviteLink);
+    setCopiedTrainerLink(true);
+    setTimeout(() => setCopiedTrainerLink(false), 2000);
+  };
+
+  const handleShareTrainerLink = async () => {
+    if (!trainerInviteLink) return;
+    if ((navigator as any).share) {
+      await (navigator as any).share({
+        title: 'Trainer-Registrierung',
+        text: `Einladungslink für Trainer ${trainerName}`,
+        url: trainerInviteLink,
+      });
+      return;
+    }
+    await handleCopyTrainerLink();
   };
 
   if (teamsLoading || usersLoading || settingsLoading) {
@@ -674,7 +700,7 @@ export default function AdminPage() {
 
         {showCreateTrainer && (
           <form onSubmit={handleCreateTrainer} className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-4">
-            <h3 className="font-semibold text-gray-900 dark:text-white">Neuen Trainer anlegen</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white">Trainer anlegen & Registrierungslink erstellen</h3>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name *</label>
@@ -689,55 +715,74 @@ export default function AdminPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Benutzername *</label>
-              <input
-                type="text"
-                required
-                value={trainerUsername}
-                onChange={(e) => setTrainerUsername(e.target.value)}
-                className="input"
-                placeholder="max_trainer"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">E-Mail *</label>
-              <input
-                type="email"
-                required
-                value={trainerEmail}
-                onChange={(e) => setTrainerEmail(e.target.value)}
-                className="input"
-                placeholder="trainer@verein.de"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Passwort *</label>
-              <input
-                type="password"
-                required
-                minLength={6}
-                value={trainerPassword}
-                onChange={(e) => setTrainerPassword(e.target.value)}
-                className="input"
-                placeholder="Mindestens 6 Zeichen"
-              />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Teams zuweisen *</label>
+              <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-white dark:bg-gray-900">
+                {teams?.map((team: any) => (
+                  <label key={team.id} className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300">
+                    <input
+                      type="checkbox"
+                      checked={trainerTeamIds.includes(team.id)}
+                      onChange={() => toggleTrainerTeam(team.id)}
+                    />
+                    <span>{team.name}</span>
+                  </label>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Mindestens ein Team auswählen.</p>
             </div>
 
             {createTrainerMutation.isError && (
               <p className="text-sm text-red-600 dark:text-red-400">
-                {(createTrainerMutation.error as any)?.response?.data?.error || 'Trainer konnte nicht erstellt werden'}
+                {(createTrainerMutation.error as any)?.response?.data?.error || 'Trainer-Link konnte nicht erstellt werden'}
               </p>
             )}
 
+            {trainerInviteLink && (
+              <div className="p-3 rounded-lg border border-blue-200 bg-blue-50 space-y-2">
+                <p className="text-sm text-blue-800">Registrierungslink für <strong>{trainerName}</strong>:</p>
+                <input
+                  readOnly
+                  value={trainerInviteLink}
+                  className="input text-sm"
+                />
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleShareTrainerLink}
+                    className="btn btn-secondary flex items-center space-x-2"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    <span>Link teilen</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCopyTrainerLink}
+                    className="btn btn-secondary flex items-center space-x-2"
+                  >
+                    {copiedTrainerLink ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                    <span>{copiedTrainerLink ? 'Kopiert' : 'Link kopieren'}</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="flex space-x-3">
-              <button type="submit" className="btn btn-primary" disabled={createTrainerMutation.isPending}>
-                {createTrainerMutation.isPending ? 'Erstellt...' : 'Trainer erstellen'}
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={createTrainerMutation.isPending || !trainerName.trim() || trainerTeamIds.length === 0}
+              >
+                {createTrainerMutation.isPending ? 'Erstellt...' : 'Link erstellen'}
               </button>
               <button
                 type="button"
-                onClick={() => setShowCreateTrainer(false)}
+                onClick={() => {
+                  setShowCreateTrainer(false);
+                  setTrainerName('');
+                  setTrainerTeamIds([]);
+                  setTrainerInviteLink('');
+                  setCopiedTrainerLink(false);
+                }}
                 className="btn btn-secondary"
               >
                 Abbrechen
