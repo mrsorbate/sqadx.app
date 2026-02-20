@@ -132,6 +132,8 @@ export const adminAPI = {
   
   getAllUsers: () => api.get('/admin/users'),
 
+  deleteUser: (userId: number) => api.delete(`/admin/users/${userId}`),
+
   createTrainer: (data: { name: string; username: string; email: string; password: string }) =>
     api.post('/admin/users/trainer', data),
 

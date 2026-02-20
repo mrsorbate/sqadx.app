@@ -128,6 +128,17 @@ export default function AdminPage() {
     },
   });
 
+  const deleteUserMutation = useMutation({
+    mutationFn: (userId: number) => adminAPI.deleteUser(userId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      await queryClient.refetchQueries({ queryKey: ['admin-users'] });
+      await queryClient.invalidateQueries({ queryKey: ['admin-teams'] });
+      await queryClient.refetchQueries({ queryKey: ['admin-teams'] });
+      await queryClient.invalidateQueries({ queryKey: ['teams'] });
+    },
+  });
+
   const addMemberMutation = useMutation({
     mutationFn: (data: { teamId: number; userId: number; role: string; jerseyNumber?: number; position?: string }) =>
       adminAPI.addUserToTeam(data.teamId, {
@@ -259,6 +270,12 @@ export default function AdminPage() {
       return;
     }
     await handleCopyTrainerLink();
+  };
+
+  const handleDeleteUser = (userItem: any) => {
+    const confirmation = window.confirm(`Benutzer \"${userItem.name}\" wirklich löschen? Dies kann nicht rückgängig gemacht werden.`);
+    if (!confirmation) return;
+    deleteUserMutation.mutate(userItem.id);
   };
 
   if (teamsLoading || usersLoading || settingsLoading) {
@@ -663,8 +680,10 @@ export default function AdminPage() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Benutzername</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Teams</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aktionen</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
@@ -674,14 +693,27 @@ export default function AdminPage() {
                         <div className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-700 dark:text-gray-200">{user.username || '-'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-600 dark:text-gray-300">{user.email}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{user.team_count} Team{user.team_count !== 1 ? 's' : ''}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <button
+                          onClick={() => handleDeleteUser(user)}
+                          disabled={deleteUserMutation.isPending}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Benutzer löschen"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
                     </tr>
                   ))}
                   {trainers.length === 0 && (
                     <tr>
-                      <td colSpan={3} className="px-6 py-4 text-sm text-gray-500">Keine Trainer vorhanden.</td>
+                      <td colSpan={5} className="px-6 py-4 text-sm text-gray-500">Keine Trainer vorhanden.</td>
                     </tr>
                   )}
                 </tbody>
@@ -696,8 +728,10 @@ export default function AdminPage() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Benutzername</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Teams</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aktionen</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
@@ -707,14 +741,27 @@ export default function AdminPage() {
                         <div className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-700 dark:text-gray-200">{user.username || '-'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-600 dark:text-gray-300">{user.email}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{user.team_count} Team{user.team_count !== 1 ? 's' : ''}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <button
+                          onClick={() => handleDeleteUser(user)}
+                          disabled={deleteUserMutation.isPending}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Benutzer löschen"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
                     </tr>
                   ))}
                   {players.length === 0 && (
                     <tr>
-                      <td colSpan={3} className="px-6 py-4 text-sm text-gray-500">Keine Spieler vorhanden.</td>
+                      <td colSpan={5} className="px-6 py-4 text-sm text-gray-500">Keine Spieler vorhanden.</td>
                     </tr>
                   )}
                 </tbody>

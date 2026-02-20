@@ -167,6 +167,7 @@ router.get('/users', (req: AuthRequest, res) => {
     const users = db.prepare(`
       SELECT 
         u.id,
+        u.username,
         u.name,
         u.email,
         u.role,
@@ -180,6 +181,45 @@ router.get('/users', (req: AuthRequest, res) => {
   } catch (error) {
     console.error('Get all users error:', error);
     res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
+// Delete user (admin only)
+router.delete('/users/:id', (req: AuthRequest, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+
+    if (!Number.isInteger(userId) || userId <= 0) {
+      return res.status(400).json({ error: 'Invalid user id' });
+    }
+
+    if (req.user!.id === userId) {
+      return res.status(400).json({ error: 'You cannot delete your own account' });
+    }
+
+    const targetUser = db.prepare('SELECT id, role FROM users WHERE id = ?').get(userId) as any;
+    if (!targetUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (targetUser.role === 'admin') {
+      return res.status(400).json({ error: 'Admin users cannot be deleted here' });
+    }
+
+    const transaction = db.transaction(() => {
+      db.prepare('DELETE FROM team_invites WHERE created_by = ?').run(userId);
+      db.prepare('DELETE FROM trainer_invites WHERE created_by = ?').run(userId);
+      db.prepare('DELETE FROM events WHERE created_by = ?').run(userId);
+      db.prepare('DELETE FROM teams WHERE created_by = ?').run(userId);
+      db.prepare('DELETE FROM users WHERE id = ?').run(userId);
+    });
+
+    transaction();
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({ error: 'Failed to delete user' });
   }
 });
 
