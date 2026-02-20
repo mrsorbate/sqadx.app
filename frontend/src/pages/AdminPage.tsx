@@ -790,37 +790,37 @@ export default function AdminPage() {
       </div>
 
       {/* Workflow */}
-      <div className="card border border-blue-200 bg-blue-50/60">
-        <div className="flex items-start justify-between gap-3 mb-3">
+      <div className="card border border-blue-200 bg-blue-50/60 py-3">
+        <div className="mb-2">
           <div>
-            <h2 className="text-lg font-semibold text-blue-900 dark:text-blue-200">Workflow</h2>
-            <p className="text-sm text-blue-800 dark:text-blue-300 mt-1">
-              So läuft die Teamverwaltung im Alltag: Admin organisiert, Trainer arbeiten im Team.
+            <h2 className="text-base font-semibold text-blue-900 dark:text-blue-200">Workflow</h2>
+            <p className="text-xs text-blue-800 dark:text-blue-300 mt-0.5">
+              Kurzablauf: Admin organisiert Teams und Trainer, Trainer führen die Teamarbeit.
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div className="rounded-lg border border-blue-200 bg-white/80 p-3">
-            <p className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1">Schritt 1</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+          <div className="rounded-lg border border-blue-200 bg-white/80 p-2.5">
+            <p className="text-[11px] font-semibold text-blue-700 uppercase tracking-wide mb-0.5">Schritt 1</p>
             <p className="text-sm font-medium text-gray-900 dark:text-white">Team erstellen</p>
-            <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">Name und optional Beschreibung anlegen.</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300 mt-0.5">Name und Beschreibung festlegen.</p>
           </div>
 
-          <div className="rounded-lg border border-blue-200 bg-white/80 p-3">
-            <p className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1">Schritt 2</p>
+          <div className="rounded-lg border border-blue-200 bg-white/80 p-2.5">
+            <p className="text-[11px] font-semibold text-blue-700 uppercase tracking-wide mb-0.5">Schritt 2</p>
             <p className="text-sm font-medium text-gray-900 dark:text-white">Trainer zuweisen</p>
-            <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">Pro Team passende Trainer hinzufügen oder ändern.</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300 mt-0.5">Trainer pro Team hinzufügen oder ändern.</p>
           </div>
 
-          <div className="rounded-lg border border-blue-200 bg-white/80 p-3">
-            <p className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1">Schritt 3</p>
+          <div className="rounded-lg border border-blue-200 bg-white/80 p-2.5">
+            <p className="text-[11px] font-semibold text-blue-700 uppercase tracking-wide mb-0.5">Schritt 3</p>
             <p className="text-sm font-medium text-gray-900 dark:text-white">Spieler durch Trainer pflegen</p>
-            <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">Trainer verwalten Spieler und tägliche Teamarbeit.</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300 mt-0.5">Trainer verwalten Spieler und Alltag im Team.</p>
           </div>
         </div>
 
-        <p className="text-xs text-blue-800 dark:text-blue-300 mt-3">
+        <p className="text-[11px] text-blue-800 dark:text-blue-300 mt-2">
           Hinweis: Der Admin ist organisatorisch zuständig und wird nicht als Teammitglied geführt.
         </p>
       </div>
