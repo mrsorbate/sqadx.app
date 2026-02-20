@@ -126,8 +126,8 @@ export default function SettingsPage() {
       <div className="flex items-center space-x-3">
         <User className="w-8 h-8 text-primary-600" />
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Einstellungen</h1>
-          <p className="text-gray-600 mt-1">Verwalte dein Profil und deine Einstellungen</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Einstellungen</h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-1">Verwalte dein Profil und deine Einstellungen</p>
         </div>
       </div>
 
@@ -159,7 +159,7 @@ export default function SettingsPage() {
           </div>
 
           <div className="flex-1 space-y-3">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-300">
               Erlaubte Formate: JPG, PNG, GIF, WebP (max. 5MB)
             </p>
             <div className="flex space-x-3">
@@ -201,21 +201,21 @@ export default function SettingsPage() {
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Name
             </label>
-            <div className="mt-1 text-gray-900 font-medium">{profile?.name || authUser?.name}</div>
+            <div className="mt-1 text-gray-900 dark:text-white font-medium">{profile?.name || authUser?.name}</div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               E-Mail
             </label>
-            <div className="mt-1 text-gray-900">{profile?.email || authUser?.email}</div>
+            <div className="mt-1 text-gray-900 dark:text-white">{profile?.email || authUser?.email}</div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Rolle
             </label>
             <div className="mt-1">
@@ -265,7 +265,7 @@ export default function SettingsPage() {
 
         <form onSubmit={handlePasswordChange} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Aktuelles Passwort
             </label>
             <input
@@ -279,7 +279,7 @@ export default function SettingsPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Neues Passwort
             </label>
             <input
@@ -294,7 +294,7 @@ export default function SettingsPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Neues Passwort bestätigen
             </label>
             <input
