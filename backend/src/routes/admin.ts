@@ -183,6 +183,14 @@ const ensureAdminAuditSchema = () => {
   `);
 };
 
+const cleanupDeprecatedAuditActions = () => {
+  ensureAdminAuditSchema();
+  db.prepare(`
+    DELETE FROM admin_audit_logs
+    WHERE action IN ('backup_created', 'backup_downloaded')
+  `).run();
+};
+
 const logAdminAction = (
   req: AuthRequest,
   action: string,
@@ -210,6 +218,7 @@ const logAdminAction = (
 };
 
 ensureAdminAuditSchema();
+cleanupDeprecatedAuditActions();
 
 router.use(requireAdmin);
 
