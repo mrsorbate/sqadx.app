@@ -63,30 +63,6 @@ export default function Layout({ organization }: LayoutProps) {
             </div>
 
             <div className="flex items-center space-x-2 sm:space-x-4">
-              <div className="hidden md:flex items-center space-x-3">
-                {user?.profile_picture ? (
-                  <Link to="/settings" aria-label="Zu den Einstellungen">
-                    <img
-                      src={`${API_URL}${user.profile_picture}`}
-                      alt="Profilbild"
-                      className="w-8 h-8 rounded-full object-cover border-2 border-gray-300 dark:border-gray-600 hover:opacity-90"
-                    />
-                  </Link>
-                ) : (
-                  <Link to="/settings" aria-label="Zu den Einstellungen">
-                    <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center hover:opacity-90">
-                      <UserIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                    </div>
-                  </Link>
-                )}
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  <Link to="/settings" className="font-medium hover:underline">
-                    {firstName}
-                  </Link>
-                  {user?.role === 'admin' && <span className="ml-2 text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-full">Admin</span>}
-                </span>
-              </div>
-
               <div className="hidden md:flex items-center space-x-1">
                 <Link
                   to="/"
@@ -134,13 +110,29 @@ export default function Layout({ organization }: LayoutProps) {
                     {firstName}
                 </Link>
               </div>
-              <Link
-                to="/settings"
-                className="hidden md:flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-              >
-                <UserIcon className="w-4 h-4" />
-                <span>Profil</span>
-              </Link>
+              <div className="hidden md:flex items-center space-x-3 px-2">
+                {user?.profile_picture ? (
+                  <Link to="/settings" aria-label="Zu den Einstellungen">
+                    <img
+                      src={`${API_URL}${user.profile_picture}`}
+                      alt="Profilbild"
+                      className="w-8 h-8 rounded-full object-cover border-2 border-gray-300 dark:border-gray-600 hover:opacity-90"
+                    />
+                  </Link>
+                ) : (
+                  <Link to="/settings" aria-label="Zu den Einstellungen">
+                    <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center hover:opacity-90">
+                      <UserIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    </div>
+                  </Link>
+                )}
+                <span className="text-sm text-gray-700 dark:text-gray-300">
+                  <Link to="/settings" className="font-medium hover:underline">
+                    {firstName}
+                  </Link>
+                  {user?.role === 'admin' && <span className="ml-2 text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-full">Admin</span>}
+                </span>
+              </div>
               <button
                 onClick={toggleDarkMode}
                 className="hidden md:flex items-center justify-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
