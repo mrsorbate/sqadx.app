@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, Navigate } from 'react-router-dom';
 import { eventsAPI, teamsAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
-import { Calendar, MapPin, Clock, CheckCircle, XCircle, HelpCircle, AlertCircle, ArrowRight, Users } from 'lucide-react';
+import { Calendar, MapPin, Clock, CheckCircle, XCircle, HelpCircle, AlertCircle, Users } from 'lucide-react';
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
@@ -282,18 +282,9 @@ export default function DashboardPage() {
 
       <Link
         to="/events"
-        className="block p-6 rounded-lg border-2 border-primary-200 bg-gradient-to-br from-primary-50 to-primary-100 hover:border-primary-300 hover:shadow-md transition-all group dark:border-primary-800 dark:from-primary-900/30 dark:to-gray-800 dark:hover:border-primary-700"
+        className="btn btn-primary w-full text-center py-3 text-base"
       >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Calendar className="w-6 h-6 text-primary-600 dark:text-primary-400" />
-            <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white">Alle Termine anzeigen</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300">Vollständige Übersicht aller zukünftigen Termine</p>
-            </div>
-          </div>
-          <ArrowRight className="w-5 h-5 text-primary-600 dark:text-primary-400 group-hover:translate-x-1 transition-transform" />
-        </div>
+        Alle Termine
       </Link>
     </div>
   );
