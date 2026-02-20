@@ -728,36 +728,6 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <div className="sticky top-2 z-20">
-        <div className="card py-3 px-4 flex flex-wrap gap-2 items-center justify-between">
-          <p className="text-sm text-gray-600 dark:text-gray-300">Schnellaktionen</p>
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => setShowCreateTeam(true)}
-              className="btn btn-primary text-sm"
-            >
-              Team erstellen
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowCreateTrainer(true)}
-              className="btn btn-secondary text-sm"
-            >
-              Trainer einladen
-            </button>
-            <button
-              type="button"
-              onClick={() => createBackupMutation.mutate()}
-              disabled={createBackupMutation.isPending}
-              className="btn btn-secondary text-sm"
-            >
-              {createBackupMutation.isPending ? 'Backup läuft...' : 'Backup erstellen'}
-            </button>
-          </div>
-        </div>
-      </div>
-
       {/* Organization Settings */}
       <div className="card">
         <div className="flex items-center justify-between mb-4">
@@ -1224,13 +1194,9 @@ export default function AdminPage() {
                       <td colSpan={6} className={userTableEmptyCellClass}>
                         <div className="flex flex-col gap-2 items-start">
                           <span>{trainers.length ? 'Keine Trainer gefunden.' : 'Keine Trainer vorhanden.'}</span>
-                          {trainers.length ? (
+                          {trainers.length && (
                             <button type="button" onClick={() => setTrainerSearch('')} className="btn btn-secondary text-xs">
                               Filter zurücksetzen
-                            </button>
-                          ) : (
-                            <button type="button" onClick={() => setShowCreateTrainer(true)} className="btn btn-primary text-xs">
-                              Trainer einladen
                             </button>
                           )}
                         </div>
