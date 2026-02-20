@@ -80,7 +80,6 @@ export default function Layout({ organization }: LayoutProps) {
                   </Link>
                 )}
                 <span className="text-sm text-gray-700 dark:text-gray-300">
-                  Hallo,{' '}
                   <Link to="/settings" className="font-medium hover:underline">
                     {firstName}
                   </Link>
@@ -174,7 +173,6 @@ export default function Layout({ organization }: LayoutProps) {
             <div className="md:hidden border-t border-gray-200 dark:border-gray-700 py-3 space-y-2 bg-white dark:bg-gray-800">
               <div className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300">
                 <span>
-                  Hallo,{' '}
                   <Link to="/settings" className="font-medium hover:underline" onClick={() => setMobileMenuOpen(false)}>
                     {firstName}
                   </Link>
