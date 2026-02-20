@@ -7,6 +7,8 @@ import { Calendar, Users, BarChart, ArrowLeft, UserPlus, X, Copy, Check, Clock, 
 import InviteManager from '../components/InviteManager';
 import { useToast } from '../lib/useToast';
 
+const API_URL = import.meta.env.VITE_API_URL || '';
+
 export default function TeamPage() {
   const { id } = useParams<{ id: string }>();
   const teamId = parseInt(id!);
@@ -75,9 +77,9 @@ export default function TeamPage() {
       setUploadingTeamPicture(false);
       showToast('Mannschaftsbild erfolgreich hochgeladen', 'success');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Upload error:', error);
-      showToast('Fehler beim Hochladen des Bildes', 'error');
+      showToast(error?.response?.data?.error || 'Fehler beim Hochladen des Bildes', 'error');
       setUploadingTeamPicture(false);
     },
   });
@@ -113,7 +115,7 @@ export default function TeamPage() {
 
   const getTeamPhotoUrl = (): string | undefined => {
     if (team?.team_picture) {
-      return `http://localhost:3001${team.team_picture}`;
+      return API_URL ? `${API_URL}${team.team_picture}` : team.team_picture;
     }
     return undefined;
   };
