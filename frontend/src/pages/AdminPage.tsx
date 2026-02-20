@@ -767,7 +767,9 @@ export default function AdminPage() {
                         <div className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-700 dark:text-gray-200">{user.username || '-'}</div>
+                        <div className="text-sm text-gray-700 dark:text-gray-200">
+                          {user.registration_status === 'pending' ? 'Wird bei Registrierung gesetzt' : (user.username || '-')}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${user.registration_status === 'pending' ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'}`}>
@@ -843,7 +845,9 @@ export default function AdminPage() {
                         <div className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-700 dark:text-gray-200">{user.username || '-'}</div>
+                        <div className="text-sm text-gray-700 dark:text-gray-200">
+                          {user.registration_status === 'pending' ? 'Wird bei Registrierung gesetzt' : (user.username || '-')}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${user.registration_status === 'pending' ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'}`}>
