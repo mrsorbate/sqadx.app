@@ -267,7 +267,19 @@ router.post('/users/:id/reset-password', async (req: AuthRequest, res) => {
       return res.status(400).json({ error: 'Invalid user id' });
     }
 
-    if (!newPassword || String(newPassword).length < 6) {
+    const generatePassword = () => {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%&*';
+      let password = '';
+      for (let index = 0; index < 12; index += 1) {
+        const randomIndex = crypto.randomInt(0, chars.length);
+        password += chars[randomIndex];
+      }
+      return password;
+    };
+
+    const finalPassword = newPassword ? String(newPassword) : generatePassword();
+
+    if (finalPassword.length < 6) {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
@@ -280,12 +292,12 @@ router.post('/users/:id/reset-password', async (req: AuthRequest, res) => {
       return res.status(400).json({ error: 'Admin users cannot be reset here' });
     }
 
-    const hashedPassword = await bcrypt.hash(String(newPassword), 10);
+    const hashedPassword = await bcrypt.hash(finalPassword, 10);
 
     db.prepare('UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
       .run(hashedPassword, userId);
 
-    res.json({ success: true });
+    res.json({ success: true, generatedPassword: finalPassword });
   } catch (error) {
     console.error('Reset user password error:', error);
     res.status(500).json({ error: 'Failed to reset user password' });

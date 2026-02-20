@@ -144,8 +144,7 @@ export default function AdminPage() {
   });
 
   const resetUserPasswordMutation = useMutation({
-    mutationFn: (data: { userId: number; newPassword: string }) =>
-      adminAPI.resetUserPassword(data.userId, { newPassword: data.newPassword }),
+    mutationFn: (userId: number) => adminAPI.resetUserPassword(userId),
   });
 
   const addMemberMutation = useMutation({
@@ -323,20 +322,20 @@ export default function AdminPage() {
   };
 
   const handleResetUserPassword = async (userItem: any) => {
-    const newPassword = window.prompt(`Neues Passwort für ${userItem.name} eingeben (mind. 6 Zeichen):`);
-    if (!newPassword) return;
-
-    if (newPassword.length < 6) {
-      alert('Passwort muss mindestens 6 Zeichen haben.');
-      return;
-    }
-
     const confirmReset = window.confirm(`Passwort für ${userItem.name} wirklich zurücksetzen?`);
     if (!confirmReset) return;
 
     try {
-      await resetUserPasswordMutation.mutateAsync({ userId: userItem.id, newPassword });
-      alert('Passwort wurde erfolgreich zurückgesetzt.');
+      const response = await resetUserPasswordMutation.mutateAsync(userItem.id);
+      const generatedPassword = response?.data?.generatedPassword;
+
+      if (!generatedPassword) {
+        alert('Passwort wurde zurückgesetzt, aber kein neues Passwort zurückgegeben.');
+        return;
+      }
+
+      await navigator.clipboard.writeText(generatedPassword);
+      alert(`Neues Passwort wurde generiert und in die Zwischenablage kopiert:\n\n${generatedPassword}`);
     } catch (error: any) {
       alert(error?.response?.data?.error || 'Passwort konnte nicht zurückgesetzt werden');
     }
@@ -787,7 +786,7 @@ export default function AdminPage() {
                             onClick={() => handleResetUserPassword(user)}
                             disabled={resetUserPasswordMutation.isPending}
                             className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            title="Passwort zurücksetzen"
+                            title="Passwort generieren & zurücksetzen"
                           >
                             <KeyRound className="w-4 h-4" />
                           </button>
@@ -851,7 +850,7 @@ export default function AdminPage() {
                             onClick={() => handleResetUserPassword(user)}
                             disabled={resetUserPasswordMutation.isPending}
                             className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            title="Passwort zurücksetzen"
+                            title="Passwort generieren & zurücksetzen"
                           >
                             <KeyRound className="w-4 h-4" />
                           </button>
