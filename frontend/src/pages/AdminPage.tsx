@@ -339,6 +339,7 @@ export default function AdminPage() {
         text: `Einladungslink für Trainer ${trainerName}`,
         url: trainerInviteLink,
       });
+      showToast('Einladungslink erfolgreich geteilt', 'success');
       return;
     }
     await handleCopyTrainerLink();
@@ -406,6 +407,7 @@ export default function AdminPage() {
         text: `Einladungslink für Trainer ${resendTrainerName}`,
         url: resendTrainerLink,
       });
+      showToast('Einladungslink erfolgreich geteilt', 'success');
       return;
     }
     await handleCopyResendTrainerLink();
