@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { LogOut, Settings, User as UserIcon, Menu, X, Moon, Sun, Users } from 'lucide-react';
+import { LogOut, Settings, User as UserIcon, Menu, X, Moon, Sun, Users, Shield } from 'lucide-react';
 import { useDarkMode } from '../hooks/useDarkMode';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -63,6 +63,15 @@ export default function Layout({ organization }: LayoutProps) {
 
             <div className="flex items-center space-x-4">
               <div className="hidden md:flex items-center space-x-1">
+                {user?.role === 'admin' && (
+                  <Link
+                    to="/admin"
+                    className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  >
+                    <Shield className="w-4 h-4" />
+                    <span>Admin-Panel</span>
+                  </Link>
+                )}
                 {user?.role !== 'admin' && (
                   <Link
                     to="/teams"
@@ -140,6 +149,16 @@ export default function Layout({ organization }: LayoutProps) {
 
           {mobileMenuOpen && (
             <div className="md:hidden border-t border-gray-200 dark:border-gray-700 py-3 space-y-2 bg-white dark:bg-gray-800">
+              {user?.role === 'admin' && (
+                <Link
+                  to="/admin"
+                  className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Shield className="w-4 h-4" />
+                  <span>Admin-Panel</span>
+                </Link>
+              )}
               {user?.role !== 'admin' && (
                 <Link
                   to="/teams"
