@@ -12,7 +12,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['sqadx-logo.svg', 'masked-icon.svg'],
+      includeAssets: ['sqadx-logo.svg', 'masked-icon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'sqadX.app',
         short_name: 'sqadX',
@@ -21,6 +21,18 @@ export default defineConfig({
         background_color: '#071535',
         display: 'standalone',
         icons: [
+          {
+            src: 'pwa-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any'
+          },
           {
             src: 'sqadx-logo.svg',
             sizes: 'any',
