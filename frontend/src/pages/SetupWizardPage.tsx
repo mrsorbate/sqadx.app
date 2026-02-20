@@ -180,10 +180,10 @@ export default function SetupWizardPage() {
           </div>
 
           <div className="grid grid-cols-4 gap-2 text-center text-xs mb-8">
-            <span className={step >= 1 ? 'text-primary-700 font-medium' : 'text-gray-500'}>1 Verein</span>
-            <span className={step >= 2 ? 'text-primary-700 font-medium' : 'text-gray-500'}>2 Admin</span>
-            <span className={step >= 3 ? 'text-primary-700 font-medium' : 'text-gray-500'}>3 Zeitzone</span>
-            <span className={step >= 4 ? 'text-primary-700 font-medium' : 'text-gray-500'}>4 Zusammenfassung</span>
+            <span className={step >= 1 ? 'text-primary-700 font-medium whitespace-nowrap' : 'text-gray-500 whitespace-nowrap'}>1 Verein</span>
+            <span className={step >= 2 ? 'text-primary-700 font-medium whitespace-nowrap' : 'text-gray-500 whitespace-nowrap'}>2 Admin</span>
+            <span className={step >= 3 ? 'text-primary-700 font-medium whitespace-nowrap' : 'text-gray-500 whitespace-nowrap'}>3 Zeitzone</span>
+            <span className={step >= 4 ? 'text-primary-700 font-medium whitespace-nowrap' : 'text-gray-500 whitespace-nowrap'}>4 Zusammenf.</span>
           </div>
 
           {error && (
