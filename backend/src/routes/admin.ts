@@ -338,7 +338,7 @@ router.post('/trainer-invites', (req: AuthRequest, res) => {
         addMemberStmt.run(teamId, createdUserId, 'trainer');
 
         const upcomingEvents = db.prepare(
-          'SELECT id FROM events WHERE team_id = ? AND start_time >= datetime("now")'
+          "SELECT id FROM events WHERE team_id = ? AND start_time >= datetime('now')"
         ).all(teamId) as Array<{ id: number }>;
 
         for (const event of upcomingEvents) {
@@ -460,7 +460,7 @@ router.post('/teams/:teamId/members', (req: AuthRequest, res) => {
 
     // Create pending responses for all upcoming events
     const upcomingEvents = db.prepare(
-      'SELECT id FROM events WHERE team_id = ? AND start_time >= datetime("now")'
+      "SELECT id FROM events WHERE team_id = ? AND start_time >= datetime('now')"
     ).all(teamId) as any[];
 
     const responseStmt = db.prepare(
