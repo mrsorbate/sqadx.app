@@ -16,6 +16,7 @@ import AdminPage from './pages/AdminPage';
 import SettingsPage from './pages/SettingsPage';
 import SetupWizardPage from './pages/SetupWizardPage';
 import { settingsAPI } from './lib/api';
+import { useDarkMode } from './hooks/useDarkMode';
 
 interface Organization {
   id: number;
@@ -30,6 +31,7 @@ function App() {
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [setupCompleted, setSetupCompleted] = useState<boolean>(true);
   const [loading, setLoading] = useState(true);
+  useDarkMode(); // Initialize dark mode
 
   useEffect(() => {
     const fetchOrganization = async () => {

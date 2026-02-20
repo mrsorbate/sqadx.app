@@ -17,13 +17,13 @@ ssh root@<TRUENAS-IP>
 **Erste Mal:**
 ```bash
 cd /mnt/DATA/docker
-git clone https://github.com/mrsorbate/kadr-app.git
-cd kadr-app
+git clone https://github.com/mrsorbate/KADR.app.git
+cd KADR.app
 ```
 
 **Wenn Verzeichnis bereits existiert:**
 ```bash
-cd /mnt/DATA/docker/kadr-app
+cd /mnt/DATA/docker/KADR.app
 git pull
 ```
 
@@ -50,7 +50,7 @@ Das Script macht automatisch:
 Regelmäßig Updates einspielen mit einem Befehl:
 
 ```bash
-cd /mnt/DATA/docker/kadr-app
+cd /mnt/DATA/docker/KADR.app
 chmod +x update-truenas.sh
 ./update-truenas.sh
 ```
@@ -79,7 +79,7 @@ Das Script macht:
 
 ### Status checken
 ```bash
-cd /mnt/DATA/docker/kadr-app
+cd /mnt/DATA/docker/KADR.app
 docker compose --env-file .env -f docker-compose.build.yml ps
 ```
 
@@ -129,7 +129,7 @@ cp -v /mnt/DATA/docker/kadr/data/database.sqlite \
 ### Datenbank aus Backup wiederherstellen
 
 ```bash
-cd /mnt/DATA/docker/kadr-app
+cd /mnt/DATA/docker/KADR.app
 docker compose --env-file .env -f docker-compose.build.yml down
 
 # Backup zurück-copy
@@ -146,7 +146,7 @@ cp /mnt/DATA/docker/kadr/data/database.sqlite.backup.20260220 \
 
 ### "Container starten nicht"
 ```bash
-cd /mnt/DATA/docker/kadr-app
+cd /mnt/DATA/docker/KADR.app
 docker compose --env-file .env -f docker-compose.build.yml logs -f
 # Suche nach Fehlermeldungen
 ```
@@ -171,23 +171,23 @@ chmod 755 /mnt/DATA/docker/kadr/uploads
 
 ### "Kompletter Neustart (Daten bleiben)"
 ```bash
-cd /mnt/DATA/docker/kadr-app
+cd /mnt/DATA/docker/KADR.app
 docker compose --env-file .env -f docker-compose.build.yml down
 ./setup-truenas-build.sh
 ```
 
 ### "Build fehlgeschlagen"
 ```bash
-cd /mnt/DATA/docker/kadr-app
+cd /mnt/DATA/docker/KADR.app
 docker compose --env-file .env -f docker-compose.build.yml down
 ./setup-truenas-build.sh
 ```
 
 ### "Repository existiert bereits" (`already exists...`)
-Das Verzeichnis `/mnt/DATA/docker/kadr-app` existiert bereits:
+Das Verzeichnis `/mnt/DATA/docker/KADR.app` existiert bereits:
 ```bash
 # Einfach in das bestehende Verzeichnis wechseln
-cd /mnt/DATA/docker/kadr-app
+cd /mnt/DATA/docker/KADR.app
 
 # Code aktualisieren
 git pull
@@ -200,10 +200,10 @@ git pull
 Ownership-Problem mit Git-Repository (häufig auf TrueNAS):
 ```bash
 # Übergangsweise erlauben:
-git config --global --add safe.directory /mnt/DATA/docker/kadr-app
+git config --global --add safe.directory /mnt/DATA/docker/KADR.app
 
 # Oder Ownership korrigieren (besser):
-sudo chown -R $(whoami):$(whoami) /mnt/DATA/docker/kadr-app
+sudo chown -R $(whoami):$(whoami) /mnt/DATA/docker/KADR.app
 
 # Dann git pull versuchen
 git pull
@@ -231,7 +231,7 @@ cat .gitignore | grep "^\.env"
 
 ## 📞 Support
 
-- **GitHub Issues:** https://github.com/mrsorbate/kadr-app/issues
+- **GitHub Issues:** https://github.com/mrsorbate/KADR.app/issues
 - **Logs checken:** `docker compose --env-file .env -f docker-compose.build.yml logs -f`
 
 ---
