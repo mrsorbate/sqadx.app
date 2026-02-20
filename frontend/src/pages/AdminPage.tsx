@@ -31,6 +31,8 @@ export default function AdminPage() {
   const [showCreateTeam, setShowCreateTeam] = useState(false);
   const [teamName, setTeamName] = useState('');
   const [teamDescription, setTeamDescription] = useState('');
+  const [showDeleteTeamConfirmModal, setShowDeleteTeamConfirmModal] = useState(false);
+  const [teamToDelete, setTeamToDelete] = useState<any | null>(null);
   
   const [selectedTeam, setSelectedTeam] = useState<number | null>(null);
   const [showAssignTrainer, setShowAssignTrainer] = useState(false);
@@ -247,6 +249,22 @@ export default function AdminPage() {
   const handleCreateTeam = (e: React.FormEvent) => {
     e.preventDefault();
     createTeamMutation.mutate({ name: teamName, description: teamDescription });
+  };
+
+  const handleDeleteTeam = (teamItem: any) => {
+    setTeamToDelete(teamItem);
+    setShowDeleteTeamConfirmModal(true);
+  };
+
+  const confirmDeleteTeam = async () => {
+    if (!teamToDelete) return;
+    try {
+      await deleteTeamMutation.mutateAsync(teamToDelete.id);
+      setShowDeleteTeamConfirmModal(false);
+      setTeamToDelete(null);
+    } catch (error: any) {
+      alert(error?.response?.data?.error || 'Team konnte nicht gelöscht werden');
+    }
   };
 
   const handleAssignTrainer = (e: React.FormEvent) => {
@@ -620,11 +638,7 @@ export default function AdminPage() {
                     <UserMinus className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={() => {
-                      if (confirm(`Team "${team.name}" wirklich löschen? Dies kann nicht rückgängig gemacht werden.`)) {
-                        deleteTeamMutation.mutate(team.id);
-                      }
-                    }}
+                    onClick={() => handleDeleteTeam(team)}
                     className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                     title="Team löschen"
                   >
@@ -692,6 +706,39 @@ export default function AdminPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Team Confirm Modal */}
+      {showDeleteTeamConfirmModal && teamToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="card max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Team löschen</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+              Soll <strong>{teamToDelete.name}</strong> wirklich gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden.
+            </p>
+            <div className="flex space-x-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDeleteTeamConfirmModal(false);
+                  setTeamToDelete(null);
+                }}
+                className="btn btn-secondary"
+                disabled={deleteTeamMutation.isPending}
+              >
+                Abbrechen
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteTeam}
+                className="btn bg-red-600 hover:bg-red-700 text-white"
+                disabled={deleteTeamMutation.isPending}
+              >
+                {deleteTeamMutation.isPending ? 'Löscht...' : 'Löschen'}
+              </button>
+            </div>
           </div>
         </div>
       )}
