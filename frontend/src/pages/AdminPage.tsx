@@ -417,6 +417,18 @@ export default function AdminPage() {
   const trainers = users?.filter((u: any) => u.role === 'trainer') || [];
   const players = users?.filter((u: any) => u.role === 'player') || [];
 
+  const formatTrainerOptionLabel = (trainer: any) => {
+    const isPending =
+      trainer?.registration_status === 'pending' ||
+      (typeof trainer?.email === 'string' && trainer.email.endsWith('@pending.local'));
+
+    if (isPending) {
+      return `${trainer.name} (Ausstehend)`;
+    }
+
+    return `${trainer.name} (${trainer.email})`;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center">
@@ -658,7 +670,7 @@ export default function AdminPage() {
                     return !alreadyAssigned;
                   }).map((user: any) => (
                     <option key={user.id} value={user.id}>
-                      {user.name} ({user.email})
+                      {formatTrainerOptionLabel(user)}
                     </option>
                   ))}
                 </select>
@@ -706,7 +718,7 @@ export default function AdminPage() {
                   <option value="">-- Trainer wählen --</option>
                   {teamTrainers?.map((trainer: any) => (
                     <option key={trainer.id} value={trainer.id}>
-                      {trainer.name} ({trainer.email})
+                      {formatTrainerOptionLabel(trainer)}
                     </option>
                   ))}
                 </select>
