@@ -162,4 +162,9 @@ export const profileAPI = {
   deletePicture: () => api.delete('/profile/picture'),
 };
 
+// Settings API
+export const settingsAPI = {
+  getOrganization: () => api.get('/settings/organization'),
+};
+
 export default api;

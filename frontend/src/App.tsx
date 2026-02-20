@@ -15,7 +15,7 @@ import InvitePage from './pages/InvitePage';
 import AdminPage from './pages/AdminPage';
 import SettingsPage from './pages/SettingsPage';
 import SetupWizardPage from './pages/SetupWizardPage';
-import { authAPI } from './lib/api';
+import { settingsAPI } from './lib/api';
 
 interface Organization {
   id: number;
@@ -34,7 +34,7 @@ function App() {
   useEffect(() => {
     const fetchOrganization = async () => {
       try {
-        const response = await authAPI.get('/settings/organization');
+        const response = await settingsAPI.getOrganization();
         if (response.data) {
           setOrganization(response.data);
           setSetupCompleted(response.data.setup_completed === 1);
