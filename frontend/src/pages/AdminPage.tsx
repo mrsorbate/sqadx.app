@@ -66,6 +66,7 @@ export default function AdminPage() {
   const [auditActorFilter, setAuditActorFilter] = useState('all');
   const [auditPeriodFilter, setAuditPeriodFilter] = useState('all');
   const [expandedAuditLogId, setExpandedAuditLogId] = useState<number | null>(null);
+  const [compactView, setCompactView] = useState(false);
 
   const showToast = (message: string, type: ToastType = 'error') => {
     showGlobalToast(message, type, { position: 'bottom-right' });
@@ -704,6 +705,17 @@ export default function AdminPage() {
       : null,
   ].filter(Boolean) as Array<{ key: string; label: string; clear: () => void }>;
 
+  const userTableHeadCellClass = compactView
+    ? 'px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase'
+    : 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase';
+  const userTableCellClass = compactView ? 'px-4 py-2 whitespace-nowrap' : 'px-6 py-4 whitespace-nowrap';
+  const userTableTextCellClass = compactView ? 'px-4 py-2 text-sm text-gray-600' : 'px-6 py-4 text-sm text-gray-600';
+  const userTableEmptyCellClass = compactView ? 'px-4 py-3 text-sm text-gray-500' : 'px-6 py-4 text-sm text-gray-500';
+  const userActionButtonClass = `${compactView ? 'p-1.5' : 'p-2'} rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed`;
+  const auditHeaderCellClass = compactView ? 'py-1.5 pr-3' : 'py-2 pr-4';
+  const auditCellClass = compactView ? 'py-1.5 pr-3' : 'py-2 pr-4';
+  const auditExpandedRowClass = compactView ? 'py-2 px-2 bg-gray-50 dark:bg-gray-800' : 'py-3 px-2 bg-gray-50 dark:bg-gray-800';
+
   return (
     <div className="space-y-6">
       <div className="flex items-center">
@@ -1111,13 +1123,22 @@ export default function AdminPage() {
       <div className="card">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Benutzer ({users?.length || 0})</h2>
-          <button
-            onClick={() => setShowCreateTrainer(!showCreateTrainer)}
-            className="btn btn-primary flex items-center space-x-2"
-          >
-            <UserPlus className="w-4 h-4" />
-            <span>Trainer erstellen</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setCompactView((prev) => !prev)}
+              className="btn btn-secondary text-xs"
+            >
+              {compactView ? 'Standardansicht' : 'Kompaktansicht'}
+            </button>
+            <button
+              onClick={() => setShowCreateTrainer(!showCreateTrainer)}
+              className="btn btn-primary flex items-center space-x-2"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>Trainer erstellen</span>
+            </button>
+          </div>
         </div>
 
         <div className="space-y-6">
@@ -1136,43 +1157,43 @@ export default function AdminPage() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Benutzername</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Teams</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aktionen</th>
+                    <th className={userTableHeadCellClass}>Name</th>
+                    <th className={userTableHeadCellClass}>Benutzername</th>
+                    <th className={userTableHeadCellClass}>Status</th>
+                    <th className={userTableHeadCellClass}>Email</th>
+                    <th className={userTableHeadCellClass}>Teams</th>
+                    <th className={userTableHeadCellClass}>Aktionen</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
                   {filteredTrainers.map((user: any) => (
                     <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className={userTableCellClass}>
                         <div className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className={userTableCellClass}>
                         <div className="text-sm text-gray-700 dark:text-gray-200">
                           {user.registration_status === 'pending' ? 'Wird bei Registrierung gesetzt' : (user.username || '-')}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className={userTableCellClass}>
                         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getRegistrationBadge(user.registration_status).className}`}>
                           {getRegistrationBadge(user.registration_status).label}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className={userTableCellClass}>
                         <div className="text-sm text-gray-600 dark:text-gray-300">
                           {user.registration_status === 'pending' ? '-' : user.email}
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{user.team_names || '-'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className={userTableTextCellClass}>{user.team_names || '-'}</td>
+                      <td className={userTableCellClass}>
                         <div className="flex items-center space-x-2">
                           {user.registration_status === 'pending' && (
                             <button
                               onClick={() => handleResendTrainerInvite(user)}
                               disabled={resendTrainerInviteMutation.isPending}
-                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              className={`${userActionButtonClass} text-blue-600 hover:bg-blue-50`}
                               title="Link neu versenden"
                             >
                               <Share2 className="w-4 h-4" />
@@ -1181,7 +1202,7 @@ export default function AdminPage() {
                           <button
                             onClick={() => handleResetUserPassword(user)}
                             disabled={resetUserPasswordMutation.isPending}
-                            className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className={`${userActionButtonClass} text-orange-600 hover:bg-orange-50`}
                             title="Passwort generieren & zurücksetzen"
                           >
                             <KeyRound className="w-4 h-4" />
@@ -1189,7 +1210,7 @@ export default function AdminPage() {
                           <button
                             onClick={() => handleDeleteUser(user)}
                             disabled={deleteUserMutation.isPending}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className={`${userActionButtonClass} text-red-600 hover:bg-red-50`}
                             title="Benutzer löschen"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -1200,7 +1221,7 @@ export default function AdminPage() {
                   ))}
                   {filteredTrainers.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-6 py-4 text-sm text-gray-500">
+                      <td colSpan={6} className={userTableEmptyCellClass}>
                         <div className="flex flex-col gap-2 items-start">
                           <span>{trainers.length ? 'Keine Trainer gefunden.' : 'Keine Trainer vorhanden.'}</span>
                           {trainers.length ? (
@@ -1236,40 +1257,40 @@ export default function AdminPage() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Benutzername</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Teams</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aktionen</th>
+                    <th className={userTableHeadCellClass}>Name</th>
+                    <th className={userTableHeadCellClass}>Benutzername</th>
+                    <th className={userTableHeadCellClass}>Status</th>
+                    <th className={userTableHeadCellClass}>Email</th>
+                    <th className={userTableHeadCellClass}>Teams</th>
+                    <th className={userTableHeadCellClass}>Aktionen</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
                   {filteredPlayers.map((user: any) => (
                     <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className={userTableCellClass}>
                         <div className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className={userTableCellClass}>
                         <div className="text-sm text-gray-700 dark:text-gray-200">
                           {user.registration_status === 'pending' ? 'Wird bei Registrierung gesetzt' : (user.username || '-')}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className={userTableCellClass}>
                         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getRegistrationBadge(user.registration_status).className}`}>
                           {getRegistrationBadge(user.registration_status).label}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className={userTableCellClass}>
                         <div className="text-sm text-gray-600 dark:text-gray-300">{user.email}</div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{user.team_names || '-'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className={userTableTextCellClass}>{user.team_names || '-'}</td>
+                      <td className={userTableCellClass}>
                         <div className="flex items-center space-x-2">
                           <button
                             onClick={() => handleResetUserPassword(user)}
                             disabled={resetUserPasswordMutation.isPending}
-                            className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className={`${userActionButtonClass} text-orange-600 hover:bg-orange-50`}
                             title="Passwort generieren & zurücksetzen"
                           >
                             <KeyRound className="w-4 h-4" />
@@ -1277,7 +1298,7 @@ export default function AdminPage() {
                           <button
                             onClick={() => handleDeleteUser(user)}
                             disabled={deleteUserMutation.isPending}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className={`${userActionButtonClass} text-red-600 hover:bg-red-50`}
                             title="Benutzer löschen"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -1288,7 +1309,7 @@ export default function AdminPage() {
                   ))}
                   {filteredPlayers.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-6 py-4 text-sm text-gray-500">
+                      <td colSpan={6} className={userTableEmptyCellClass}>
                         <div className="flex flex-col gap-2 items-start">
                           <span>{players.length ? 'Keine Spieler gefunden.' : 'Keine Spieler vorhanden.'}</span>
                           {players.length && (
@@ -1530,35 +1551,35 @@ export default function AdminPage() {
             <table className="min-w-full text-sm">
               <thead>
                 <tr className="text-left text-gray-500 dark:text-gray-400 border-b dark:border-gray-700">
-                  <th className="py-2 pr-4">Zeitpunkt</th>
-                  <th className="py-2 pr-4">Admin</th>
-                  <th className="py-2 pr-4">Aktion</th>
-                  <th className="py-2 pr-4">Ziel</th>
-                  <th className="py-2 pr-4">Details</th>
-                  <th className="py-2">Mehr</th>
+                  <th className={auditHeaderCellClass}>Zeitpunkt</th>
+                  <th className={auditHeaderCellClass}>Admin</th>
+                  <th className={auditHeaderCellClass}>Aktion</th>
+                  <th className={auditHeaderCellClass}>Ziel</th>
+                  <th className={auditHeaderCellClass}>Details</th>
+                  <th className={compactView ? 'py-1.5' : 'py-2'}>Mehr</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredAuditLogs.map((log: any) => (
                   <Fragment key={log.id}>
                     <tr className="border-b dark:border-gray-800 align-top">
-                      <td className="py-2 pr-4 whitespace-nowrap text-gray-700 dark:text-gray-200">
+                      <td className={`${auditCellClass} whitespace-nowrap text-gray-700 dark:text-gray-200`}>
                         <div>{formatDateTime(log.created_at)}</div>
                         <div className="text-xs text-gray-500 dark:text-gray-400">{formatRelativeTime(log.created_at)}</div>
                       </td>
-                      <td className="py-2 pr-4 text-gray-700 dark:text-gray-200">
+                      <td className={`${auditCellClass} text-gray-700 dark:text-gray-200`}>
                         {log.actor_name || log.actor_username || `#${log.actor_id}`}
                       </td>
-                      <td className="py-2 pr-4 text-gray-900 dark:text-white font-medium">
+                      <td className={`${auditCellClass} text-gray-900 dark:text-white font-medium`}>
                         {formatAuditAction(log.action)}
                       </td>
-                      <td className="py-2 pr-4 text-gray-700 dark:text-gray-200">
+                      <td className={`${auditCellClass} text-gray-700 dark:text-gray-200`}>
                         {log.target_type ? `${log.target_type} #${log.target_id ?? '—'}` : '—'}
                       </td>
-                      <td className="py-2 pr-4 text-gray-600 dark:text-gray-300">
+                      <td className={`${auditCellClass} text-gray-600 dark:text-gray-300`}>
                         {log.details?.team_name || log.details?.target_name || log.details?.trainer_name || '—'}
                       </td>
-                      <td className="py-2">
+                      <td className={compactView ? 'py-1.5' : 'py-2'}>
                         <button
                           type="button"
                           onClick={() => setExpandedAuditLogId((prev) => (prev === log.id ? null : log.id))}
@@ -1570,7 +1591,7 @@ export default function AdminPage() {
                     </tr>
                     {expandedAuditLogId === log.id && (
                       <tr className="border-b dark:border-gray-800">
-                        <td colSpan={6} className="py-3 px-2 bg-gray-50 dark:bg-gray-800">
+                        <td colSpan={6} className={auditExpandedRowClass}>
                           {log.details && Object.keys(log.details).length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                               {Object.entries(log.details).map(([detailKey, detailValue]) => (
