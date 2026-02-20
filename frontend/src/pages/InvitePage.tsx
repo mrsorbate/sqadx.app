@@ -66,6 +66,15 @@ export default function InvitePage() {
       const authStore = useAuthStore.getState();
       authStore.setAuth(registerResponse.data.token, registerResponse.data.user);
 
+      const isTrainerRegistration =
+        invite.invite_type === 'trainer_setup' ||
+        registerResponse.data.user?.role === 'trainer';
+
+      if (isTrainerRegistration) {
+        navigate('/');
+        return;
+      }
+
       const targetTeamId = registerResponse.data.team_id || invite.team_id;
       navigate(targetTeamId ? `/teams/${targetTeamId}` : '/');
     },
