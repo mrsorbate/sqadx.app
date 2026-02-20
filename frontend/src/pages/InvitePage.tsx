@@ -130,11 +130,20 @@ export default function InvitePage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
+          {/* App Branding */}
+          <div className="flex flex-col items-center mb-6">
+            <img src="/kadr-logo.svg" alt="kadr logo" className="h-16 w-16 mb-3" />
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">KADR.app</h1>
+          </div>
+
+          {/* Separator */}
+          <hr className="my-6 border-gray-300 dark:border-gray-600" />
+
+          {/* Organization Info */}
           <div className="flex items-center justify-center space-x-3 mb-4">
-            <img src="/kadr-logo.svg" alt="kadr logo" className="h-12 w-12" />
             {organizationLogo && (
               <img 
                 src={`${API_URL}${organizationLogo}`} 
@@ -142,10 +151,11 @@ export default function InvitePage() {
                 className="h-12 w-auto object-contain"
               />
             )}
+            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+              {organizationName}
+            </h2>
           </div>
-          <h2 className="mt-2 text-2xl font-extrabold text-gray-900 dark:text-white">
-            {organizationName}
-          </h2>
+
           <p className="mt-2 text-lg font-semibold text-primary-600 dark:text-primary-400">
             Einladung zum Team
           </p>
