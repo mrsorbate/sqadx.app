@@ -17,6 +17,7 @@ export default function SettingsPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [showDeletePictureConfirmModal, setShowDeletePictureConfirmModal] = useState(false);
 
   const showToast = (message: string, type: 'success' | 'error' = 'error') => {
     setToast({ message, type });
@@ -130,9 +131,15 @@ export default function SettingsPage() {
   };
 
   const handleDeletePicture = () => {
-    if (confirm('Profilbild wirklich löschen?')) {
-      deletePictureMutation.mutate();
-    }
+    setShowDeletePictureConfirmModal(true);
+  };
+
+  const confirmDeletePicture = () => {
+    deletePictureMutation.mutate(undefined, {
+      onSettled: () => {
+        setShowDeletePictureConfirmModal(false);
+      },
+    });
   };
 
   const profilePictureUrl = profile?.profile_picture
@@ -342,6 +349,36 @@ export default function SettingsPage() {
           </button>
         </form>
       </div>
+
+      {showDeletePictureConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-xl">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Profilbild löschen?</h3>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+              Möchtest du dein Profilbild wirklich dauerhaft entfernen?
+            </p>
+
+            <div className="mt-6 flex justify-end space-x-3">
+              <button
+                type="button"
+                onClick={() => setShowDeletePictureConfirmModal(false)}
+                disabled={deletePictureMutation.isPending}
+                className="btn btn-secondary"
+              >
+                Abbrechen
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeletePicture}
+                disabled={deletePictureMutation.isPending}
+                className="btn bg-red-600 hover:bg-red-700 text-white"
+              >
+                {deletePictureMutation.isPending ? 'Löscht...' : 'Löschen'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
