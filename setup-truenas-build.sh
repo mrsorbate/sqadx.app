@@ -15,7 +15,7 @@ NC='\033[0m'
 echo -e "${BLUE}🚀 sqadX.app - TrueNAS Setup (Build Mode)${NC}\n"
 
 # Konfiguration
-BASE_PATH="${BASE_PATH:-/mnt/DATA/docker/kadr}"
+BASE_PATH="${BASE_PATH:-/mnt/DATA/docker/sqadx}"
 FRONTEND_PORT="${FRONTEND_PORT:-18080}"
 TRUENAS_IP="${TRUENAS_IP:-localhost}"
 COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.build.yml}"

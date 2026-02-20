@@ -35,7 +35,7 @@ chmod +x setup-truenas-build.sh
 ```
 
 Das Script macht automatisch:
-- ✅ Verzeichnisse erstellen (`/mnt/DATA/docker/kadr/`)
+- ✅ Verzeichnisse erstellen (`/mnt/DATA/docker/sqadx/`)
 - ✅ Sicheres JWT_SECRET generiert
 - ✅ `.env` mit allen Werten erstellt
 - ✅ Docker Images gebaut
@@ -68,8 +68,8 @@ Das Script macht:
 
 | Was | Wo | Wichtig |
 |-----|----|----|
-| **Datenbank** | `/mnt/DATA/docker/kadr/data/database.sqlite` | ⚠️ Backup regelmäßig |
-| **Uploaded Bilder** | `/mnt/DATA/docker/kadr/uploads/` | ⚠️ Wichtige Daten |
+| **Datenbank** | `/mnt/DATA/docker/sqadx/data/database.sqlite` | ⚠️ Backup regelmäßig |
+| **Uploaded Bilder** | `/mnt/DATA/docker/sqadx/uploads/` | ⚠️ Wichtige Daten |
 | **Config** | `.env` (root des Repos) | 🔑 Nicht löschen |
 | **Docker Logs** | Container-Logs | 📝 Zum Debugging |
 
@@ -122,8 +122,8 @@ Das `update-truenas.sh`-Script erstellt vor jedem Update ein Backup:
 ### Manuelles Backup der Datenbank
 
 ```bash
-cp -v /mnt/DATA/docker/kadr/data/database.sqlite \
-      /mnt/DATA/docker/kadr/data/database.sqlite.backup.$(date +%Y%m%d)
+cp -v /mnt/DATA/docker/sqadx/data/database.sqlite \
+      /mnt/DATA/docker/sqadx/data/database.sqlite.backup.$(date +%Y%m%d)
 ```
 
 ### Datenbank aus Backup wiederherstellen
@@ -133,8 +133,8 @@ cd /mnt/DATA/docker/sqadX.app
 docker compose --env-file .env -f docker-compose.build.yml down
 
 # Backup zurück-copy
-cp /mnt/DATA/docker/kadr/data/database.sqlite.backup.20260220 \
-   /mnt/DATA/docker/kadr/data/database.sqlite
+cp /mnt/DATA/docker/sqadx/data/database.sqlite.backup.20260220 \
+      /mnt/DATA/docker/sqadx/data/database.sqlite
 
 # Neu starten
 ./setup-truenas-build.sh
@@ -162,11 +162,11 @@ nano .env
 ### "Datenbank-Fehler"
 ```bash
 # Verzeichnis-Rechte checken
-ls -la /mnt/DATA/docker/kadr/data/
+ls -la /mnt/DATA/docker/sqadx/data/
 
 # Falls nötig:
-chmod 755 /mnt/DATA/docker/kadr/data
-chmod 755 /mnt/DATA/docker/kadr/uploads
+chmod 755 /mnt/DATA/docker/sqadx/data
+chmod 755 /mnt/DATA/docker/sqadx/uploads
 ```
 
 ### "Kompletter Neustart (Daten bleiben)"

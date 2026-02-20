@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 kadr - Setup & Start"
+echo "🚀 sqadX.app - Setup & Start"
 echo "================================"
 echo ""
 

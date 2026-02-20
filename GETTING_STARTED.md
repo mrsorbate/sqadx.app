@@ -1,4 +1,4 @@
-# 🚀 kadr - Installation & Start
+# 🚀 sqadX.app - Installation & Start
 
 Eine moderne Team-Management-App für Sportvereine.
 

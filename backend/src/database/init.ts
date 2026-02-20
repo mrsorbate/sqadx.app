@@ -13,7 +13,7 @@ db.exec(`
   -- Organization settings table
   CREATE TABLE IF NOT EXISTS organizations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL DEFAULT 'kadr-Verein',
+    name TEXT NOT NULL DEFAULT 'Dein Verein',
     logo TEXT,
     timezone TEXT DEFAULT 'Europe/Berlin',
     setup_completed INTEGER DEFAULT 0,
@@ -253,7 +253,7 @@ try {
     db.prepare(`
       INSERT INTO organizations (name, timezone, setup_completed) 
       VALUES (?, ?, ?)
-    `).run('kadr-Verein', 'Europe/Berlin', 0);
+    `).run('Dein Verein', 'Europe/Berlin', 0);
     console.log('✅ Created default organization');
   }
 } catch (error) {

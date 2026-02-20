@@ -1,6 +1,6 @@
 services:
-  kadr-backend:
-    container_name: kadr-backend
+  sqadx-backend:
+    container_name: sqadx-backend
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -20,13 +20,13 @@ services:
           - backend
     restart: unless-stopped
 
-  kadr-frontend:
-    container_name: kadr-frontend
+  sqadx-frontend:
+    container_name: sqadx-frontend
     build:
       context: ./frontend
       dockerfile: Dockerfile
     depends_on:
-      - kadr-backend
+      - sqadx-backend
     ports:
       - '${FRONTEND_PORT:-18080}:80'
     restart: unless-stopped
