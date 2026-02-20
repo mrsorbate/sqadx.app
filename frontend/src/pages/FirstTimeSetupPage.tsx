@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
 import axios from 'axios';
+import { resolveAssetUrl } from '../lib/utils';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -239,7 +240,7 @@ export default function FirstTimeSetupPage() {
                 </p>
                 {logoPreview && (
                   <div className="mt-3 flex items-center space-x-3">
-                    <img src={logoPreview} alt="Logo Vorschau" className="h-12 w-12 rounded object-contain bg-white border" />
+                    <img src={resolveAssetUrl(logoPreview)} alt="Logo Vorschau" className="h-12 w-12 rounded object-contain bg-white border" />
                     <span className="text-sm text-gray-600 dark:text-gray-300">{logoFile?.name}</span>
                   </div>
                 )}

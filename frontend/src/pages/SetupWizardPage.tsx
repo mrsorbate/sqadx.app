@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Upload, Building2, Globe, Shield } from 'lucide-react';
 import axios from 'axios';
+import { resolveAssetUrl } from '../lib/utils';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -234,7 +235,7 @@ export default function SetupWizardPage() {
                 </p>
                 {logoPreview && (
                   <div className="mt-3 flex items-center gap-3">
-                    <img src={logoPreview} alt="Logo Vorschau" className="h-12 w-12 rounded object-contain border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700" />
+                    <img src={resolveAssetUrl(logoPreview)} alt="Logo Vorschau" className="h-12 w-12 rounded object-contain border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700" />
                     <span className="text-sm text-gray-600 dark:text-gray-300">{setupData.logo?.name}</span>
                   </div>
                 )}
