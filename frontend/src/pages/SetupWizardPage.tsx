@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Upload, Building2, Globe } from 'lucide-react';
-import Layout from '../components/Layout';
-import { authAPI } from '../lib/api';
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 const TIMEZONES = [
   'Europe/Berlin',
@@ -36,18 +37,21 @@ export default function SetupWizardPage() {
 
   const setupMutation = useMutation({
     mutationFn: async () => {
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
       // Step 1: Setup organization
-      const setupResponse = await authAPI.post('/admin/settings/setup', {
+      const setupResponse = await axios.post(`${API_URL}/api/admin/settings/setup`, {
         organizationName: setupData.organizationName,
         timezone: setupData.timezone,
-      });
+      }, { headers });
 
       // Step 2: Upload logo if provided
       if (setupData.logo) {
         const formData = new FormData();
         formData.append('logo', setupData.logo);
-        await authAPI.post('/admin/upload/logo', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
+        await axios.post(`${API_URL}/api/admin/upload/logo`, formData, {
+          headers: { ...headers, 'Content-Type': 'multipart/form-data' },
         });
       }
 
@@ -107,11 +111,10 @@ export default function SetupWizardPage() {
   };
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-2xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-12">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-2xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-gray-900 mb-2">
               Willkommen bei TeamPilot
             </h1>
@@ -307,6 +310,6 @@ export default function SetupWizardPage() {
           </p>
         </div>
       </div>
-    </Layout>
+    </div>
   );
 }
