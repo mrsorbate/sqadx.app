@@ -15,6 +15,7 @@ import InvitePage from './pages/InvitePage';
 import AdminPage from './pages/AdminPage';
 import SettingsPage from './pages/SettingsPage';
 import SetupWizardPage from './pages/SetupWizardPage';
+import FirstTimeSetupPage from './pages/FirstTimeSetupPage';
 import { settingsAPI } from './lib/api';
 import { useDarkMode } from './hooks/useDarkMode';
 
@@ -51,12 +52,9 @@ function App() {
       }
     };
 
-    if (token) {
-      fetchOrganization();
-    } else {
-      setLoading(false);
-    }
-  }, [token]);
+    // Always fetch organization on mount (even without token)
+    fetchOrganization();
+  }, []);
 
   if (loading) {
     return (
@@ -71,35 +69,49 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/login" element={!token ? <LoginPage /> : <Navigate to="/" />} />
-      <Route path="/register" element={!token ? <RegisterPage /> : <Navigate to="/" />} />
-      <Route path="/invite/:token" element={<InvitePage />} />
-      
-      {/* Setup wizard - only for admins who haven't completed setup */}
-      <Route
-        path="/setup"
-        element={
-          token && !setupCompleted ? (
-            <SetupWizardPage />
-          ) : (
-            <Navigate to="/" />
-          )
-        }
-      />
+      {/* First-time setup (no login required) */}
+      {!setupCompleted && !token && <Route path="*" element={<FirstTimeSetupPage />} />}
 
-      <Route element={token ? <Layout organization={organization} /> : <Navigate to="/login" />}>
-        <Route path="/" element={!setupCompleted ? <Navigate to="/setup" /> : <DashboardPage />} />
-        <Route path="/admin" element={<AdminPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/teams" element={<TeamsPage />} />
-        <Route path="/events" element={<EventsPage />} />
-        <Route path="/events/new" element={<EventCreatePage />} />
-        <Route path="/teams/:id" element={<TeamPage />} />
-        <Route path="/teams/:id/events" element={<EventsPage />} />
-        <Route path="/teams/:id/events/new" element={<EventCreatePage />} />
-        <Route path="/events/:id" element={<EventDetailPage />} />
-        <Route path="/teams/:id/stats" element={<StatsPage />} />
-      </Route>
+      {/* Normal flow: login/register only available after setup */}
+      {setupCompleted && !token && (
+        <>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/invite/:token" element={<InvitePage />} />
+          <Route path="*" element={<Navigate to="/login" />} />
+        </>
+      )}
+
+      {/* Authenticated routes */}
+      {token && (
+        <>
+          {/* Setup wizard for completing org setup (logo, etc) */}
+          <Route
+            path="/setup"
+            element={
+              !setupCompleted ? (
+                <SetupWizardPage />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+
+          <Route element={<Layout organization={organization} />}>
+            <Route path="/" element={!setupCompleted ? <Navigate to="/setup" /> : <DashboardPage />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/teams" element={<TeamsPage />} />
+            <Route path="/events" element={<EventsPage />} />
+            <Route path="/events/new" element={<EventCreatePage />} />
+            <Route path="/teams/:id" element={<TeamPage />} />
+            <Route path="/teams/:id/events" element={<EventsPage />} />
+            <Route path="/teams/:id/events/new" element={<EventCreatePage />} />
+            <Route path="/events/:id" element={<EventDetailPage />} />
+            <Route path="/teams/:id/stats" element={<StatsPage />} />
+          </Route>
+        </>
+      )}
     </Routes>
   );
 }

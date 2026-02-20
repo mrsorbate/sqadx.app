@@ -1,10 +1,84 @@
 import { Router } from 'express';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import db from '../database/init';
 import { authenticate, AuthRequest } from '../middleware/auth';
 
 const router = Router();
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-// All routes require authentication
+// First-time setup endpoint (no auth required)
+// This creates the first admin user and completes organization setup
+router.post('/first-setup', async (req, res) => {
+  try {
+    const { organizationName, adminEmail, adminPassword, timezone } = req.body;
+
+    // Validate input
+    if (!organizationName || !adminEmail || !adminPassword) {
+      return res.status(400).json({ error: 'Organization name, email and password are required' });
+    }
+
+    if (adminPassword.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    // Check if setup has already been completed
+    const org = db.prepare('SELECT setup_completed FROM organizations WHERE id = 1').get() as any;
+    if (org?.setup_completed === 1) {
+      return res.status(403).json({ error: 'Setup has already been completed' });
+    }
+
+    // Check if admin already exists
+    const existingAdmin = db.prepare("SELECT id FROM users WHERE role = 'admin'").get();
+    if (existingAdmin) {
+      return res.status(403).json({ error: 'Admin already exists' });
+    }
+
+    // Check if email is already used
+    const existingEmail = db.prepare('SELECT id FROM users WHERE email = ?').get(adminEmail);
+    if (existingEmail) {
+      return res.status(409).json({ error: 'Email already exists' });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(adminPassword, 10);
+
+    // Create admin user
+    const userStmt = db.prepare(
+      'INSERT INTO users (email, password, name, role) VALUES (?, ?, ?, ?)'
+    );
+    const userResult = userStmt.run(adminEmail, hashedPassword, 'Admin', 'admin');
+
+    // Update organization
+    db.prepare(`
+      UPDATE organizations 
+      SET name = ?, timezone = ?, setup_completed = 1, updated_at = CURRENT_TIMESTAMP
+      WHERE id = 1
+    `).run(organizationName, timezone || 'Europe/Berlin');
+
+    // Generate token
+    const token = jwt.sign(
+      { id: userResult.lastInsertRowid, email: adminEmail, role: 'admin' },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.status(201).json({
+      token,
+      user: {
+        id: userResult.lastInsertRowid,
+        email: adminEmail,
+        name: 'Admin',
+        role: 'admin'
+      }
+    });
+  } catch (error) {
+    console.error('First-time setup error:', error);
+    res.status(500).json({ error: 'Setup failed' });
+  }
+});
+
+// All routes below require authentication
 router.use(authenticate);
 
 // Middleware to check admin role
