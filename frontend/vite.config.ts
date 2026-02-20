@@ -12,24 +12,26 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      includeAssets: ['sqadx-logo.svg', 'masked-icon.svg'],
       manifest: {
         name: 'sqadX.app',
         short_name: 'sqadX',
-        description: 'Moderne Team-Management-App für Sportvereine',
-        theme_color: '#3b82f6',
-        background_color: '#ffffff',
+        description: 'sqadX.app - Team-Management Software für Sportvereine',
+        theme_color: '#071535',
+        background_color: '#071535',
         display: 'standalone',
         icons: [
           {
-            src: 'pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
+            src: 'sqadx-logo.svg',
+            sizes: 'any',
+            type: 'image/svg+xml',
+            purpose: 'any'
           },
           {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
+            src: 'masked-icon.svg',
+            sizes: 'any',
+            type: 'image/svg+xml',
+            purpose: 'maskable'
           }
         ]
       }
