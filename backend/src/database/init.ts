@@ -29,6 +29,7 @@ db.exec(`
     password TEXT NOT NULL,
     name TEXT NOT NULL,
     role TEXT NOT NULL CHECK(role IN ('admin', 'trainer', 'player')),
+    is_registered INTEGER NOT NULL DEFAULT 1,
     profile_picture TEXT,
     birth_date DATE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -124,12 +125,14 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     token TEXT UNIQUE NOT NULL,
     invited_name TEXT NOT NULL,
+    invited_user_id INTEGER,
     team_ids TEXT NOT NULL,
     created_by INTEGER NOT NULL,
     expires_at DATETIME,
     used_count INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (created_by) REFERENCES users(id)
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    FOREIGN KEY (invited_user_id) REFERENCES users(id) ON DELETE CASCADE
   );
 
   -- Create indexes for better performance
@@ -209,6 +212,12 @@ try {
     db.exec('ALTER TABLE users ADD COLUMN birth_date DATE');
     console.log('✅ Added birth_date column to users table');
   }
+
+  const hasIsRegistered = columns.some((col) => col.name === 'is_registered');
+  if (!hasIsRegistered) {
+    db.exec('ALTER TABLE users ADD COLUMN is_registered INTEGER NOT NULL DEFAULT 1');
+    console.log('✅ Added is_registered column to users table');
+  }
   
   // Add player info columns to team_invites
   const inviteColumns = db.pragma('table_info(team_invites)') as Array<{ name: string }>;
@@ -259,6 +268,13 @@ try {
   if (!hasTeamPicture) {
     db.exec('ALTER TABLE teams ADD COLUMN team_picture TEXT');
     console.log('✅ Added team_picture column to teams table');
+  }
+
+  const trainerInviteColumns = db.pragma('table_info(trainer_invites)') as Array<{ name: string }>;
+  const hasInvitedUserId = trainerInviteColumns.some((col) => col.name === 'invited_user_id');
+  if (!hasInvitedUserId) {
+    db.exec('ALTER TABLE trainer_invites ADD COLUMN invited_user_id INTEGER');
+    console.log('✅ Added invited_user_id column to trainer_invites table');
   }
 
   // Ensure at least one organization exists

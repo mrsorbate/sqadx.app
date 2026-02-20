@@ -171,6 +171,11 @@ router.get('/users', (req: AuthRequest, res) => {
         u.name,
         u.email,
         u.role,
+        u.is_registered,
+        CASE
+          WHEN u.role = 'trainer' AND COALESCE(u.is_registered, 1) = 0 THEN 'pending'
+          ELSE 'registered'
+        END as registration_status,
         u.created_at,
         (SELECT COUNT(*) FROM team_members WHERE user_id = u.id) as team_count
       FROM users u
@@ -209,6 +214,7 @@ router.delete('/users/:id', (req: AuthRequest, res) => {
     const transaction = db.transaction(() => {
       db.prepare('DELETE FROM team_invites WHERE created_by = ?').run(userId);
       db.prepare('DELETE FROM trainer_invites WHERE created_by = ?').run(userId);
+      db.prepare('DELETE FROM trainer_invites WHERE invited_user_id = ?').run(userId);
       db.prepare('DELETE FROM events WHERE created_by = ?').run(userId);
       db.prepare('DELETE FROM teams WHERE created_by = ?').run(userId);
       db.prepare('DELETE FROM users WHERE id = ?').run(userId);
@@ -257,17 +263,65 @@ router.post('/trainer-invites', (req: AuthRequest, res) => {
       expiresAt = expiry.toISOString();
     }
 
-    const result = db.prepare(
-      'INSERT INTO trainer_invites (token, invited_name, team_ids, created_by, expires_at) VALUES (?, ?, ?, ?, ?)'
-    ).run(token, normalizedName, JSON.stringify(normalizedTeamIds), req.user!.id, expiresAt);
+    const generatePendingUsername = (): string => {
+      while (true) {
+        const candidate = `pending_tr_${crypto.randomBytes(6).toString('hex')}`.slice(0, 30);
+        const existing = db.prepare('SELECT id FROM users WHERE username = ?').get(candidate);
+        if (!existing) {
+          return candidate;
+        }
+      }
+    };
+
+    const pendingUsername = generatePendingUsername();
+    const pendingEmail = `${pendingUsername}@pending.local`;
+    const pendingPasswordHash = bcrypt.hashSync(crypto.randomBytes(24).toString('hex'), 10);
+
+    let createdUserId = 0;
+
+    const transaction = db.transaction(() => {
+      const userResult = db.prepare(
+        'INSERT INTO users (username, email, password, name, role, is_registered) VALUES (?, ?, ?, ?, ?, 0)'
+      ).run(pendingUsername, pendingEmail, pendingPasswordHash, normalizedName, 'trainer');
+
+      createdUserId = Number(userResult.lastInsertRowid);
+
+      const addMemberStmt = db.prepare(
+        'INSERT INTO team_members (team_id, user_id, role) VALUES (?, ?, ?)' 
+      );
+
+      const responseStmt = db.prepare(
+        'INSERT OR IGNORE INTO event_responses (event_id, user_id, status) VALUES (?, ?, ?)' 
+      );
+
+      for (const teamId of normalizedTeamIds) {
+        addMemberStmt.run(teamId, createdUserId, 'trainer');
+
+        const upcomingEvents = db.prepare(
+          'SELECT id FROM events WHERE team_id = ? AND start_time >= datetime("now")'
+        ).all(teamId) as Array<{ id: number }>;
+
+        for (const event of upcomingEvents) {
+          responseStmt.run(event.id, createdUserId, 'pending');
+        }
+      }
+
+      db.prepare(
+        'INSERT INTO trainer_invites (token, invited_name, invited_user_id, team_ids, created_by, expires_at) VALUES (?, ?, ?, ?, ?, ?)'
+      ).run(token, normalizedName, createdUserId, JSON.stringify(normalizedTeamIds), req.user!.id, expiresAt);
+    });
+
+    transaction();
 
     res.status(201).json({
-      id: result.lastInsertRowid,
+      id: createdUserId,
+      user_id: createdUserId,
       token,
       invited_name: normalizedName,
       team_ids: normalizedTeamIds,
       team_names: existingTeams.map((team) => team.name),
       expires_at: expiresAt,
+      registration_status: 'pending',
       invite_url: `${process.env.FRONTEND_URL || 'http://localhost:5174'}/invite/${token}`
     });
   } catch (error) {

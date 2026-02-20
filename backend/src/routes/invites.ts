@@ -330,7 +330,7 @@ router.post('/invites/:token/register', async (req, res) => {
     }
 
     const trainerInvite = db.prepare(`
-      SELECT id, invited_name, team_ids, expires_at, used_count
+      SELECT id, invited_name, invited_user_id, team_ids, expires_at, used_count
       FROM trainer_invites
       WHERE token = ?
     `).get(token) as any;
@@ -344,14 +344,19 @@ router.post('/invites/:token/register', async (req, res) => {
         return res.status(410).json({ error: 'Invite has already been used' });
       }
 
-      const existingUsername = db.prepare('SELECT id FROM users WHERE LOWER(username) = ?').get(normalizedUsername);
+      const existingUsername = db.prepare('SELECT id FROM users WHERE LOWER(username) = ?').get(normalizedUsername) as any;
       if (existingUsername) {
-        return res.status(409).json({ error: 'Username already exists' });
+        if (!trainerInvite.invited_user_id || existingUsername.id !== trainerInvite.invited_user_id) {
+          return res.status(409).json({ error: 'Username already exists' });
+        }
       }
 
-      const existingUser = db.prepare('SELECT id FROM users WHERE LOWER(email) = LOWER(?)').get(email);
+      const normalizedEmail = String(email).trim().toLowerCase();
+      const existingUser = db.prepare('SELECT id FROM users WHERE LOWER(email) = LOWER(?)').get(normalizedEmail) as any;
       if (existingUser) {
-        return res.status(409).json({ error: 'User with this email already exists' });
+        if (!trainerInvite.invited_user_id || existingUser.id !== trainerInvite.invited_user_id) {
+          return res.status(409).json({ error: 'User with this email already exists' });
+        }
       }
 
       let teamIds: number[] = [];
@@ -376,40 +381,55 @@ router.post('/invites/:token/register', async (req, res) => {
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      const userStmt = db.prepare(
-        'INSERT INTO users (username, email, password, name, role) VALUES (?, ?, ?, ?, ?)'
-      );
-      const userResult = userStmt.run(normalizedUsername, email, hashedPassword, trainerInvite.invited_name, 'trainer');
+      let trainerUserId = Number(trainerInvite.invited_user_id || 0);
 
-      const addMemberStmt = db.prepare(
-        'INSERT INTO team_members (team_id, user_id, role) VALUES (?, ?, ?)'
-      );
-
-      const responseStmt = db.prepare(
-        'INSERT INTO event_responses (event_id, user_id, status) VALUES (?, ?, ?)' 
-      );
-
-      const seenEvents = new Set<number>();
-
-      for (const teamId of validTeamIds) {
-        addMemberStmt.run(teamId, userResult.lastInsertRowid, 'trainer');
-
-        const upcomingEvents = db.prepare(
-          'SELECT id FROM events WHERE team_id = ? AND start_time >= datetime("now")'
-        ).all(teamId) as Array<{ id: number }>;
-
-        for (const event of upcomingEvents) {
-          if (!seenEvents.has(event.id)) {
-            responseStmt.run(event.id, userResult.lastInsertRowid, 'pending');
-            seenEvents.add(event.id);
+      const transaction = db.transaction(() => {
+        if (trainerUserId > 0) {
+          const existingTrainer = db.prepare('SELECT id FROM users WHERE id = ? AND role = ?').get(trainerUserId, 'trainer');
+          if (!existingTrainer) {
+            throw new Error('Linked trainer account not found');
           }
-        }
-      }
 
-      db.prepare('UPDATE trainer_invites SET used_count = used_count + 1 WHERE id = ?').run(trainerInvite.id);
+          db.prepare(
+            'UPDATE users SET username = ?, email = ?, password = ?, is_registered = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+          ).run(normalizedUsername, normalizedEmail, hashedPassword, trainerUserId);
+        } else {
+          const userStmt = db.prepare(
+            'INSERT INTO users (username, email, password, name, role, is_registered) VALUES (?, ?, ?, ?, ?, 1)'
+          );
+          const userResult = userStmt.run(normalizedUsername, normalizedEmail, hashedPassword, trainerInvite.invited_name, 'trainer');
+          trainerUserId = Number(userResult.lastInsertRowid);
+
+          const addMemberStmt = db.prepare(
+            'INSERT INTO team_members (team_id, user_id, role) VALUES (?, ?, ?)'
+          );
+
+          const responseStmt = db.prepare(
+            'INSERT OR IGNORE INTO event_responses (event_id, user_id, status) VALUES (?, ?, ?)' 
+          );
+
+          for (const teamId of validTeamIds) {
+            addMemberStmt.run(teamId, trainerUserId, 'trainer');
+
+            const upcomingEvents = db.prepare(
+              'SELECT id FROM events WHERE team_id = ? AND start_time >= datetime("now")'
+            ).all(teamId) as Array<{ id: number }>;
+
+            for (const event of upcomingEvents) {
+              responseStmt.run(event.id, trainerUserId, 'pending');
+            }
+          }
+
+          db.prepare('UPDATE trainer_invites SET invited_user_id = ? WHERE id = ?').run(trainerUserId, trainerInvite.id);
+        }
+
+        db.prepare('UPDATE trainer_invites SET used_count = used_count + 1 WHERE id = ?').run(trainerInvite.id);
+      });
+
+      transaction();
 
       const authToken = jwt.sign(
-        { id: userResult.lastInsertRowid, username: normalizedUsername, email, role: 'trainer' },
+        { id: trainerUserId, username: normalizedUsername, email: normalizedEmail, role: 'trainer' },
         JWT_SECRET,
         { expiresIn: '7d' }
       );
@@ -417,9 +437,9 @@ router.post('/invites/:token/register', async (req, res) => {
       return res.status(201).json({
         token: authToken,
         user: {
-          id: userResult.lastInsertRowid,
+          id: trainerUserId,
           username: normalizedUsername,
-          email,
+          email: normalizedEmail,
           name: trainerInvite.invited_name,
           role: 'trainer'
         },

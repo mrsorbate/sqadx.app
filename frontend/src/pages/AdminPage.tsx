@@ -174,6 +174,8 @@ export default function AdminPage() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin-teams'] });
       await queryClient.refetchQueries({ queryKey: ['admin-teams'] });
+      await queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      await queryClient.refetchQueries({ queryKey: ['admin-users'] });
     },
   });
 
@@ -689,6 +691,7 @@ export default function AdminPage() {
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Benutzername</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Teams</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aktionen</th>
@@ -704,7 +707,14 @@ export default function AdminPage() {
                         <div className="text-sm text-gray-700 dark:text-gray-200">{user.username || '-'}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-600 dark:text-gray-300">{user.email}</div>
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${user.registration_status === 'pending' ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'}`}>
+                          {user.registration_status === 'pending' ? 'Ausstehend' : 'Registriert'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-600 dark:text-gray-300">
+                          {user.registration_status === 'pending' ? '-' : user.email}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{user.team_count} Team{user.team_count !== 1 ? 's' : ''}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -721,7 +731,7 @@ export default function AdminPage() {
                   ))}
                   {trainers.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="px-6 py-4 text-sm text-gray-500">Keine Trainer vorhanden.</td>
+                      <td colSpan={6} className="px-6 py-4 text-sm text-gray-500">Keine Trainer vorhanden.</td>
                     </tr>
                   )}
                 </tbody>
@@ -737,6 +747,7 @@ export default function AdminPage() {
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Benutzername</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Teams</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aktionen</th>
@@ -750,6 +761,11 @@ export default function AdminPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-700 dark:text-gray-200">{user.username || '-'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${user.registration_status === 'pending' ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'}`}>
+                          {user.registration_status === 'pending' ? 'Ausstehend' : 'Registriert'}
+                        </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-600 dark:text-gray-300">{user.email}</div>
@@ -769,7 +785,7 @@ export default function AdminPage() {
                   ))}
                   {players.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="px-6 py-4 text-sm text-gray-500">Keine Spieler vorhanden.</td>
+                      <td colSpan={6} className="px-6 py-4 text-sm text-gray-500">Keine Spieler vorhanden.</td>
                     </tr>
                   )}
                 </tbody>
