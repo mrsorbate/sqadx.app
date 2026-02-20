@@ -81,11 +81,11 @@ export default function DashboardPage() {
             <div className="flex flex-col items-center">
               <div className="flex items-center justify-center">
                 {teams.filter((t: any) => getTeamPhotoUrl(t)).slice(0, 2).map((team: any, index: number) => (
-                  <div key={team.id} className={`${index > 0 ? '-ml-16' : ''} relative`}>
+                  <div key={team.id} className={`${index > 0 ? '-ml-10' : ''} relative`}>
                     <img
                       src={getTeamPhotoUrl(team)!}
                       alt={team.name}
-                      className="w-48 h-48 object-cover rounded-2xl shadow-lg border-4 border-white dark:border-gray-800"
+                      className="w-48 h-48 object-cover rounded-xl shadow-md border-2 border-white dark:border-gray-800"
                     />
                   </div>
                 ))}
