@@ -379,7 +379,7 @@ export default function AdminPage() {
       const inviteUrl = response?.data?.invite_url;
 
       if (!inviteUrl) {
-        showToast('Einladungslink konnte nicht erstellt werden.', 'error');
+        showToast('Einladungslink konnte nicht erstellt werden', 'error');
         return;
       }
 
@@ -387,9 +387,9 @@ export default function AdminPage() {
       setResendTrainerLink(inviteUrl);
       setCopiedResendTrainerLink(false);
       setShowResendTrainerLinkModal(true);
-      showToast('Einladungslink erfolgreich erstellt', 'success');
+      showToast('Einladungslink erfolgreich neu erstellt', 'success');
     } catch (error: any) {
-      showToast(error?.response?.data?.error || 'Link konnte nicht neu versendet werden', 'error');
+      showToast(error?.response?.data?.error || 'Einladungslink konnte nicht neu erstellt werden', 'error');
     }
   };
 
@@ -426,7 +426,7 @@ export default function AdminPage() {
       const generatedPassword = response?.data?.generatedPassword;
 
       if (!generatedPassword) {
-        showToast('Passwort wurde zurückgesetzt, aber kein neues Passwort zurückgegeben.', 'error');
+        showToast('Passwort wurde zurückgesetzt, aber kein neues Passwort zurückgegeben', 'error');
         return;
       }
 
