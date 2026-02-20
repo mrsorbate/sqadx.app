@@ -1,20 +1,40 @@
 import { useEffect, useState } from 'react';
 
-export function useDarkMode() {
-  const [isDark, setIsDark] = useState(false);
+// Initialize dark mode synchronously before rendering
+const getInitialDarkMode = () => {
+  if (typeof window === 'undefined') return false;
+  
+  const savedMode = localStorage.getItem('dark-mode');
+  if (savedMode !== null) {
+    return savedMode === 'true';
+  }
+  
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+};
 
-  // Initialize from localStorage and system preference
+// Apply dark mode class immediately
+const initialDarkMode = getInitialDarkMode();
+if (initialDarkMode) {
+  document.documentElement.classList.add('dark');
+} else {
+  document.documentElement.classList.remove('dark');
+}
+
+export function useDarkMode() {
+  const [isDark, setIsDark] = useState(initialDarkMode);
+
+  // Sync with localStorage on mount
   useEffect(() => {
     const savedMode = localStorage.getItem('dark-mode');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    const shouldBeDark = savedMode ? savedMode === 'true' : prefersDark;
-    setIsDark(shouldBeDark);
-    
-    if (shouldBeDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+    if (savedMode !== null) {
+      const shouldBeDark = savedMode === 'true';
+      setIsDark(shouldBeDark);
+      
+      if (shouldBeDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
     }
   }, []);
 
