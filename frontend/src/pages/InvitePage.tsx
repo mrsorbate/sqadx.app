@@ -142,13 +142,13 @@ export default function InvitePage() {
             </h2>
           </div>
 
-          <p className="mt-2 text-lg font-semibold text-primary-600 dark:text-primary-400">
-            {invite.invite_type === 'trainer_setup' ? 'Einladung als Trainer' : 'Einladung zum Team'}
-          </p>
         </div>
 
         <div className="card text-gray-900 dark:text-gray-100">
           <div className="text-center mb-6">
+            <p className="text-sm font-semibold text-primary-600 dark:text-primary-400 mb-2">
+              {invite.invite_type === 'trainer_setup' ? 'Einladung als Trainer' : 'Einladung zum Team'}
+            </p>
             {invite.team_name && <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{invite.team_name}</h3>}
             {invite.team_description && (
               <p className="text-gray-600 dark:text-gray-300 mt-2">{invite.team_description}</p>
