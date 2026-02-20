@@ -237,7 +237,7 @@ export default function AdminPage() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold flex items-center">
             <Settings className="w-6 h-6 mr-2 text-primary-600" />
-            Organisations-Einstellungen
+            Vereins-Einstellungen
           </h2>
           <button
             onClick={() => setShowOrganizationSettings(!showOrganizationSettings)}

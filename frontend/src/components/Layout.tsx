@@ -29,7 +29,7 @@ export default function Layout({ organization }: LayoutProps) {
     navigate('/login');
   };
 
-  const organizationName = organization?.name || 'kadr-Verein';
+  const organizationName = organization?.name || 'Dein Verein';
   const organizationLogo = organization?.logo;
 
   return (
@@ -42,7 +42,7 @@ export default function Layout({ organization }: LayoutProps) {
                 <img src="/sqadx-logo.svg" alt="sqadX.app logo" className="w-6 h-6" />
                 <div className="flex items-center space-x-2">
                   <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">sqadX.app</span>
-                  {(organizationLogo || organizationName !== 'kadr-Verein') && (
+                  {(organizationLogo || organizationName !== 'Dein Verein') && (
                     <>
                       <span className="text-gray-400 dark:text-gray-500">-</span>
                       {organizationLogo && (
@@ -52,7 +52,7 @@ export default function Layout({ organization }: LayoutProps) {
                           className="h-6 w-auto object-contain"
                         />
                       )}
-                      {organizationName !== 'kadr-Verein' && (
+                      {organizationName !== 'Dein Verein' && (
                         <span className="text-sm font-medium text-gray-600 dark:text-gray-400">{organizationName}</span>
                       )}
                     </>
