@@ -59,6 +59,7 @@ export default function AdminPage() {
   const [copiedTrainerLink, setCopiedTrainerLink] = useState(false);
   const [showResendTrainerLinkModal, setShowResendTrainerLinkModal] = useState(false);
   const [resendTrainerName, setResendTrainerName] = useState('');
+  const [resendTrainerTeams, setResendTrainerTeams] = useState('');
   const [resendTrainerLink, setResendTrainerLink] = useState('');
   const [copiedResendTrainerLink, setCopiedResendTrainerLink] = useState(false);
   const [showDeleteUserConfirmModal, setShowDeleteUserConfirmModal] = useState(false);
@@ -459,24 +460,50 @@ export default function AdminPage() {
     );
   };
 
+  const buildInviteMessage = (inviteeName: string, teamLabel: string, inviteUrl: string) => {
+    const normalizedInviteeName = (inviteeName || 'Trainer').trim();
+    const normalizedTeamLabel = (teamLabel || 'deines Teams').trim();
+
+    return [
+      `Hallo ${normalizedInviteeName},`,
+      '',
+      `wir nutzen jetzt TEAMPUNKT zur Organisation unseres Teams ${normalizedTeamLabel}. Hier ist dein persönlicher Einladungslink.`,
+      '',
+      inviteUrl,
+      '',
+      'Bitte wähle den Link aus und registriere dich noch heute.',
+    ].join('\n');
+  };
+
+  const getSelectedTrainerTeamLabel = () => {
+    const selectedTeamNames = (teams || [])
+      .filter((team: any) => trainerTeamIds.includes(team.id))
+      .map((team: any) => String(team.name || '').trim())
+      .filter(Boolean);
+
+    if (selectedTeamNames.length === 0) return 'deines Teams';
+    return selectedTeamNames.join(' / ');
+  };
+
   const handleCopyTrainerLink = async () => {
     if (!trainerInviteLink) return;
-    const copied = await copyTextToClipboard(trainerInviteLink);
+    const inviteMessage = buildInviteMessage(trainerName, getSelectedTrainerTeamLabel(), trainerInviteLink);
+    const copied = await copyTextToClipboard(inviteMessage);
     if (!copied) {
-      showToast('Einladungslink konnte nicht kopiert werden', 'error');
+      showToast('Einladungstext konnte nicht kopiert werden', 'error');
       return;
     }
     setCopiedTrainerLink(true);
     setTimeout(() => setCopiedTrainerLink(false), 2000);
-    showToast('Einladungslink wurde in die Zwischenablage kopiert', 'info');
+    showToast('Einladungstext wurde in die Zwischenablage kopiert', 'info');
   };
 
   const handleShareTrainerLink = async () => {
     if (!trainerInviteLink) return;
+    const inviteMessage = buildInviteMessage(trainerName, getSelectedTrainerTeamLabel(), trainerInviteLink);
     const shareState = await shareInviteLink(
-      trainerInviteLink,
       'Trainer-Registrierung',
-      `Einladungslink für Trainer ${trainerName}`
+      inviteMessage
     );
 
     if (shareState === 'shared') {
@@ -541,6 +568,7 @@ export default function AdminPage() {
       }
 
       setResendTrainerName(userItem.name || 'Trainer');
+      setResendTrainerTeams(String(userItem.team_names || '').trim());
       setResendTrainerLink(inviteUrl);
       setCopiedResendTrainerLink(false);
       setShowResendTrainerLinkModal(true);
@@ -552,22 +580,23 @@ export default function AdminPage() {
 
   const handleCopyResendTrainerLink = async () => {
     if (!resendTrainerLink) return;
-    const copied = await copyTextToClipboard(resendTrainerLink);
+    const inviteMessage = buildInviteMessage(resendTrainerName, resendTrainerTeams || 'deines Teams', resendTrainerLink);
+    const copied = await copyTextToClipboard(inviteMessage);
     if (!copied) {
-      showToast('Neuer Einladungslink konnte nicht kopiert werden', 'error');
+      showToast('Einladungstext konnte nicht kopiert werden', 'error');
       return;
     }
     setCopiedResendTrainerLink(true);
     setTimeout(() => setCopiedResendTrainerLink(false), 2000);
-    showToast('Neuer Einladungslink wurde in die Zwischenablage kopiert', 'info');
+    showToast('Einladungstext wurde in die Zwischenablage kopiert', 'info');
   };
 
   const handleShareResendTrainerLink = async () => {
     if (!resendTrainerLink) return;
+    const inviteMessage = buildInviteMessage(resendTrainerName, resendTrainerTeams || 'deines Teams', resendTrainerLink);
     const shareState = await shareInviteLink(
-      resendTrainerLink,
       'Trainer-Registrierung',
-      `Einladungslink für Trainer ${resendTrainerName}`
+      inviteMessage
     );
 
     if (shareState === 'shared') {
@@ -588,25 +617,21 @@ export default function AdminPage() {
   };
 
   const shareInviteLink = async (
-    url: string,
     title: string,
     text: string
   ): Promise<'shared' | 'aborted' | 'fallback-opened' | 'unavailable'> => {
     try {
       const nav = typeof navigator !== 'undefined' ? (navigator as any) : undefined;
       if (window.isSecureContext && nav && typeof nav.share === 'function') {
-        if (typeof nav.canShare !== 'function' || nav.canShare({ url })) {
-          await nav.share({ title, text, url });
-          return 'shared';
-        }
+        await nav.share({ title, text });
+        return 'shared';
       }
     } catch (error: any) {
       if (error?.name === 'AbortError') return 'aborted';
     }
 
     if (isLikelyMobileDevice()) {
-      const shareText = `${text} ${url}`.trim();
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
       window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
       return 'fallback-opened';
     }
@@ -2111,6 +2136,7 @@ export default function AdminPage() {
                 onClick={() => {
                   setShowResendTrainerLinkModal(false);
                   setResendTrainerName('');
+                  setResendTrainerTeams('');
                   setResendTrainerLink('');
                   setCopiedResendTrainerLink(false);
                 }}
