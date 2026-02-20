@@ -224,8 +224,8 @@ export default function TeamPage() {
             <Calendar className="w-6 h-6 text-primary-600" />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">Termine</h3>
-            <p className="text-sm text-gray-600">Trainings & Spiele</p>
+            <h3 className="font-semibold text-gray-900 dark:text-white">Termine</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">Trainings & Spiele</p>
           </div>
         </Link>
 
@@ -234,8 +234,8 @@ export default function TeamPage() {
             <Users className="w-6 h-6 text-green-600" />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">Kader</h3>
-            <p className="text-sm text-gray-600">{players.length} Spieler</p>
+            <h3 className="font-semibold text-gray-900 dark:text-white">Kader</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">{players.length} Spieler</p>
           </div>
         </button>
 
@@ -247,8 +247,8 @@ export default function TeamPage() {
             <BarChart className="w-6 h-6 text-blue-600" />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">Statistiken</h3>
-            <p className="text-sm text-gray-600">Anwesenheit</p>
+            <h3 className="font-semibold text-gray-900 dark:text-white">Statistiken</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">Anwesenheit</p>
           </div>
         </Link>
       </div>
@@ -270,7 +270,7 @@ export default function TeamPage() {
             {trainers.map((trainer: any) => (
               <div
                 key={trainer.id}
-                className="p-3 bg-gray-50 rounded-lg flex items-center space-x-3"
+                className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg flex items-center space-x-3"
               >
                 <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
                   <span className="text-primary-600 font-semibold">
@@ -320,7 +320,7 @@ export default function TeamPage() {
             {players.map((player: any) => (
               <div
                 key={player.id}
-                className="p-3 bg-gray-50 rounded-lg flex items-center justify-between"
+                className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg flex items-center justify-between"
               >
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
@@ -335,14 +335,14 @@ export default function TeamPage() {
                     )}
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{player.name}</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{player.name}</p>
                     {player.birth_date && (
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
                         🎂 {new Date(player.birth_date).toLocaleDateString('de-DE')}
                       </p>
                     )}
                     {player.position && (
-                      <p className="text-sm text-gray-600">{player.position}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{player.position}</p>
                     )}
                   </div>
                 </div>
@@ -353,7 +353,7 @@ export default function TeamPage() {
             {pendingPlayerInvites.map((invite: any) => (
               <div
                 key={`invite-${invite.id}`}
-                className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center justify-between"
+                className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center justify-between dark:bg-yellow-900/20 dark:border-yellow-800"
               >
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
@@ -366,14 +366,14 @@ export default function TeamPage() {
                     )}
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium text-gray-900">{invite.player_name}</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{invite.player_name}</p>
                     {invite.player_birth_date && (
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
                         🎂 {new Date(invite.player_birth_date).toLocaleDateString('de-DE')}
                       </p>
                     )}
                     <div className="flex items-center space-x-2 mt-1">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200">
                         <Mail className="w-3 h-3 mr-1" />
                         Eingeladen
                       </span>
@@ -384,8 +384,8 @@ export default function TeamPage() {
             ))}
             
             {players.length === 0 && pendingPlayerInvites.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                <Users className="w-12 h-12 mx-auto mb-2 text-gray-400" />
+              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                <Users className="w-12 h-12 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
                 <p>Noch keine Spieler im Team</p>
               </div>
             )}
@@ -396,12 +396,12 @@ export default function TeamPage() {
       {/* Create Player Modal */}
       {showCreatePlayer && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-900 rounded-lg p-4 sm:p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold">Neuen Spieler anlegen</h3>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Neuen Spieler anlegen</h3>
               <button
                 onClick={handleCloseModal}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -410,16 +410,16 @@ export default function TeamPage() {
             {createdPlayerInfo ? (
               <div className="space-y-4">
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <p className="text-green-800 font-semibold mb-2">
+                  <p className="text-green-800 dark:text-green-200 font-semibold mb-2">
                     ✅ {createdPlayerInfo.name} wurde erfolgreich angelegt!
                   </p>
-                  <p className="text-green-700 text-sm">
+                  <p className="text-green-700 dark:text-green-300 text-sm">
                     Der Spieler wurde eingeladen und kann sich mit dem untenstehenden Link registrieren.
                   </p>
                 </div>
                 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-blue-800 font-semibold mb-2">
+                  <p className="text-blue-800 dark:text-blue-200 font-semibold mb-2">
                     📩 Einladungslink für {createdPlayerInfo.name}
                   </p>
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -449,7 +449,7 @@ export default function TeamPage() {
                 </div>
                 
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                  <p className="text-yellow-800 text-sm">
+                  <p className="text-yellow-800 dark:text-yellow-200 text-sm">
                     ⚠️ Teile diesen Link mit dem Spieler. Er kann sich damit registrieren und wird automatisch dem Team hinzugefügt.
                   </p>
                 </div>
@@ -463,7 +463,7 @@ export default function TeamPage() {
             ) : (
               <form onSubmit={handleCreatePlayer} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Name *
                   </label>
                   <input
@@ -477,7 +477,7 @@ export default function TeamPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Geburtsdatum
                   </label>
                   <input
@@ -489,7 +489,7 @@ export default function TeamPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Trikotnummer (optional)
                   </label>
                   <input
@@ -504,7 +504,7 @@ export default function TeamPage() {
                 </div>
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                  <p className="text-sm text-blue-800">
+                  <p className="text-sm text-blue-800 dark:text-blue-200">
                     💡 Es wird automatisch ein Account mit E-Mail und Passwort erstellt.
                   </p>
                 </div>
