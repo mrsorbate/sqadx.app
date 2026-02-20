@@ -139,6 +139,38 @@ const requireAdmin = (req: AuthRequest, res: any, next: any) => {
   next();
 };
 
+const normalizeBaseUrl = (value: string) => value.replace(/\/$/, '');
+
+const getPublicFrontendBaseUrl = (req: AuthRequest): string => {
+  const envFrontendUrl = String(process.env.FRONTEND_URL || '').trim();
+  if (envFrontendUrl) {
+    return normalizeBaseUrl(envFrontendUrl);
+  }
+
+  const originHeader = String(req.headers.origin || '').trim();
+  if (originHeader) {
+    return normalizeBaseUrl(originHeader);
+  }
+
+  const refererHeader = String(req.headers.referer || '').trim();
+  if (refererHeader) {
+    try {
+      const refererUrl = new URL(refererHeader);
+      return normalizeBaseUrl(`${refererUrl.protocol}//${refererUrl.host}`);
+    } catch (_error) {
+      // ignore and continue with other fallbacks
+    }
+  }
+
+  const forwardedProto = String(req.headers['x-forwarded-proto'] || '').split(',')[0].trim();
+  const forwardedHost = String(req.headers['x-forwarded-host'] || '').split(',')[0].trim();
+  if (forwardedProto && forwardedHost) {
+    return normalizeBaseUrl(`${forwardedProto}://${forwardedHost}`);
+  }
+
+  return normalizeBaseUrl(`${req.protocol}://${req.get('host') || 'localhost:5174'}`);
+};
+
 const ensureTrainerInviteSchema = () => {
   db.exec(`
     CREATE TABLE IF NOT EXISTS trainer_invites (
@@ -535,7 +567,7 @@ router.post('/trainer-invites', (req: AuthRequest, res) => {
       team_names: existingTeams.map((team) => team.name),
       expires_at: expiresAt,
       registration_status: 'pending',
-      invite_url: `${process.env.FRONTEND_URL || 'http://localhost:5174'}/invite/${token}`
+      invite_url: `${getPublicFrontendBaseUrl(req)}/invite/${token}`
     });
   } catch (error) {
     console.error('Create trainer invite error:', error);
@@ -595,7 +627,7 @@ router.post('/users/:id/trainer-invite-resend', (req: AuthRequest, res) => {
       user_id: trainer.id,
       token,
       expires_at: expiresAt,
-      invite_url: `${process.env.FRONTEND_URL || 'http://localhost:5174'}/invite/${token}`
+      invite_url: `${getPublicFrontendBaseUrl(req)}/invite/${token}`
     });
   } catch (error) {
     console.error('Resend trainer invite error:', error);

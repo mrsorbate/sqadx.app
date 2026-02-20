@@ -118,6 +118,9 @@ cp .env.example .env
 
 Danach ggf. `JWT_SECRET`, `FRONTEND_PORT` und `BACKEND_PORT` in `.env` anpassen.
 
+Für öffentliche Deployments (Domain/Reverse Proxy) zusätzlich `FRONTEND_URL` setzen,
+z. B. `https://app.meinverein.de`, damit Einladungslinks immer die richtige URL enthalten.
+
 ### Starten
 ```bash
 docker compose up --build
