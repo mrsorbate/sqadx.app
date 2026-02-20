@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { invitesAPI, authAPI } from '../lib/api';
+import { invitesAPI, authAPI, settingsAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
-import { Users, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { CheckCircle, XCircle, Clock } from 'lucide-react';
+
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 export default function InvitePage() {
   const { token } = useParams<{ token: string }>();
@@ -16,6 +18,19 @@ export default function InvitePage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+
+  // Fetch organization info
+  const { data: organization } = useQuery({
+    queryKey: ['organization'],
+    queryFn: async () => {
+      const response = await settingsAPI.getOrganization();
+      return response.data;
+    },
+    retry: 1,
+  });
+
+  const organizationName = organization?.name || 'kadr-Verein';
+  const organizationLogo = organization?.logo;
 
   const { data: invite, isLoading, error: inviteError } = useQuery({
     queryKey: ['invite', token],
@@ -118,10 +133,22 @@ export default function InvitePage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <Users className="mx-auto h-16 w-16 text-primary-600" />
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            Einladung zum Team
+          <div className="flex items-center justify-center space-x-3 mb-4">
+            <img src="/kadr-logo.svg" alt="kadr logo" className="h-12 w-12" />
+            {organizationLogo && (
+              <img 
+                src={`${API_URL}${organizationLogo}`} 
+                alt="Vereinslogo" 
+                className="h-12 w-auto object-contain"
+              />
+            )}
+          </div>
+          <h2 className="mt-2 text-2xl font-extrabold text-gray-900 dark:text-white">
+            {organizationName}
           </h2>
+          <p className="mt-2 text-lg font-semibold text-primary-600 dark:text-primary-400">
+            Einladung zum Team
+          </p>
         </div>
 
         <div className="card">

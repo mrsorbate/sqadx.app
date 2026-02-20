@@ -1,14 +1,29 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
-import { authAPI } from '../lib/api';
+import { authAPI, settingsAPI } from '../lib/api';
+
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const setAuth = useAuthStore((state) => state.setAuth);
+
+  // Fetch organization info
+  const { data: organization } = useQuery({
+    queryKey: ['organization'],
+    queryFn: async () => {
+      const response = await settingsAPI.getOrganization();
+      return response.data;
+    },
+    retry: 1,
+  });
+
+  const organizationName = organization?.name || 'kadr-Verein';
+  const organizationLogo = organization?.logo;
 
   const loginMutation = useMutation({
     mutationFn: () => authAPI.login(email, password),
@@ -34,9 +49,18 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <img src="/kadr-logo.svg" alt="kadr logo" className="mx-auto h-12 w-12" />
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white">
-            kadr
+          <div className="flex items-center justify-center space-x-3 mb-4">
+            <img src="/kadr-logo.svg" alt="kadr logo" className="h-12 w-12" />
+            {organizationLogo && (
+              <img 
+                src={`${API_URL}${organizationLogo}`} 
+                alt="Vereinslogo" 
+                className="h-12 w-auto object-contain"
+              />
+            )}
+          </div>
+          <h2 className="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">
+            {organizationName}
           </h2>
           <p className="mt-2 text-sm text-primary-600 dark:text-primary-400 font-medium">
             Designed for teams
