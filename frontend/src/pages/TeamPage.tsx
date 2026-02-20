@@ -182,7 +182,7 @@ export default function TeamPage() {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingTeamPicture}
-                className="absolute bottom-3 right-3 bg-white/90 hover:bg-white dark:bg-gray-900/85 dark:hover:bg-gray-900 p-3 rounded-full shadow-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
+                className="absolute bottom-3 right-3 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-700 p-3 rounded-full shadow-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
                 title="Neues Bild hochladen"
               >
                 <Upload className="w-5 h-5 text-gray-700 dark:text-gray-100" />
@@ -193,7 +193,7 @@ export default function TeamPage() {
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadingTeamPicture}
-              className="w-full h-64 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center hover:border-primary-500 hover:bg-primary-50 transition-colors disabled:opacity-50"
+              className="w-full h-64 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg flex flex-col items-center justify-center hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-gray-800/70 transition-colors disabled:opacity-50"
             >
               <ImageIcon className="w-16 h-16 text-gray-400 mb-3" />
               <span className="text-base text-gray-600 dark:text-gray-300 font-medium">
