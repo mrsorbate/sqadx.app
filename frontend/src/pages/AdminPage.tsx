@@ -660,13 +660,6 @@ export default function AdminPage() {
         )}
       </div>
 
-      {/* Info Box */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <p className="text-sm text-blue-800">
-          <strong>Workflow:</strong> Erstelle Teams → Weise Trainer zu → Trainer fügen Spieler hinzu. Der Admin ist Manager und nicht Teil der Teams.
-        </p>
-      </div>
-
       {/* System Health */}
       <div className="card">
         <div className="flex items-center justify-between mb-4">
@@ -760,6 +753,13 @@ export default function AdminPage() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Info Box */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <p className="text-sm text-blue-800">
+          <strong>Workflow:</strong> Erstelle Teams → Weise Trainer zu → Trainer fügen Spieler hinzu. Der Admin ist Manager und nicht Teil der Teams.
+        </p>
       </div>
 
       {/* Teams Section */}
