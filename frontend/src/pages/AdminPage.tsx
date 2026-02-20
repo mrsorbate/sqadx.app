@@ -49,6 +49,10 @@ export default function AdminPage() {
   const [trainerTeamIds, setTrainerTeamIds] = useState<number[]>([]);
   const [trainerInviteLink, setTrainerInviteLink] = useState('');
   const [copiedTrainerLink, setCopiedTrainerLink] = useState(false);
+  const [showResendTrainerLinkModal, setShowResendTrainerLinkModal] = useState(false);
+  const [resendTrainerName, setResendTrainerName] = useState('');
+  const [resendTrainerLink, setResendTrainerLink] = useState('');
+  const [copiedResendTrainerLink, setCopiedResendTrainerLink] = useState(false);
   const [showDeleteUserConfirmModal, setShowDeleteUserConfirmModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState<any | null>(null);
   const [showResetPasswordConfirmModal, setShowResetPasswordConfirmModal] = useState(false);
@@ -324,19 +328,33 @@ export default function AdminPage() {
         return;
       }
 
-      if ((navigator as any).share) {
-        await (navigator as any).share({
-          title: 'Trainer-Registrierung',
-          text: `Einladungslink für Trainer ${userItem.name}`,
-          url: inviteUrl,
-        });
-      } else {
-        await navigator.clipboard.writeText(inviteUrl);
-        alert('Neuer Registrierungslink wurde in die Zwischenablage kopiert.');
-      }
+      setResendTrainerName(userItem.name || 'Trainer');
+      setResendTrainerLink(inviteUrl);
+      setCopiedResendTrainerLink(false);
+      setShowResendTrainerLinkModal(true);
     } catch (error: any) {
       alert(error?.response?.data?.error || 'Link konnte nicht neu versendet werden');
     }
+  };
+
+  const handleCopyResendTrainerLink = async () => {
+    if (!resendTrainerLink) return;
+    await navigator.clipboard.writeText(resendTrainerLink);
+    setCopiedResendTrainerLink(true);
+    setTimeout(() => setCopiedResendTrainerLink(false), 2000);
+  };
+
+  const handleShareResendTrainerLink = async () => {
+    if (!resendTrainerLink) return;
+    if ((navigator as any).share) {
+      await (navigator as any).share({
+        title: 'Trainer-Registrierung',
+        text: `Einladungslink für Trainer ${resendTrainerName}`,
+        url: resendTrainerLink,
+      });
+      return;
+    }
+    await handleCopyResendTrainerLink();
   };
 
   const handleResetUserPassword = async (userItem: any) => {
@@ -1183,6 +1201,53 @@ export default function AdminPage() {
                 disabled={deleteUserMutation.isPending}
               >
                 {deleteUserMutation.isPending ? 'Löscht...' : 'Löschen'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Resend Trainer Link Modal */}
+      {showResendTrainerLinkModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="card max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Registrierungslink</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+              Neuer Registrierungslink für <strong>{resendTrainerName}</strong>:
+            </p>
+            <input
+              readOnly
+              value={resendTrainerLink}
+              className="input mb-4"
+            />
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={handleShareResendTrainerLink}
+                className="btn btn-secondary flex items-center space-x-2"
+              >
+                <Share2 className="w-4 h-4" />
+                <span>Link teilen</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleCopyResendTrainerLink}
+                className="btn btn-secondary flex items-center space-x-2"
+              >
+                {copiedResendTrainerLink ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                <span>{copiedResendTrainerLink ? 'Kopiert' : 'Link kopieren'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowResendTrainerLinkModal(false);
+                  setResendTrainerName('');
+                  setResendTrainerLink('');
+                  setCopiedResendTrainerLink(false);
+                }}
+                className="btn btn-primary"
+              >
+                Schließen
               </button>
             </div>
           </div>
