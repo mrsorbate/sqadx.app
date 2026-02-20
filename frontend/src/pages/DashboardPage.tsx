@@ -105,7 +105,7 @@ export default function DashboardPage() {
       <div className="card">
         <h2 className="text-xl font-semibold mb-4 flex items-center">
           <Calendar className="w-6 h-6 mr-2 text-primary-600" />
-          Nächste 6 Termine
+          Nächsten Termine
         </h2>
         
         {eventsLoading ? (
@@ -275,7 +275,7 @@ export default function DashboardPage() {
         ) : (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
             <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
-            <p>Keine Termine in den nächsten 6 anstehend</p>
+            <p>Keine Termine</p>
           </div>
         )}
         <div className="mt-6 flex justify-center">
