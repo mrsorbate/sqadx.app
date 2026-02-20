@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
-import { Building2 } from 'lucide-react';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -95,7 +94,7 @@ export default function FirstTimeSetupPage() {
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
-          <Building2 className="mx-auto h-12 w-12 text-primary-600" />
+          <img src="/kadr-logo.svg" alt="kadr logo" className="mx-auto h-16 w-16" />
           <h1 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white">
             kadr
           </h1>

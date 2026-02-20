@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { LogOut, Users, Settings, User as UserIcon, Menu, X, Moon, Sun } from 'lucide-react';
+import { LogOut, Settings, User as UserIcon, Menu, X, Moon, Sun, Users } from 'lucide-react';
 import { useDarkMode } from '../hooks/useDarkMode';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -30,7 +30,6 @@ export default function Layout({ organization }: LayoutProps) {
   };
 
   const organizationName = organization?.name || 'kadr-Verein';
-  const organizationLogo = organization?.logo;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -39,18 +38,12 @@ export default function Layout({ organization }: LayoutProps) {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <Link to={user?.role === 'admin' ? '/admin' : '/'} className="flex items-center space-x-2">
-                {organizationLogo ? (
-                  <img
-                    src={`${API_URL}${organizationLogo}`}
-                    alt={organizationName}
-                    className="w-8 h-8 object-contain"
-                  />
-                ) : (
-                  <Users className="w-8 h-8 text-primary-600" />
-                )}
+                <img src="/kadr-logo.svg" alt="kadr logo" className="w-6 h-6" />
                 <div className="flex flex-col">
-                  <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">kadr</span>
-                  <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">für {organizationName}</span>
+                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">kadr</span>
+                  {organizationName !== 'kadr-Verein' && (
+                    <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{organizationName}</span>
+                  )}
                 </div>
               </Link>
             </div>
