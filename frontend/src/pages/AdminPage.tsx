@@ -502,31 +502,6 @@ export default function AdminPage() {
     showToast('Einladungstext wurde in die Zwischenablage kopiert', 'info');
   };
 
-  const handleShareTrainerLink = async () => {
-    if (!trainerInviteLink) return;
-    const inviteMessage = buildInviteMessage(trainerName, getSelectedTrainerTeamLabel(), trainerInviteLink);
-    const shareState = await shareInviteLink(
-      'Trainer-Registrierung',
-      inviteMessage
-    );
-
-    if (shareState === 'shared') {
-      showToast('Einladungslink erfolgreich geteilt', 'success');
-      return;
-    }
-
-    if (shareState === 'aborted') {
-      return;
-    }
-
-    if (shareState === 'fallback-opened') {
-      showToast('Teilen nicht verfügbar – WhatsApp Share geöffnet', 'info');
-      return;
-    }
-
-    await handleCopyTrainerLink();
-  };
-
   const closeCreateTrainerModal = () => {
     setShowCreateTrainer(false);
     setTrainerName('');
@@ -593,59 +568,6 @@ export default function AdminPage() {
     setCopiedResendTrainerLink(true);
     setTimeout(() => setCopiedResendTrainerLink(false), 2000);
     showToast('Einladungstext wurde in die Zwischenablage kopiert', 'info');
-  };
-
-  const handleShareResendTrainerLink = async () => {
-    if (!resendTrainerLink) return;
-    const inviteMessage = buildInviteMessage(resendTrainerName, resendTrainerTeams || 'deines Teams', resendTrainerLink);
-    const shareState = await shareInviteLink(
-      'Trainer-Registrierung',
-      inviteMessage
-    );
-
-    if (shareState === 'shared') {
-      showToast('Einladungslink erfolgreich geteilt', 'success');
-      return;
-    }
-
-    if (shareState === 'aborted') {
-      return;
-    }
-
-    if (shareState === 'fallback-opened') {
-      showToast('Teilen nicht verfügbar – WhatsApp Share geöffnet', 'info');
-      return;
-    }
-
-    await handleCopyResendTrainerLink();
-  };
-
-  const shareInviteLink = async (
-    title: string,
-    text: string
-  ): Promise<'shared' | 'aborted' | 'fallback-opened' | 'unavailable'> => {
-    try {
-      const nav = typeof navigator !== 'undefined' ? (navigator as any) : undefined;
-      if (window.isSecureContext && nav && typeof nav.share === 'function') {
-        await nav.share({ title, text });
-        return 'shared';
-      }
-    } catch (error: any) {
-      if (error?.name === 'AbortError') return 'aborted';
-    }
-
-    if (isLikelyMobileDevice()) {
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
-      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-      return 'fallback-opened';
-    }
-
-    return 'unavailable';
-  };
-
-  const isLikelyMobileDevice = () => {
-    if (typeof navigator === 'undefined') return false;
-    return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '');
   };
 
   const copyTextToClipboard = async (text: string): Promise<boolean> => {
@@ -913,6 +835,12 @@ export default function AdminPage() {
   const auditCellClass = 'py-1.5 pr-3';
   const auditExpandedRowClass = 'py-2 px-2 bg-gray-50 dark:bg-gray-800';
   const tableSearchInputClass = 'input text-sm py-2';
+  const trainerInviteMessage = trainerInviteLink
+    ? buildInviteMessage(trainerName, getSelectedTrainerTeamLabel(), trainerInviteLink)
+    : '';
+  const resendInviteMessage = resendTrainerLink
+    ? buildInviteMessage(resendTrainerName, resendTrainerTeams || 'deines Teams', resendTrainerLink)
+    : '';
 
   return (
     <div className="space-y-6">
@@ -1976,28 +1904,21 @@ export default function AdminPage() {
 
               {trainerInviteLink && (
                 <div className="p-3 rounded-lg border border-blue-200 bg-blue-50 space-y-2">
-                  <p className="text-sm text-blue-800">Registrierungslink für <strong>{trainerName}</strong>:</p>
-                  <input
+                  <p className="text-sm text-blue-800">Einladungstext für <strong>{trainerName}</strong>:</p>
+                  <textarea
                     readOnly
-                    value={trainerInviteLink}
+                    value={trainerInviteMessage}
+                    rows={9}
                     className="input text-sm"
                   />
                   <div className="flex flex-col sm:flex-row gap-2">
-                    <button
-                      type="button"
-                      onClick={handleShareTrainerLink}
-                      className="btn btn-secondary flex items-center justify-center space-x-2 w-full sm:w-auto"
-                    >
-                      <Share2 className="w-4 h-4" />
-                      <span>Link teilen</span>
-                    </button>
                     <button
                       type="button"
                       onClick={handleCopyTrainerLink}
                       className="btn btn-secondary flex items-center justify-center space-x-2 w-full sm:w-auto"
                     >
                       {copiedTrainerLink ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
-                      <span>{copiedTrainerLink ? 'Kopiert' : 'Link kopieren'}</span>
+                      <span>{copiedTrainerLink ? 'Kopiert' : 'Einladungstext kopieren'}</span>
                     </button>
                   </div>
                 </div>
@@ -2110,30 +2031,23 @@ export default function AdminPage() {
           <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="resend-link-title">
             <h3 id="resend-link-title" className="text-lg font-semibold mb-4">Registrierungslink</h3>
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
-              Neuer Registrierungslink für <strong>{resendTrainerName}</strong>:
+              Neuer Einladungstext für <strong>{resendTrainerName}</strong>:
             </p>
-            <input
+            <textarea
               autoFocus
               readOnly
-              value={resendTrainerLink}
-              className="input mb-4"
+              value={resendInviteMessage}
+              rows={9}
+              className="input mb-4 text-sm"
             />
             <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-3">
-              <button
-                type="button"
-                onClick={handleShareResendTrainerLink}
-                className="btn btn-secondary flex items-center justify-center space-x-2 w-full sm:w-auto"
-              >
-                <Share2 className="w-4 h-4" />
-                <span>Link teilen</span>
-              </button>
               <button
                 type="button"
                 onClick={handleCopyResendTrainerLink}
                 className="btn btn-secondary flex items-center justify-center space-x-2 w-full sm:w-auto"
               >
                 {copiedResendTrainerLink ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
-                <span>{copiedResendTrainerLink ? 'Kopiert' : 'Link kopieren'}</span>
+                <span>{copiedResendTrainerLink ? 'Kopiert' : 'Einladungstext kopieren'}</span>
               </button>
               <button
                 type="button"
