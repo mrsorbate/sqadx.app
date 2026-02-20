@@ -49,6 +49,8 @@ export default function AdminPage() {
   const [trainerTeamIds, setTrainerTeamIds] = useState<number[]>([]);
   const [trainerInviteLink, setTrainerInviteLink] = useState('');
   const [copiedTrainerLink, setCopiedTrainerLink] = useState(false);
+  const [showDeleteUserConfirmModal, setShowDeleteUserConfirmModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<any | null>(null);
   const [showResetPasswordConfirmModal, setShowResetPasswordConfirmModal] = useState(false);
   const [userToResetPassword, setUserToResetPassword] = useState<any | null>(null);
   const [showGeneratedPasswordModal, setShowGeneratedPasswordModal] = useState(false);
@@ -296,9 +298,20 @@ export default function AdminPage() {
   };
 
   const handleDeleteUser = (userItem: any) => {
-    const confirmation = window.confirm(`Benutzer \"${userItem.name}\" wirklich löschen? Dies kann nicht rückgängig gemacht werden.`);
-    if (!confirmation) return;
-    deleteUserMutation.mutate(userItem.id);
+    setUserToDelete(userItem);
+    setShowDeleteUserConfirmModal(true);
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!userToDelete) return;
+
+    try {
+      await deleteUserMutation.mutateAsync(userToDelete.id);
+      setShowDeleteUserConfirmModal(false);
+      setUserToDelete(null);
+    } catch (error: any) {
+      alert(error?.response?.data?.error || 'Benutzer konnte nicht gelöscht werden');
+    }
   };
 
   const handleResendTrainerInvite = async (userItem: any) => {
@@ -1137,6 +1150,39 @@ export default function AdminPage() {
                 disabled={resetUserPasswordMutation.isPending}
               >
                 {resetUserPasswordMutation.isPending ? 'Setzt zurück...' : 'Zurücksetzen'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete User Confirm Modal */}
+      {showDeleteUserConfirmModal && userToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="card max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Benutzer löschen</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+              Soll <strong>{userToDelete.name}</strong> wirklich gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden.
+            </p>
+            <div className="flex space-x-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDeleteUserConfirmModal(false);
+                  setUserToDelete(null);
+                }}
+                className="btn btn-secondary"
+                disabled={deleteUserMutation.isPending}
+              >
+                Abbrechen
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteUser}
+                className="btn bg-red-600 hover:bg-red-700 text-white"
+                disabled={deleteUserMutation.isPending}
+              >
+                {deleteUserMutation.isPending ? 'Löscht...' : 'Löschen'}
               </button>
             </div>
           </div>
