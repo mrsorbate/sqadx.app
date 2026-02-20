@@ -171,13 +171,6 @@ export default function Layout({ organization }: LayoutProps) {
 
           {mobileMenuOpen && (
             <div className="md:hidden border-t border-gray-200 dark:border-gray-700 py-3 space-y-2 bg-white dark:bg-gray-800">
-              <div className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300">
-                <span>
-                  <Link to="/settings" className="font-medium hover:underline" onClick={() => setMobileMenuOpen(false)}>
-                    {firstName}
-                  </Link>
-                </span>
-              </div>
               <Link
                 to="/"
                 className="flex items-center space-x-2 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
