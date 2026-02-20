@@ -5,13 +5,12 @@ import { useAuthStore } from '../store/authStore';
 import { Users, Calendar, BarChart, Upload, Image as ImageIcon } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { useToast } from '../lib/useToast';
-import ToastMessage from '../components/ToastMessage';
 
 export default function TeamsPage() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const [uploadingTeamId, setUploadingTeamId] = useState<number | null>(null);
-  const { toast, showToast } = useToast();
+  const { showToast } = useToast();
   const fileInputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
 
   const { data: teams, isLoading } = useQuery({
@@ -76,8 +75,6 @@ export default function TeamsPage() {
 
   return (
     <div className="space-y-6">
-      <ToastMessage toast={toast} />
-
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Meine Teams</h1>

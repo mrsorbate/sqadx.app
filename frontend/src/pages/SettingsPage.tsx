@@ -4,7 +4,6 @@ import { profileAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import { User, Lock, Camera, Trash2, Check, AlertCircle } from 'lucide-react';
 import { useToast } from '../lib/useToast';
-import ToastMessage from '../components/ToastMessage';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -12,7 +11,7 @@ export default function SettingsPage() {
   const { user: authUser } = useAuthStore();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast, showToast } = useToast();
+  const { showToast } = useToast();
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -141,8 +140,6 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <ToastMessage toast={toast} />
-
       <div className="flex items-center space-x-3">
         <User className="w-8 h-8 text-primary-600" />
         <div>

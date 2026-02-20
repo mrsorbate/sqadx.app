@@ -5,7 +5,6 @@ import { useAuthStore } from '../store/authStore';
 import { Navigate } from 'react-router-dom';
 import { Plus, Trash2, Users, UserPlus, UserMinus, Shield, Settings, Upload, Copy, Share2, Check, KeyRound } from 'lucide-react';
 import { useToast } from '../lib/useToast';
-import ToastMessage from '../components/ToastMessage';
 
 const TIMEZONES = [
   'Europe/Berlin',
@@ -25,7 +24,7 @@ export default function AdminPage() {
   const { user, logout } = useAuthStore();
   const queryClient = useQueryClient();
   const logoFileInputRef = useRef<HTMLInputElement>(null);
-  const { toast, showToast } = useToast();
+  const { showToast: showGlobalToast } = useToast();
   
   const [showOrganizationSettings, setShowOrganizationSettings] = useState(false);
   const [organizationName, setOrganizationName] = useState('');
@@ -63,6 +62,10 @@ export default function AdminPage() {
   const [showGeneratedPasswordModal, setShowGeneratedPasswordModal] = useState(false);
   const [generatedPassword, setGeneratedPassword] = useState('');
   const [copiedGeneratedPassword, setCopiedGeneratedPassword] = useState(false);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'error') => {
+    showGlobalToast(message, type, { position: 'bottom-right' });
+  };
 
   // Redirect if not admin
   if (user?.role !== 'admin') {
@@ -1379,7 +1382,6 @@ export default function AdminPage() {
         </div>
       )}
 
-      <ToastMessage toast={toast} positionClassName="bottom-4 right-4 z-[70]" textClassName="text-sm font-medium" />
     </div>
   );
 }

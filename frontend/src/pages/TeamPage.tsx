@@ -6,7 +6,6 @@ import { useAuthStore } from '../store/authStore';
 import { Calendar, Users, BarChart, ArrowLeft, UserPlus, X, Copy, Check, Clock, Mail, Upload, Image as ImageIcon } from 'lucide-react';
 import InviteManager from '../components/InviteManager';
 import { useToast } from '../lib/useToast';
-import ToastMessage from '../components/ToastMessage';
 
 export default function TeamPage() {
   const { id } = useParams<{ id: string }>();
@@ -21,7 +20,7 @@ export default function TeamPage() {
   const [createdPlayerInfo, setCreatedPlayerInfo] = useState<{ name: string; invite_url: string } | null>(null);
   const [copied, setCopied] = useState(false);
   const [uploadingTeamPicture, setUploadingTeamPicture] = useState(false);
-  const { toast, showToast } = useToast();
+  const { showToast } = useToast();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const { data: team, isLoading: teamLoading } = useQuery({
@@ -153,8 +152,6 @@ export default function TeamPage() {
 
   return (
     <div className="space-y-6">
-      <ToastMessage toast={toast} />
-
       <div className="flex items-center space-x-4">
         <Link to="/" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
           <ArrowLeft className="w-6 h-6" />

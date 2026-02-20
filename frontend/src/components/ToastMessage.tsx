@@ -1,4 +1,9 @@
-import { ToastState } from '../lib/useToast';
+type ToastType = 'success' | 'error';
+
+interface ToastState {
+  message: string;
+  type: ToastType;
+}
 
 interface ToastMessageProps {
   toast: ToastState | null;
