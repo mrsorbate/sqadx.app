@@ -173,11 +173,11 @@ export default function TeamPage() {
             Mannschaftsbild
           </h2>
           {getTeamPhotoUrl() ? (
-            <div className="relative inline-block">
+            <div className="relative w-full">
               <img
                 src={getTeamPhotoUrl()}
                 alt={team?.name}
-                className="w-full max-w-md h-64 object-cover rounded-lg shadow-lg"
+                className="w-full h-64 object-cover rounded-lg shadow-lg"
               />
               <button
                 onClick={() => fileInputRef.current?.click()}
@@ -193,7 +193,7 @@ export default function TeamPage() {
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadingTeamPicture}
-              className="w-full max-w-md h-64 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center hover:border-primary-500 hover:bg-primary-50 transition-colors disabled:opacity-50"
+              className="w-full h-64 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center hover:border-primary-500 hover:bg-primary-50 transition-colors disabled:opacity-50"
             >
               <ImageIcon className="w-16 h-16 text-gray-400 mb-3" />
               <span className="text-base text-gray-600 dark:text-gray-300 font-medium">
