@@ -17,6 +17,10 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const corsOrigins = String(process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -43,7 +47,14 @@ const upload = multer({
 });
 
 // Middleware
-app.use(cors());
+app.set('trust proxy', 1);
+
+if (corsOrigins.length > 0) {
+  app.use(cors({ origin: corsOrigins }));
+} else {
+  app.use(cors());
+}
+
 app.use(express.json());
 
 // Serve uploaded files

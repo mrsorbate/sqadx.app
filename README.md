@@ -144,6 +144,31 @@ Es werden zwei persistente Volumes verwendet:
 - `backend_data` für SQLite-Datenbank
 - `backend_uploads` für hochgeladene Bilder
 
+### Docker + SSL (Produktion)
+
+Für HTTPS mit automatischen Let's Encrypt Zertifikaten ist ein separater Stack enthalten.
+
+Voraussetzungen:
+- Domain zeigt per DNS auf den Server
+- Ports `80` und `443` sind erreichbar
+
+In `.env` setzen:
+- `DOMAIN=app.meinverein.de`
+- `ACME_EMAIL=admin@meinverein.de`
+- `JWT_SECRET=<starkes-secret>`
+
+Start:
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+Danach läuft die App unter:
+- `https://<DOMAIN>`
+
+Hinweise:
+- `FRONTEND_URL` und `CORS_ORIGIN` werden im Prod-Stack automatisch auf `https://<DOMAIN>` gesetzt.
+- Invite-Links werden damit ebenfalls korrekt als HTTPS-Domain erzeugt.
+
 ## Lizenz
 
 MIT
