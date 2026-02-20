@@ -49,6 +49,8 @@ export default function AdminPage() {
   const [trainerTeamIds, setTrainerTeamIds] = useState<number[]>([]);
   const [trainerInviteLink, setTrainerInviteLink] = useState('');
   const [copiedTrainerLink, setCopiedTrainerLink] = useState(false);
+  const [showResetPasswordConfirmModal, setShowResetPasswordConfirmModal] = useState(false);
+  const [userToResetPassword, setUserToResetPassword] = useState<any | null>(null);
   const [showGeneratedPasswordModal, setShowGeneratedPasswordModal] = useState(false);
   const [generatedPassword, setGeneratedPassword] = useState('');
   const [copiedGeneratedPassword, setCopiedGeneratedPassword] = useState(false);
@@ -325,11 +327,15 @@ export default function AdminPage() {
   };
 
   const handleResetUserPassword = async (userItem: any) => {
-    const confirmReset = window.confirm(`Passwort für ${userItem.name} wirklich zurücksetzen?`);
-    if (!confirmReset) return;
+    setUserToResetPassword(userItem);
+    setShowResetPasswordConfirmModal(true);
+  };
+
+  const confirmResetUserPassword = async () => {
+    if (!userToResetPassword) return;
 
     try {
-      const response = await resetUserPasswordMutation.mutateAsync(userItem.id);
+      const response = await resetUserPasswordMutation.mutateAsync(userToResetPassword.id);
       const generatedPassword = response?.data?.generatedPassword;
 
       if (!generatedPassword) {
@@ -337,6 +343,8 @@ export default function AdminPage() {
         return;
       }
 
+      setShowResetPasswordConfirmModal(false);
+      setUserToResetPassword(null);
       setGeneratedPassword(generatedPassword);
       setCopiedGeneratedPassword(false);
       setShowGeneratedPasswordModal(true);
@@ -1098,6 +1106,39 @@ export default function AdminPage() {
                 )}
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Reset Password Confirm Modal */}
+      {showResetPasswordConfirmModal && userToResetPassword && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="card max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Passwort zurücksetzen</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+              Soll das Passwort für <strong>{userToResetPassword.name}</strong> wirklich zurückgesetzt und neu generiert werden?
+            </p>
+            <div className="flex space-x-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowResetPasswordConfirmModal(false);
+                  setUserToResetPassword(null);
+                }}
+                className="btn btn-secondary"
+                disabled={resetUserPasswordMutation.isPending}
+              >
+                Abbrechen
+              </button>
+              <button
+                type="button"
+                onClick={confirmResetUserPassword}
+                className="btn btn-primary"
+                disabled={resetUserPasswordMutation.isPending}
+              >
+                {resetUserPasswordMutation.isPending ? 'Setzt zurück...' : 'Zurücksetzen'}
+              </button>
+            </div>
           </div>
         </div>
       )}
