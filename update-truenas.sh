@@ -42,9 +42,13 @@ fi
 echo -e "${GREEN}✓ Code aktualisiert${NC}\n"
 
 # Docker Compose - Bau & Restart
-echo -e "${BLUE}🐳 Baue und starten neue Container...${NC}"
+echo -e "${BLUE}🐳 Räume alte Container auf und starte neue Version...${NC}"
 if [ -f ".env" ]; then
-    if ! docker compose --env-file .env -f docker-compose.build.yml up -d --build; then
+    docker compose --env-file .env -f docker-compose.build.yml down --remove-orphans >/dev/null 2>&1 || true
+
+    if ! docker compose --env-file .env -f docker-compose.build.yml up -d --build --remove-orphans; then
+        echo -e "${YELLOW}ℹ️  Mögliche Ursache: Port bereits belegt (z.B. 18080).${NC}"
+        echo -e "${YELLOW}   Prüfen mit: docker ps --format 'table {{.Names}}\t{{.Ports}}'${NC}"
         error_exit "Docker Compose fehlgeschlagen. Check: docker compose --env-file .env -f docker-compose.build.yml logs"
     fi
 else
