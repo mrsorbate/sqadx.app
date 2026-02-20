@@ -1,164 +1,216 @@
-# TeamPilot auf TrueNAS deployen
+# TeamPilot auf TrueNAS —  Kompletter Setup Guide
 
-Dieses Readme erklärt, wie du TeamPilot auf deiner TrueNAS als Docker-Container abläufst.
+Diese Dokumentation erklärt, wie du TeamPilot auf deiner TrueNAS nutzt — mit automatischem Setup, Updates und Backups.
 
-## Voraussetzungen
+---
 
-- TrueNAS SCALE mit Docker/Virtualisierung aktiviert
-- SSH-Zugang zur TrueNAS (optional, für Shell-Setup)
-- ≥ 2GB RAM verfügbar
-- Ein freier Port (Standard: 18080)
+## 🚀 Schnellstart (5-10 Min)
 
-## Schnellstart (empfohlen)
-
-### Option 1: Via Script (automatisches Setup)
+### 1. SSH-Zugriff zur TrueNAS
 
 ```bash
-# Auf TrueNAS per SSH oder Shell
+ssh root@<TRUENAS-IP>
+```
+
+### 2. Repository klonen
+
+```bash
 cd /mnt/DATA/docker
 git clone https://github.com/mrsorbate/TeamPilot-App.git
 cd TeamPilot-App
-
-# Setup-Script ausführbar machen
-chmod +x setup-truenas.sh
-
-# Ausführen (generiert JWT_SECRET automatisch)
-./setup-truenas.sh
 ```
 
-Das Skript wird:
-- Datenverzeichnisse erstellen
-- Ein sicheres JWT_SECRET generieren
-- `.env` mit allen nötigen Werten füllen
-- Docker Container mit diesen Umgebungsvariablen starten
-
-**Hinweis:** Das Script erstellt automatisch eine `.env`-Datei und lädt diese beim Start.
-Diese Datei sollte **NICHT** ins Repository gepusht werden (wird ignoriert).
-
----
-
-### Option 2: Via TrueNAS Web-UI
-
-1. **Verzeichnisse vorbereiten** (als root/SSH):
-   ```bash
-   mkdir -p /mnt/DATA/docker/teampilot/{data,uploads}
-   ```
-
-2. **In TrueNAS-UI:**
-   - **Apps → Discover** (oder **Custom Apps** je nach Version)
-   - **Compose file einfügen** aus `docker-compose.truenas.yml`
-   - **Environment hinzufügen:**
-     ```
-     JWT_SECRET=<dein-sicheres-secret>
-     FRONTEND_URL=http://<TRUENAS-IP>:18080
-     BACKEND_DATA_DIR=/mnt/DATA/docker/teampilot/data
-     BACKEND_UPLOADS_DIR=/mnt/DATA/docker/teampilot/uploads
-     FRONTEND_PORT=18080
-     ```
-   - **Deploy**
-
-3. **Wart auf Status „Running"** → öffne http://TRUENAS-IP:18080
-
----
-
-## JWT_SECRET generieren
-
-Wenn du eine Variante ohne Skript nutzt, generiere das Secret manuell:
+### 3. Initial Setup
 
 ```bash
-openssl rand -base64 32
+chmod +x setup-truenas-build.sh
+./setup-truenas-build.sh
 ```
 
-**Beispiel-Output:**
-```
-xYzAbCdEfGhIjKlMnOpQrStUvWxYz0AbCdEfGhIjKlMnOpQrStUvWxYz==
-```
+Das Script macht automatisch:
+- ✅ Verzeichnisse erstellen (`/mnt/DATA/docker/teampilot/`)
+- ✅ Sicheres JWT_SECRET generiert
+- ✅ `.env` mit allen Werten erstellt
+- ✅ Docker Images gebaut
+- ✅ Container gestartet
 
-Verwende diesen Wert als `JWT_SECRET` in deiner `.env` oder in den Container-Umgebungsvariablen.
+**Fertig!** → Öffne `http://<TRUENAS-IP>:18080`
 
 ---
 
-## Konfiguration übergeben
+## 🔄 Updates
 
-Die folgenden Variablen kannst du vor dem Start anpassen:
-
-| Variable | Erklärung | Standard |
-|----------|-----------|----------|
-| `FRONTEND_PORT` | Host-Port für Web-Zugriff | `18080` |
-| `BACKEND_PORT` | Interner Port (Container) | `3000` |
-| `JWT_SECRET` | Sicherheitsschlüssel (MUSS gesetzt sein!) | - |
-| `DATABASE_PATH` | Pfad zur SQLite DB im Container | `/app/data/database.sqlite` |
-| `FRONTEND_URL` | Externe URL (für Links/Redirects) | `http://<IP>:18080` |
-| `BACKEND_DATA_DIR` | Host-Pfad für Datenbank | `/mnt/DATA/docker/teampilot/data` |
-| `BACKEND_UPLOADS_DIR` | Host-Pfad für Uploads | `/mnt/DATA/docker/teampilot/uploads` |
-
----
-
-## Daten & Persistenz
-
-Die Daten bleiben persistent auf dem Host unter:
-- **/mnt/DATA/docker/teampilot/data** — Datenbank (SQLite)
-- **/mnt/DATA/docker/teampilot/uploads** — User-Uploads (Bilder etc.)
-
-Falls du die Container löschst, bleiben die Daten erhalten.
-
----
-
-## Logs anschauen
+Regelmäßig Updates einspielen mit einem Befehl:
 
 ```bash
-# Alle Logs
-docker compose -f docker-compose.truenas.yml logs
+cd /mnt/DATA/docker/TeamPilot-App
+chmod +x update-truenas.sh
+./update-truenas.sh
+```
 
-# Nur Backend
-docker compose -f docker-compose.truenas.yml logs teampilot-backend
+Das Script macht:
+- ✅ Neuen Code von GitHub holen (`git pull`)
+- ✅ Backup der `.env` erstellen
+- ✅ Docker Images neu bauen
+- ✅ Container neu starten
+- ✅ Datenbank bleibt erhalten
 
-# Live-Logs (Follow)
-docker compose -f docker-compose.truenas.yml logs -f
+---
+
+## 📋 Was wird wo gespeichert?
+
+| Was | Wo | Wichtig |
+|-----|----|----|
+| **Datenbank** | `/mnt/DATA/docker/teampilot/data/database.sqlite` | ⚠️ Backup regelmäßig |
+| **Uploaded Bilder** | `/mnt/DATA/docker/teampilot/uploads/` | ⚠️ Wichtige Daten |
+| **Config** | `.env` (root des Repos) | 🔑 Nicht löschen |
+| **Docker Logs** | Container-Logs | 📝 Zum Debugging |
+
+---
+
+## 🛠️ Nützliche Befehle
+
+### Status checken
+```bash
+cd /mnt/DATA/docker/TeamPilot-App
+docker compose --env-file .env -f docker-compose.build.yml ps
+```
+
+### Logs live anschauen
+```bash
+docker compose --env-file .env -f docker-compose.build.yml logs -f
+```
+
+### Container stoppen
+```bash
+docker compose --env-file .env -f docker-compose.build.yml down
+```
+
+### Container neu starten
+```bash
+docker compose --env-file .env -f docker-compose.build.yml restart
+```
+
+### Port ändern (falls 18080 belegt)
+```bash
+# .env bearbeiten
+nano .env
+# Ändere: FRONTEND_PORT=28080
+# Speichern: Ctrl+O, Enter, Ctrl+X
+
+# Neu starten
+./update-truenas.sh
 ```
 
 ---
 
-## Container neu starten
+## 💾 Backup & Recovery
+
+### Automatische Backups
+Das `update-truenas.sh`-Script erstellt vor jedem Update ein Backup:
+```
+.env.backup.20260220_133000
+```
+
+### Manuelles Backup der Datenbank
 
 ```bash
-# Neustarten
-docker compose -f docker-compose.truenas.yml restart
-
-# Neu bauen & starten (z. B. nach .env-Änderungen)
-docker compose -f docker-compose.truenas.yml up -d --pull always
+cp -v /mnt/DATA/docker/teampilot/data/database.sqlite \
+      /mnt/DATA/docker/teampilot/data/database.sqlite.backup.$(date +%Y%m%d)
 ```
 
----
-
-## Updates
+### Datenbank aus Backup wiederherstellen
 
 ```bash
-cd /path/to/TeamPilot-App
-git pull
-docker compose -f docker-compose.truenas.yml up -d --pull always
+cd /mnt/DATA/docker/TeamPilot-App
+docker compose --env-file .env -f docker-compose.build.yml down
+
+# Backup zurück-copy
+cp /mnt/DATA/docker/teampilot/data/database.sqlite.backup.20260220 \
+   /mnt/DATA/docker/teampilot/data/database.sqlite
+
+# Neu starten
+./setup-truenas-build.sh
 ```
 
-Die neuen Images werden automatisch heruntergeladen und Container neu gestartet.
+---
+
+## ⚠️ Troubleshooting
+
+### "Container starten nicht"
+```bash
+cd /mnt/DATA/docker/TeamPilot-App
+docker compose --env-file .env -f docker-compose.build.yml logs -f
+# Suche nach Fehlermeldungen
+```
+
+### "Port 18080 bereits belegt"
+Ändere den Port in `.env`:
+```bash
+nano .env
+# Ändere: FRONTEND_PORT=28080
+./update-truenas.sh
+```
+
+### "Datenbank-Fehler"
+```bash
+# Verzeichnis-Rechte checken
+ls -la /mnt/DATA/docker/teampilot/data/
+
+# Falls nötig:
+chmod 755 /mnt/DATA/docker/teampilot/data
+chmod 755 /mnt/DATA/docker/teampilot/uploads
+```
+
+### "Kompletter Neustart (Daten bleiben)"
+```bash
+cd /mnt/DATA/docker/TeamPilot-App
+docker compose --env-file .env -f docker-compose.build.yml down
+./setup-truenas-build.sh
+```
+
+### "Build fehlgeschlagen"
+```bash
+cd /mnt/DATA/docker/TeamPilot-App
+docker compose --env-file .env -f docker-compose.build.yml down
+./setup-truenas-build.sh
+```
 
 ---
 
-## Troubleshooting
+## 🔐 Sicherheit
 
-### Container starten nicht
-→ Check: `docker compose -f docker-compose.truenas.yml logs`
+### JWT_SECRET schützen
+Deine `.env` enthält das JWT_SECRET — nicht in Public-Repos pushen!
 
-### Port bereits belegt?
-→ Ändere `FRONTEND_PORT` in `.env` oder in den Container-Umgebungsvariablen
+```bash
+# .env ist automatisch in .gitignore:
+cat .gitignore | grep "^\.env"
+```
 
-### JWT_SECRET nicht gesetzt?
-→ Container startet nicht: Check die Error-Logs
-
-### Datenbank-Fehler?
-→ Stelle sicher, dass `/mnt/DATA/docker/teampilot/data` existiert und schreibbar ist (`chmod 755`)
+### Bei kompromittiertem Secret
+1. Neues Secret generieren: `openssl rand -base64 32`
+2. In `.env` eintragen
+3. `./update-truenas.sh` ausführen
+4. Alle User müssen sich neu anmelden
 
 ---
 
-## Support
+## 📞 Support
 
-Bei Fragen: [GitHub Issues](https://github.com/mrsorbate/TeamPilot-App/issues)
+- **GitHub Issues:** https://github.com/mrsorbate/TeamPilot-App/issues
+- **Logs checken:** `docker compose --env-file .env -f docker-compose.build.yml logs -f`
+
+---
+
+## 📝 Cheat Sheet
+
+| Aufgabe | Befehl |
+|--------|--------|
+| Initial Setup | `./setup-truenas-build.sh` |
+| Update | `./update-truenas.sh` |
+| Status | `docker compose --env-file .env -f docker-compose.build.yml ps` |
+| Logs | `docker compose --env-file .env -f docker-compose.build.yml logs -f` |
+| Stoppen | `docker compose --env-file .env -f docker-compose.build.yml down` |
+| Neustarten | `docker compose --env-file .env -f docker-compose.build.yml restart` |
+| Config ändern | `nano .env` → `./update-truenas.sh` |
