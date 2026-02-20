@@ -607,6 +607,7 @@ export default function AdminPage() {
   }
 
   const API_URL = import.meta.env.VITE_API_URL || '';
+  const admins = users?.filter((u: any) => u.role === 'admin') || [];
   const trainers = users?.filter((u: any) => u.role === 'trainer') || [];
   const players = users?.filter((u: any) => u.role === 'player') || [];
 
@@ -1220,6 +1221,49 @@ export default function AdminPage() {
         </div>
 
         <div className="space-y-6">
+          <div>
+            <h3 className="text-lg font-semibold mb-3 text-violet-800 dark:text-violet-300">Admins ({admins.length})</h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-[620px] sm:min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className={userTableHeadCellClass}>Name</th>
+                    <th className={userTableHeadCellClass}>Benutzername</th>
+                    <th className={userTableHeadCellClass}>Email</th>
+                    <th className={userTableHeadCellClass}>Hinweis</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                  {admins.map((admin: any) => (
+                    <tr key={admin.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                      <td className={userTableCellClass}>
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">{admin.name || '-'}</div>
+                      </td>
+                      <td className={userTableCellClass}>
+                        <div className="text-sm text-gray-700 dark:text-gray-200">{admin.username || '-'}</div>
+                      </td>
+                      <td className={userTableCellClass}>
+                        <div className="text-sm text-gray-600 dark:text-gray-300">{admin.email || '-'}</div>
+                      </td>
+                      <td className={userTableCellClass}>
+                        <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-violet-100 text-violet-800">
+                          {user?.id === admin.id ? 'Du' : 'Admin'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                  {admins.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className={userTableEmptyCellClass}>
+                        Keine Admins vorhanden.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           <div>
             <h3 className="text-lg font-semibold mb-3 text-blue-800 dark:text-blue-300">Trainer ({trainers.length})</h3>
             <div className="mb-3">
