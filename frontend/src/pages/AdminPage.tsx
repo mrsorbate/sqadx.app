@@ -1032,16 +1032,7 @@ export default function AdminPage() {
       {showCreateTrainer && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="card max-w-xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-900 dark:text-white">Trainer anlegen & Registrierungslink erstellen</h3>
-              <button
-                type="button"
-                onClick={closeCreateTrainerModal}
-                className="btn btn-secondary text-sm"
-              >
-                Schließen
-              </button>
-            </div>
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Trainer anlegen & Registrierungslink erstellen</h3>
 
             <form onSubmit={handleCreateTrainer} className="space-y-4">
               <div>
