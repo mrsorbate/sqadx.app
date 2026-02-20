@@ -122,6 +122,9 @@ export default function SetupWizardPage() {
       setError('');
       setStep(3);
     } else if (step === 3) {
+      setError('');
+      setStep(4);
+    } else if (step === 4) {
       handleComplete();
     }
   };
@@ -146,7 +149,7 @@ export default function SetupWizardPage() {
             Willkommen bei sqadX.app
           </h1>
           <p className="text-lg text-gray-600">
-            {step === 1 ? 'Dein Verein' : step === 2 ? 'Admin-Daten' : 'Zeitzone & Zusammenfassung'}
+            {step === 1 ? 'Dein Verein' : step === 2 ? 'Admin-Daten' : step === 3 ? 'Zeitzone' : 'Finale Zusammenfassung'}
           </p>
         </div>
 
@@ -154,7 +157,7 @@ export default function SetupWizardPage() {
         <div className="bg-white rounded-lg shadow-lg p-8">
           {/* Step Indicators */}
           <div className="flex items-center justify-between mb-8">
-          {[1, 2, 3].map((s) => (
+          {[1, 2, 3, 4].map((s) => (
             <div key={s} className="flex items-center flex-1">
               <div
                 className={`flex items-center justify-center w-12 h-12 rounded-full font-bold ${
@@ -165,7 +168,7 @@ export default function SetupWizardPage() {
               >
                 {s}
               </div>
-              {s < 3 && (
+              {s < 4 && (
                 <div
                   className={`flex-1 h-1 mx-2 ${
                     s < step ? 'bg-primary-600' : 'bg-gray-200'
@@ -289,12 +292,12 @@ export default function SetupWizardPage() {
             </div>
           )}
 
-          {/* Step 3: Timezone & Summary */}
+          {/* Step 3: Timezone */}
           {step === 3 && (
             <div className="space-y-6">
               <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                 <Globe className="w-6 h-6 text-primary-600" />
-                Zeitzone & Zusammenfassung
+                Zeitzone
               </h2>
 
               <div>
@@ -313,7 +316,18 @@ export default function SetupWizardPage() {
                 <p className="text-xs text-gray-500 mt-1">Beeinflusst Terminzeiten, Deadlines und Erinnerungen.</p>
               </div>
 
-              <div className="mt-8 p-4 bg-primary-50 rounded-lg border border-primary-200">
+            </div>
+          )}
+
+          {/* Step 4: Final Summary */}
+          {step === 4 && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <Globe className="w-6 h-6 text-primary-600" />
+                Finale Zusammenfassung
+              </h2>
+
+              <div className="p-4 bg-primary-50 rounded-lg border border-primary-200">
                 <h3 className="font-bold text-primary-900 mb-2">Finale Zusammenfassung:</h3>
                 <div className="space-y-1 text-sm text-primary-800">
                   <p>
@@ -360,9 +374,9 @@ export default function SetupWizardPage() {
               disabled={setupMutation.isPending}
               className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {step === 3 && setupMutation.isPending && 'Wird eingerichtet...'}
-              {step === 3 && !setupMutation.isPending && 'Setup fertigstellen'}
-              {step < 3 && 'Weiter →'}
+              {step === 4 && setupMutation.isPending && 'Wird eingerichtet...'}
+              {step === 4 && !setupMutation.isPending && 'Setup fertigstellen'}
+              {step < 4 && 'Weiter →'}
             </button>
           </div>
         </div>

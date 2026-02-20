@@ -129,6 +129,8 @@ export default function FirstTimeSetupPage() {
       }
       setStep(3);
     } else if (step === 3) {
+      setStep(4);
+    } else if (step === 4) {
       handleComplete();
     }
   };
@@ -173,7 +175,7 @@ export default function FirstTimeSetupPage() {
             sqadX.app
           </h1>
           <p className="mt-4 text-lg font-semibold text-gray-700 dark:text-gray-300">
-            {step === 1 ? 'Dein Verein' : step === 2 ? 'Admin-Daten' : 'Zeitzone & Zusammenfassung'}
+            {step === 1 ? 'Dein Verein' : step === 2 ? 'Admin-Daten' : step === 3 ? 'Zeitzone' : 'Finale Zusammenfassung'}
           </p>
         </div>
 
@@ -182,6 +184,7 @@ export default function FirstTimeSetupPage() {
           <div className={`h-2 w-8 rounded-full transition-colors ${step >= 1 ? 'bg-primary-600' : 'bg-gray-300'}`} />
           <div className={`h-2 w-8 rounded-full transition-colors ${step >= 2 ? 'bg-primary-600' : 'bg-gray-300'}`} />
           <div className={`h-2 w-8 rounded-full transition-colors ${step >= 3 ? 'bg-primary-600' : 'bg-gray-300'}`} />
+          <div className={`h-2 w-8 rounded-full transition-colors ${step >= 4 ? 'bg-primary-600' : 'bg-gray-300'}`} />
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
@@ -318,7 +321,7 @@ export default function FirstTimeSetupPage() {
             </div>
           )}
 
-          {/* Step 3: Timezone + Summary */}
+          {/* Step 3: Timezone */}
           {step === 3 && (
             <div className="space-y-4">
               <div>
@@ -342,7 +345,12 @@ export default function FirstTimeSetupPage() {
                   Beeinflusst Terminzeiten, Deadlines und Erinnerungen.
                 </p>
               </div>
+            </div>
+          )}
 
+          {/* Step 4: Final Summary */}
+          {step === 4 && (
+            <div className="space-y-4">
               <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4 space-y-2">
                 <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">Finale Zusammenfassung:</h3>
                 <p className="text-sm text-gray-700 dark:text-gray-300"><strong>Verein:</strong> {organizationName}</p>
@@ -375,14 +383,14 @@ export default function FirstTimeSetupPage() {
             >
               {setupMutation.isPending
                 ? 'Wird konfiguriert...'
-                : step < 3
+                : step < 4
                 ? 'Weiter'
                 : 'Setup abschließen'}
             </button>
           </div>
 
           <p className="text-center text-xs text-gray-500 dark:text-gray-400">
-            Schritt {step} von 3
+            Schritt {step} von 4
           </p>
         </form>
       </div>
