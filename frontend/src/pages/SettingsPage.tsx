@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { profileAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import { User, Lock, Camera, Trash2, Check, AlertCircle } from 'lucide-react';
+import { useToast } from '../lib/useToast';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -10,22 +11,13 @@ export default function SettingsPage() {
   const { user: authUser } = useAuthStore();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { toast, showToast } = useToast();
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [showDeletePictureConfirmModal, setShowDeletePictureConfirmModal] = useState(false);
-
-  const showToast = (message: string, type: 'success' | 'error' = 'error') => {
-    setToast({ message, type });
-    if (toastTimeoutRef.current) {
-      clearTimeout(toastTimeoutRef.current);
-    }
-    toastTimeoutRef.current = setTimeout(() => setToast(null), 3000);
-  };
 
   const { data: profile } = useQuery({
     queryKey: ['profile'],

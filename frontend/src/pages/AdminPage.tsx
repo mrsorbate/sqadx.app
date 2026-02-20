@@ -4,6 +4,7 @@ import { adminAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import { Navigate } from 'react-router-dom';
 import { Plus, Trash2, Users, UserPlus, UserMinus, Shield, Settings, Upload, Copy, Share2, Check, KeyRound } from 'lucide-react';
+import { useToast } from '../lib/useToast';
 
 const TIMEZONES = [
   'Europe/Berlin',
@@ -23,7 +24,7 @@ export default function AdminPage() {
   const { user, logout } = useAuthStore();
   const queryClient = useQueryClient();
   const logoFileInputRef = useRef<HTMLInputElement>(null);
-  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { toast, showToast } = useToast();
   
   const [showOrganizationSettings, setShowOrganizationSettings] = useState(false);
   const [organizationName, setOrganizationName] = useState('');
@@ -61,15 +62,6 @@ export default function AdminPage() {
   const [showGeneratedPasswordModal, setShowGeneratedPasswordModal] = useState(false);
   const [generatedPassword, setGeneratedPassword] = useState('');
   const [copiedGeneratedPassword, setCopiedGeneratedPassword] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-
-  const showToast = (message: string, type: 'success' | 'error' = 'error') => {
-    setToast({ message, type });
-    if (toastTimeoutRef.current) {
-      clearTimeout(toastTimeoutRef.current);
-    }
-    toastTimeoutRef.current = setTimeout(() => setToast(null), 3000);
-  };
 
   // Redirect if not admin
   if (user?.role !== 'admin') {

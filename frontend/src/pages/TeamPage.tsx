@@ -5,6 +5,7 @@ import { teamsAPI, invitesAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import { Calendar, Users, BarChart, ArrowLeft, UserPlus, X, Copy, Check, Clock, Mail, Upload, Image as ImageIcon } from 'lucide-react';
 import InviteManager from '../components/InviteManager';
+import { useToast } from '../lib/useToast';
 
 export default function TeamPage() {
   const { id } = useParams<{ id: string }>();
@@ -19,17 +20,8 @@ export default function TeamPage() {
   const [createdPlayerInfo, setCreatedPlayerInfo] = useState<{ name: string; invite_url: string } | null>(null);
   const [copied, setCopied] = useState(false);
   const [uploadingTeamPicture, setUploadingTeamPicture] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { toast, showToast } = useToast();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  const showToast = (message: string, type: 'success' | 'error' = 'error') => {
-    setToast({ message, type });
-    if (toastTimeoutRef.current) {
-      clearTimeout(toastTimeoutRef.current);
-    }
-    toastTimeoutRef.current = setTimeout(() => setToast(null), 3000);
-  };
 
   const { data: team, isLoading: teamLoading } = useQuery({
     queryKey: ['team', teamId],

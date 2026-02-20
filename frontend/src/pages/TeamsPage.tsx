@@ -4,22 +4,14 @@ import { teamsAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import { Users, Calendar, BarChart, Upload, Image as ImageIcon } from 'lucide-react';
 import { useState, useRef } from 'react';
+import { useToast } from '../lib/useToast';
 
 export default function TeamsPage() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const [uploadingTeamId, setUploadingTeamId] = useState<number | null>(null);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { toast, showToast } = useToast();
   const fileInputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
-
-  const showToast = (message: string, type: 'success' | 'error' = 'error') => {
-    setToast({ message, type });
-    if (toastTimeoutRef.current) {
-      clearTimeout(toastTimeoutRef.current);
-    }
-    toastTimeoutRef.current = setTimeout(() => setToast(null), 3000);
-  };
 
   const { data: teams, isLoading } = useQuery({
     queryKey: ['teams'],
