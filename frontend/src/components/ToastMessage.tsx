@@ -1,4 +1,4 @@
-type ToastType = 'success' | 'error';
+type ToastType = 'success' | 'error' | 'info' | 'warning';
 
 interface ToastState {
   message: string;
@@ -18,11 +18,18 @@ export default function ToastMessage({
 }: ToastMessageProps) {
   if (!toast) return null;
 
+  const colorClassName =
+    toast.type === 'success'
+      ? 'bg-green-600'
+      : toast.type === 'error'
+      ? 'bg-red-600'
+      : toast.type === 'warning'
+      ? 'bg-yellow-600'
+      : 'bg-primary-600';
+
   return (
     <div
-      className={`fixed ${positionClassName} px-4 py-3 rounded-lg shadow-lg text-white ${textClassName} ${
-        toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'
-      }`}
+      className={`fixed ${positionClassName} px-4 py-3 rounded-lg shadow-lg text-white ${textClassName} ${colorClassName}`}
     >
       {toast.message}
     </div>

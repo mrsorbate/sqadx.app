@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import ToastMessage from '../components/ToastMessage';
 
-export type ToastType = 'success' | 'error';
+export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
 export interface ToastState {
   message: string;

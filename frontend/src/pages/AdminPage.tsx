@@ -4,7 +4,7 @@ import { adminAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import { Navigate } from 'react-router-dom';
 import { Plus, Trash2, Users, UserPlus, UserMinus, Shield, Settings, Upload, Copy, Share2, Check, KeyRound } from 'lucide-react';
-import { useToast } from '../lib/useToast';
+import { useToast, type ToastType } from '../lib/useToast';
 
 const TIMEZONES = [
   'Europe/Berlin',
@@ -63,7 +63,7 @@ export default function AdminPage() {
   const [generatedPassword, setGeneratedPassword] = useState('');
   const [copiedGeneratedPassword, setCopiedGeneratedPassword] = useState(false);
 
-  const showToast = (message: string, type: 'success' | 'error' = 'error') => {
+  const showToast = (message: string, type: ToastType = 'error') => {
     showGlobalToast(message, type, { position: 'bottom-right' });
   };
 
