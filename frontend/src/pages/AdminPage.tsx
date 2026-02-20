@@ -47,6 +47,11 @@ export default function AdminPage() {
   const [showDeleteOrganizationConfirm, setShowDeleteOrganizationConfirm] = useState(false);
   const [deleteOrganizationConfirmText, setDeleteOrganizationConfirmText] = useState('');
   const [showCreateTrainer, setShowCreateTrainer] = useState(false);
+  const [showCreateAdmin, setShowCreateAdmin] = useState(false);
+  const [adminName, setAdminName] = useState('');
+  const [adminUsername, setAdminUsername] = useState('');
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
   const [trainerName, setTrainerName] = useState('');
   const [trainerTeamIds, setTrainerTeamIds] = useState<number[]>([]);
   const [trainerInviteLink, setTrainerInviteLink] = useState('');
@@ -78,6 +83,7 @@ export default function AdminPage() {
       showRemoveTrainer ||
       showCreateTeam ||
       showCreateTrainer ||
+      showCreateAdmin ||
       showResetPasswordConfirmModal ||
       showDeleteUserConfirmModal ||
       showResendTrainerLinkModal ||
@@ -120,6 +126,11 @@ export default function AdminPage() {
         return;
       }
 
+      if (showCreateAdmin) {
+        closeCreateAdminModal();
+        return;
+      }
+
       if (showCreateTeam) {
         setShowCreateTeam(false);
         return;
@@ -151,6 +162,7 @@ export default function AdminPage() {
     showRemoveTrainer,
     showCreateTeam,
     showCreateTrainer,
+    showCreateAdmin,
     showResetPasswordConfirmModal,
     showDeleteUserConfirmModal,
     showResendTrainerLinkModal,
@@ -333,6 +345,20 @@ export default function AdminPage() {
     },
   });
 
+  const createAdminMutation = useMutation({
+    mutationFn: (data: { name: string; username: string; email: string; password: string }) =>
+      adminAPI.createAdmin(data),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      await queryClient.refetchQueries({ queryKey: ['admin-users'] });
+      closeCreateAdminModal();
+      showToast('Admin erfolgreich erstellt', 'success');
+    },
+    onError: (error: any) => {
+      showToast(error?.response?.data?.error || 'Admin konnte nicht erstellt werden', 'error');
+    },
+  });
+
   const handleUpdateSettings = (e: React.FormEvent) => {
     e.preventDefault();
     updateSettingsMutation.mutate({ organizationName, timezone });
@@ -406,6 +432,16 @@ export default function AdminPage() {
     });
   };
 
+  const handleCreateAdmin = (e: React.FormEvent) => {
+    e.preventDefault();
+    createAdminMutation.mutate({
+      name: adminName.trim(),
+      username: adminUsername.trim().toLowerCase(),
+      email: adminEmail.trim().toLowerCase(),
+      password: adminPassword,
+    });
+  };
+
   const handleRemoveTrainer = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedTeam && selectedTrainerToRemove) {
@@ -455,6 +491,14 @@ export default function AdminPage() {
     setTrainerTeamIds([]);
     setTrainerInviteLink('');
     setCopiedTrainerLink(false);
+  };
+
+  const closeCreateAdminModal = () => {
+    setShowCreateAdmin(false);
+    setAdminName('');
+    setAdminUsername('');
+    setAdminEmail('');
+    setAdminPassword('');
   };
 
   const handleDeleteUser = (userItem: any) => {
@@ -634,6 +678,7 @@ export default function AdminPage() {
     const actionMap: Record<string, string> = {
       user_deleted: 'Benutzer gelöscht',
       user_password_reset: 'Passwort zurückgesetzt',
+      admin_created: 'Admin erstellt',
       trainer_assigned_to_team: 'Trainer zu Team zugewiesen',
       trainer_removed_from_team: 'Trainer aus Team entfernt',
       team_deleted: 'Team gelöscht',
@@ -1155,13 +1200,23 @@ export default function AdminPage() {
       <div className="card">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <h2 className="text-xl font-semibold">Benutzer ({users?.length || 0})</h2>
-          <button
-            onClick={() => setShowCreateTrainer(!showCreateTrainer)}
-            className="btn btn-primary flex items-center justify-center space-x-2 w-full sm:w-auto"
-          >
-            <UserPlus className="w-4 h-4" />
-            <span>Trainer erstellen</span>
-          </button>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={() => setShowCreateAdmin(true)}
+              className="btn btn-secondary flex items-center justify-center space-x-2 w-full sm:w-auto"
+            >
+              <Shield className="w-4 h-4" />
+              <span>Admin erstellen</span>
+            </button>
+            <button
+              onClick={() => setShowCreateTrainer(!showCreateTrainer)}
+              className="btn btn-primary flex items-center justify-center space-x-2 w-full sm:w-auto"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>Trainer erstellen</span>
+            </button>
+          </div>
         </div>
 
         <div className="space-y-6">
@@ -1610,6 +1665,80 @@ export default function AdminPage() {
                 <button
                   type="button"
                   onClick={() => setShowCreateTeam(false)}
+                  className="btn btn-secondary w-full sm:w-auto"
+                >
+                  Abbrechen
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Create Trainer Modal */}
+      {showCreateAdmin && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="create-admin-title">
+            <h3 id="create-admin-title" className="text-lg font-semibold mb-4">Neuen Admin erstellen</h3>
+            <form onSubmit={handleCreateAdmin} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name *</label>
+                <input
+                  type="text"
+                  autoFocus
+                  required
+                  value={adminName}
+                  onChange={(e) => setAdminName(e.target.value)}
+                  className="input"
+                  placeholder="z.B. Max Admin"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Benutzername *</label>
+                <input
+                  type="text"
+                  required
+                  value={adminUsername}
+                  onChange={(e) => setAdminUsername(e.target.value)}
+                  className="input"
+                  placeholder="z.B. max_admin"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">E-Mail *</label>
+                <input
+                  type="email"
+                  required
+                  value={adminEmail}
+                  onChange={(e) => setAdminEmail(e.target.value)}
+                  className="input"
+                  placeholder="max.admin@example.com"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Passwort *</label>
+                <input
+                  type="password"
+                  required
+                  minLength={6}
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  className="input"
+                  placeholder="Mindestens 6 Zeichen"
+                />
+              </div>
+
+              <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
+                <button
+                  type="submit"
+                  className="btn btn-primary w-full sm:w-auto"
+                  disabled={createAdminMutation.isPending || !adminName.trim() || !adminUsername.trim() || !adminEmail.trim() || adminPassword.length < 6}
+                >
+                  {createAdminMutation.isPending ? 'Erstellt...' : 'Admin erstellen'}
+                </button>
+                <button
+                  type="button"
+                  onClick={closeCreateAdminModal}
                   className="btn btn-secondary w-full sm:w-auto"
                 >
                   Abbrechen

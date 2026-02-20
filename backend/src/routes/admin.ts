@@ -657,6 +657,69 @@ router.post('/users/trainer', async (req: AuthRequest, res) => {
   }
 });
 
+// Create admin user (admin only)
+router.post('/users/admin', async (req: AuthRequest, res) => {
+  try {
+    const { name, username, email, password } = req.body;
+
+    if (!name || !username || !email || !password) {
+      return res.status(400).json({ error: 'Name, username, email and password are required' });
+    }
+
+    const normalizedUsername = String(username).trim().toLowerCase();
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const normalizedName = String(name).trim();
+
+    if (!normalizedName) {
+      return res.status(400).json({ error: 'Name is required' });
+    }
+
+    if (!/^[a-z0-9_]{3,30}$/.test(normalizedUsername)) {
+      return res.status(400).json({ error: 'Username must be 3-30 chars and can only contain letters, numbers and underscores' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    const existingUsername = db.prepare('SELECT id FROM users WHERE LOWER(username) = ?').get(normalizedUsername);
+    if (existingUsername) {
+      return res.status(409).json({ error: 'Username already exists' });
+    }
+
+    const existingEmail = db.prepare('SELECT id FROM users WHERE LOWER(email) = ?').get(normalizedEmail);
+    if (existingEmail) {
+      return res.status(409).json({ error: 'Email already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const result = db.prepare(
+      'INSERT INTO users (username, email, password, name, role) VALUES (?, ?, ?, ?, ?)'
+    ).run(normalizedUsername, normalizedEmail, hashedPassword, normalizedName, 'admin');
+
+    const createdUserId = Number(result.lastInsertRowid);
+
+    logAdminAction(req, 'admin_created', 'user', createdUserId, {
+      target_name: normalizedName,
+      target_username: normalizedUsername,
+      target_email: normalizedEmail,
+      target_role: 'admin',
+    });
+
+    res.status(201).json({
+      id: createdUserId,
+      username: normalizedUsername,
+      email: normalizedEmail,
+      name: normalizedName,
+      role: 'admin'
+    });
+  } catch (error) {
+    console.error('Create admin error:', error);
+    res.status(500).json({ error: 'Failed to create admin' });
+  }
+});
+
 // Add user to team (admin only)
 router.post('/teams/:teamId/members', (req: AuthRequest, res) => {
   try {
