@@ -213,7 +213,7 @@ export default function FirstTimeSetupPage() {
                   className="input mt-1"
                 />
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Formate: PNG, JPG, WebP. Maximal 5MB. Kann später im Admin-Bereich geändert werden.
+                  Formate: JPG, PNG, GIF, WebP. Maximal 5MB. Kann später im Admin-Panel geändert werden.
                 </p>
                 {logoPreview && (
                   <div className="mt-3 flex items-center space-x-3">
@@ -243,7 +243,7 @@ export default function FirstTimeSetupPage() {
                   autoFocus
                 />
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Damit meldest du dich an. Nur Kleinbuchstaben, Zahlen und Unterstrich empfohlen.
+                  Damit meldest du dich später an (nur Kleinbuchstaben, Zahlen und Unterstrich).
                 </p>
               </div>
 
@@ -280,7 +280,7 @@ export default function FirstTimeSetupPage() {
                   placeholder="••••••••"
                 />
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Mindestens 6 Zeichen, besser 10+ mit Zahlen und Sonderzeichen.
+                  Empfehlung: mindestens 10 Zeichen mit Zahlen und Sonderzeichen.
                 </p>
               </div>
 
@@ -323,19 +323,19 @@ export default function FirstTimeSetupPage() {
                   ))}
                 </select>
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Beeinflusst Terminzeiten, Erinnerungen und Deadlines in der App.
+                  Beeinflusst Terminzeiten, Deadlines und Erinnerungen.
                 </p>
               </div>
 
               <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4 space-y-2">
-                <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">Finale Zusammenfassung</h3>
+                <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">Finale Zusammenfassung:</h3>
                 <p className="text-sm text-gray-700 dark:text-gray-300"><strong>Verein:</strong> {organizationName}</p>
                 <p className="text-sm text-gray-700 dark:text-gray-300"><strong>Logo:</strong> {logoFile ? 'Wird hochgeladen' : 'Kein Logo (optional)'}</p>
                 <p className="text-sm text-gray-700 dark:text-gray-300"><strong>Admin:</strong> {adminUsername} ({adminEmail})</p>
                 <p className="text-sm text-gray-700 dark:text-gray-300"><strong>Zeitzone:</strong> {timezone}</p>
               </div>
 
-              <p className="text-xs text-blue-700 dark:text-blue-300">
+              <p className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
                 Hinweis: Nach dem Setup sind neue Registrierungen nur per persönlichem Einladungslink möglich.
               </p>
             </div>

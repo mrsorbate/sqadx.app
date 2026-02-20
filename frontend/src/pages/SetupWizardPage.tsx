@@ -146,7 +146,7 @@ export default function SetupWizardPage() {
             Willkommen bei sqadX.app
           </h1>
           <p className="text-lg text-gray-600">
-            {step === 1 ? 'Schritt 1: Verein & Logo' : step === 2 ? 'Schritt 2: Admin-Daten' : 'Schritt 3: Zeitzone & Zusammenfassung'}
+            {step === 1 ? 'Dein Verein' : step === 2 ? 'Admin-Daten' : 'Zeitzone & Zusammenfassung'}
           </p>
         </div>
 
@@ -187,7 +187,7 @@ export default function SetupWizardPage() {
             <div className="space-y-6">
               <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                 <Building2 className="w-6 h-6 text-primary-600" />
-                Verein einrichten
+                Dein Verein
               </h2>
 
               <div>
