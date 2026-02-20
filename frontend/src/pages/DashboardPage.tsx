@@ -76,8 +76,9 @@ export default function DashboardPage() {
                   className="absolute inset-0 w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 via-black/25 to-transparent" />
-                <div className="absolute top-4 left-4 z-20 space-y-2">
-                  <span className="inline-block px-3 py-1 rounded-md bg-black/55 text-white text-sm font-semibold backdrop-blur-sm">
+                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 px-4 text-center">
+                  <span className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-black/55 text-white text-sm font-semibold backdrop-blur-sm">
+                    <Users className="w-4 h-4" />
                     Mein Team
                   </span>
                   <h3 className="inline-block px-3 py-1 rounded-md bg-black/55 text-white text-xl font-bold backdrop-blur-sm">
