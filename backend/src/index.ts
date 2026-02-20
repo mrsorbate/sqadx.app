@@ -4,8 +4,8 @@ import dotenv from 'dotenv';
 import multer from 'multer';
 import path from 'path';
 import helmet from 'helmet';
-import { rateLimit } from 'express-rate-limit';
 import './database/init';
+import { createRateLimiter } from './middleware/rateLimit';
 import authRoutes from './routes/auth';
 import teamsRoutes from './routes/teams';
 import eventsRoutes from './routes/events';
@@ -27,23 +27,19 @@ const corsOrigins = String(process.env.CORS_ORIGIN || '')
   .map((origin) => origin.trim())
   .filter(Boolean);
 
-const apiLimiter = rateLimit({
+const apiLimiter = createRateLimiter({
   windowMs: Number.isFinite(apiRateLimitWindowMs) && apiRateLimitWindowMs > 0
     ? apiRateLimitWindowMs
     : 15 * 60 * 1000,
   max: Number.isFinite(apiRateLimitMax) && apiRateLimitMax > 0 ? apiRateLimitMax : 300,
-  standardHeaders: true,
-  legacyHeaders: false,
   message: { error: 'Too many requests, please try again later.' },
 });
 
-const authLimiter = rateLimit({
+const authLimiter = createRateLimiter({
   windowMs: Number.isFinite(apiRateLimitWindowMs) && apiRateLimitWindowMs > 0
     ? apiRateLimitWindowMs
     : 15 * 60 * 1000,
   max: Number.isFinite(authRateLimitMax) && authRateLimitMax > 0 ? authRateLimitMax : 20,
-  standardHeaders: true,
-  legacyHeaders: false,
   message: { error: 'Too many auth attempts, please try again later.' },
 });
 

@@ -1,21 +1,19 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { rateLimit } from 'express-rate-limit';
 import db from '../database/init';
+import { createRateLimiter } from '../middleware/rateLimit';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const loginRateLimitWindowMs = Number(process.env.LOGIN_RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000);
 const loginRateLimitMax = Number(process.env.LOGIN_RATE_LIMIT_MAX || 8);
 
-const loginAttemptLimiter = rateLimit({
+const loginAttemptLimiter = createRateLimiter({
   windowMs: Number.isFinite(loginRateLimitWindowMs) && loginRateLimitWindowMs > 0
     ? loginRateLimitWindowMs
     : 15 * 60 * 1000,
   max: Number.isFinite(loginRateLimitMax) && loginRateLimitMax > 0 ? loginRateLimitMax : 8,
-  standardHeaders: true,
-  legacyHeaders: false,
   skipSuccessfulRequests: true,
   keyGenerator: (req) => {
     const username = typeof req.body?.username === 'string'
