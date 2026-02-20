@@ -178,10 +178,10 @@ export default function EventCreatePage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Link to={effectiveTeamId ? `/teams/${effectiveTeamId}/events` : '/events'} className="text-gray-600 hover:text-gray-900">
+          <Link to={effectiveTeamId ? `/teams/${effectiveTeamId}/events` : '/events'} className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
             <ArrowLeft className="w-6 h-6" />
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Neuen Termin erstellen</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Neuen Termin erstellen</h1>
         </div>
       </div>
 
@@ -190,15 +190,15 @@ export default function EventCreatePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {!initialTeamId && teamsForCreate?.length === 1 && (
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700">Team</label>
-                <div className="mt-1 px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-700">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Team</label>
+                <div className="mt-1 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm text-gray-700 dark:text-gray-200">
                   {teamsForCreate[0].name}
                 </div>
               </div>
             )}
             {!initialTeamId && (!teamsForCreate || teamsForCreate.length > 1) && (
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700">Team *</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Team *</label>
                 <select
                   value={selectedTeamId ?? ''}
                   onChange={(e) => setSelectedTeamId(parseInt(e.target.value, 10))}
@@ -221,7 +221,7 @@ export default function EventCreatePage() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Kategorie *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Kategorie *</label>
               <select
                 value={eventData.type}
                 onChange={(e) => setEventData({ ...eventData, type: e.target.value as any })}
@@ -234,7 +234,7 @@ export default function EventCreatePage() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700">Titel *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Titel *</label>
               <input
                 type="text"
                 required
