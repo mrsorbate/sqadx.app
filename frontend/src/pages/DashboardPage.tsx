@@ -278,14 +278,15 @@ export default function DashboardPage() {
             <p>Keine Termine in den nächsten 6 anstehend</p>
           </div>
         )}
+        <div className="mt-6 flex justify-center">
+          <Link
+            to="/events"
+            className="btn btn-primary w-full text-center py-3 text-base"
+          >
+            Alle Termine
+          </Link>
+        </div>
       </div>
-
-      <Link
-        to="/events"
-        className="btn btn-primary w-full text-center py-3 text-base"
-      >
-        Alle Termine
-      </Link>
     </div>
   );
 }
