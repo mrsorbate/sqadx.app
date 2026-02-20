@@ -153,22 +153,11 @@ export default function InvitePage() {
             {invite.team_description && (
               <p className="text-gray-600 dark:text-gray-300 mt-2">{invite.team_description}</p>
             )}
-            {invite.invite_type === 'trainer_setup' && Array.isArray(invite.team_names) && invite.team_names.length > 0 && (
-              <div className="mt-2 text-sm text-gray-700 dark:text-gray-200">
-                <span className="font-medium">Zugewiesene Teams:</span> {invite.team_names.join(', ')}
-              </div>
-            )}
             {invite.player_name && (
               <p className="text-sm text-blue-700 dark:text-blue-300 mt-3 font-medium">
                 Registrierung ist fest zugeordnet: {invite.player_name}
               </p>
             )}
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
-              Eingeladen von <span className="font-medium">{invite.invited_by_name}</span>
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Rolle: <span className="font-medium capitalize">{invite.role}</span>
-            </p>
           </div>
 
           {invite.expires_at && (
