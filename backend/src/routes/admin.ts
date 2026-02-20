@@ -541,10 +541,14 @@ router.post('/users/trainer', async (req: AuthRequest, res) => {
 router.post('/teams/:teamId/members', (req: AuthRequest, res) => {
   try {
     const teamId = parseInt(req.params.teamId);
-    const { user_id, role = 'player', jersey_number, position } = req.body;
+    const { user_id, role } = req.body;
 
     if (!user_id) {
       return res.status(400).json({ error: 'user_id is required' });
+    }
+
+    if (role !== 'trainer') {
+      return res.status(400).json({ error: 'Admins can only assign trainers to teams' });
     }
 
     // Check if team exists
@@ -554,16 +558,20 @@ router.post('/teams/:teamId/members', (req: AuthRequest, res) => {
     }
 
     // Check if user exists
-    const user = db.prepare('SELECT id FROM users WHERE id = ?').get(user_id);
+    const user = db.prepare('SELECT id, role FROM users WHERE id = ?').get(user_id) as any;
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (user.role !== 'trainer') {
+      return res.status(400).json({ error: 'Only trainer users can be assigned by admin' });
     }
 
     // Add member
     const stmt = db.prepare(
       'INSERT INTO team_members (team_id, user_id, role, jersey_number, position) VALUES (?, ?, ?, ?, ?)'
     );
-    const result = stmt.run(teamId, user_id, role, jersey_number, position);
+    const result = stmt.run(teamId, user_id, 'trainer', null, null);
 
     // Create pending responses for all upcoming events
     const upcomingEvents = db.prepare(
@@ -582,9 +590,9 @@ router.post('/teams/:teamId/members', (req: AuthRequest, res) => {
       id: result.lastInsertRowid,
       team_id: teamId,
       user_id,
-      role,
-      jersey_number,
-      position
+      role: 'trainer',
+      jersey_number: null,
+      position: null
     });
   } catch (error: any) {
     if (error.message.includes('UNIQUE constraint failed')) {

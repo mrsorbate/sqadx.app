@@ -36,11 +36,6 @@ export default function AdminPage() {
   const [selectedTeam, setSelectedTeam] = useState<number | null>(null);
   const [showAssignTrainer, setShowAssignTrainer] = useState(false);
   const [selectedTrainer, setSelectedTrainer] = useState('');
-  const [showAddPlayer, setShowAddPlayer] = useState(false);
-  const [selectedPlayer, setSelectedPlayer] = useState('');
-  const [memberRole, setMemberRole] = useState('player');
-  const [jerseyNumber, setJerseyNumber] = useState('');
-  const [position, setPosition] = useState('');
   const [expandedInviteTeamId, setExpandedInviteTeamId] = useState<number | null>(null);
   const [showDeleteOrganizationConfirm, setShowDeleteOrganizationConfirm] = useState(false);
   const [deleteOrganizationConfirmText, setDeleteOrganizationConfirmText] = useState('');
@@ -159,23 +154,16 @@ export default function AdminPage() {
   });
 
   const addMemberMutation = useMutation({
-    mutationFn: (data: { teamId: number; userId: number; role: string; jerseyNumber?: number; position?: string }) =>
+    mutationFn: (data: { teamId: number; userId: number; role: string }) =>
       adminAPI.addUserToTeam(data.teamId, {
         user_id: data.userId,
         role: data.role,
-        jersey_number: data.jerseyNumber,
-        position: data.position,
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin-teams'] });
       await queryClient.refetchQueries({ queryKey: ['admin-teams'] });
       setShowAssignTrainer(false);
-      setShowAddPlayer(false);
       setSelectedTrainer('');
-      setSelectedPlayer('');
-      setMemberRole('player');
-      setJerseyNumber('');
-      setPosition('');
     },
   });
 
@@ -235,19 +223,6 @@ export default function AdminPage() {
         teamId: selectedTeam,
         userId: parseInt(selectedTrainer),
         role: 'trainer',
-      });
-    }
-  };
-
-  const handleAddPlayer = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (selectedTeam && selectedPlayer) {
-      addMemberMutation.mutate({
-        teamId: selectedTeam,
-        userId: parseInt(selectedPlayer),
-        role: memberRole,
-        jerseyNumber: jerseyNumber ? parseInt(jerseyNumber) : undefined,
-        position: position || undefined,
       });
     }
   };
@@ -587,16 +562,6 @@ export default function AdminPage() {
                   </button>
                   <button
                     onClick={() => {
-                      setSelectedTeam(team.id);
-                      setShowAddPlayer(true);
-                    }}
-                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                    title="Spieler hinzufügen"
-                  >
-                    <UserPlus className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => {
                       if (confirm(`Team "${team.name}" wirklich löschen? Dies kann nicht rückgängig gemacht werden.`)) {
                         deleteTeamMutation.mutate(team.id);
                       }
@@ -663,103 +628,6 @@ export default function AdminPage() {
                   onClick={() => {
                     setShowAssignTrainer(false);
                     setSelectedTrainer('');
-                  }}
-                  className="btn btn-secondary"
-                >
-                  Abbrechen
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Add Player Modal */}
-      {showAddPlayer && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="card max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4 flex items-center">
-              <UserPlus className="w-5 h-5 mr-2 text-green-600" />
-              Spieler hinzufügen
-            </h3>
-            <form onSubmit={handleAddPlayer} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Benutzer auswählen *
-                </label>
-                <select
-                  required
-                  value={selectedPlayer}
-                  onChange={(e) => setSelectedPlayer(e.target.value)}
-                  className="input"
-                >
-                  <option value="">-- Benutzer wählen --</option>
-                  {users?.map((user: any) => (
-                    <option key={user.id} value={user.id}>
-                      {user.name} ({user.email})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Rolle *
-                </label>
-                <select
-                  value={memberRole}
-                  onChange={(e) => setMemberRole(e.target.value)}
-                  className="input"
-                >
-                  <option value="player">Spieler</option>
-                  <option value="staff">Staff</option>
-                </select>
-              </div>
-
-              {memberRole === 'player' && (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Trikotnummer
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="99"
-                      value={jerseyNumber}
-                      onChange={(e) => setJerseyNumber(e.target.value)}
-                      className="input"
-                      placeholder="z.B. 10"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Position
-                    </label>
-                    <input
-                      type="text"
-                      value={position}
-                      onChange={(e) => setPosition(e.target.value)}
-                      className="input"
-                      placeholder="z.B. Stürmer, Mittelfeld"
-                    />
-                  </div>
-                </>
-              )}
-
-              <div className="flex space-x-3">
-                <button type="submit" className="btn btn-primary" disabled={addMemberMutation.isPending}>
-                  {addMemberMutation.isPending ? 'Fügt hinzu...' : 'Hinzufügen'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAddPlayer(false);
-                    setSelectedPlayer('');
-                    setMemberRole('player');
-                    setJerseyNumber('');
-                    setPosition('');
                   }}
                   className="btn btn-secondary"
                 >
