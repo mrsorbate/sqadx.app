@@ -49,6 +49,9 @@ export default function AdminPage() {
   const [trainerTeamIds, setTrainerTeamIds] = useState<number[]>([]);
   const [trainerInviteLink, setTrainerInviteLink] = useState('');
   const [copiedTrainerLink, setCopiedTrainerLink] = useState(false);
+  const [showGeneratedPasswordModal, setShowGeneratedPasswordModal] = useState(false);
+  const [generatedPassword, setGeneratedPassword] = useState('');
+  const [copiedGeneratedPassword, setCopiedGeneratedPassword] = useState(false);
 
   // Redirect if not admin
   if (user?.role !== 'admin') {
@@ -334,11 +337,19 @@ export default function AdminPage() {
         return;
       }
 
-      await navigator.clipboard.writeText(generatedPassword);
-      alert(`Neues Passwort wurde generiert und in die Zwischenablage kopiert:\n\n${generatedPassword}`);
+      setGeneratedPassword(generatedPassword);
+      setCopiedGeneratedPassword(false);
+      setShowGeneratedPasswordModal(true);
     } catch (error: any) {
       alert(error?.response?.data?.error || 'Passwort konnte nicht zurückgesetzt werden');
     }
+  };
+
+  const handleCopyGeneratedPassword = async () => {
+    if (!generatedPassword) return;
+    await navigator.clipboard.writeText(generatedPassword);
+    setCopiedGeneratedPassword(true);
+    setTimeout(() => setCopiedGeneratedPassword(false), 2000);
   };
 
   if (teamsLoading || usersLoading || settingsLoading) {
@@ -1087,6 +1098,44 @@ export default function AdminPage() {
                 )}
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Generated Password Modal */}
+      {showGeneratedPasswordModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="card max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Neues Passwort</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+              Das Passwort wurde zurückgesetzt. Teile dieses Passwort sicher mit dem Benutzer.
+            </p>
+            <input
+              readOnly
+              value={generatedPassword}
+              className="input mb-4"
+            />
+            <div className="flex space-x-3">
+              <button
+                type="button"
+                onClick={handleCopyGeneratedPassword}
+                className="btn btn-secondary flex items-center space-x-2"
+              >
+                {copiedGeneratedPassword ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                <span>{copiedGeneratedPassword ? 'Kopiert' : 'Passwort kopieren'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowGeneratedPasswordModal(false);
+                  setGeneratedPassword('');
+                  setCopiedGeneratedPassword(false);
+                }}
+                className="btn btn-primary"
+              >
+                Schließen
+              </button>
+            </div>
           </div>
         </div>
       )}
