@@ -56,11 +56,15 @@ export default function AdminPage() {
   const [trainerName, setTrainerName] = useState('');
   const [trainerTeamIds, setTrainerTeamIds] = useState<number[]>([]);
   const [trainerInviteLink, setTrainerInviteLink] = useState('');
+  const [trainerInviteMessageDraft, setTrainerInviteMessageDraft] = useState('');
+  const [isEditingTrainerInviteMessage, setIsEditingTrainerInviteMessage] = useState(false);
   const [copiedTrainerLink, setCopiedTrainerLink] = useState(false);
   const [showResendTrainerLinkModal, setShowResendTrainerLinkModal] = useState(false);
   const [resendTrainerName, setResendTrainerName] = useState('');
   const [resendTrainerTeams, setResendTrainerTeams] = useState('');
   const [resendTrainerLink, setResendTrainerLink] = useState('');
+  const [resendInviteMessageDraft, setResendInviteMessageDraft] = useState('');
+  const [isEditingResendInviteMessage, setIsEditingResendInviteMessage] = useState(false);
   const [copiedResendTrainerLink, setCopiedResendTrainerLink] = useState(false);
   const [showDeleteUserConfirmModal, setShowDeleteUserConfirmModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState<any | null>(null);
@@ -430,6 +434,8 @@ export default function AdminPage() {
     }, {
       onSuccess: (response: any) => {
         setTrainerInviteLink(response.data.invite_url || '');
+        setTrainerInviteMessageDraft('');
+        setIsEditingTrainerInviteMessage(false);
       }
     });
   };
@@ -491,7 +497,7 @@ export default function AdminPage() {
 
   const handleCopyTrainerLink = async () => {
     if (!trainerInviteLink) return;
-    const inviteMessage = buildInviteMessage(trainerName, getSelectedTrainerTeamLabel(), trainerInviteLink);
+    const inviteMessage = (trainerInviteMessageDraft || buildInviteMessage(trainerName, getSelectedTrainerTeamLabel(), trainerInviteLink)).trim();
     const copied = await copyTextToClipboard(inviteMessage);
     if (!copied) {
       showToast('Einladungstext konnte nicht kopiert werden', 'error');
@@ -507,6 +513,8 @@ export default function AdminPage() {
     setTrainerName('');
     setTrainerTeamIds([]);
     setTrainerInviteLink('');
+    setTrainerInviteMessageDraft('');
+    setIsEditingTrainerInviteMessage(false);
     setCopiedTrainerLink(false);
   };
 
@@ -549,6 +557,8 @@ export default function AdminPage() {
       setResendTrainerName(userItem.name || 'Trainer');
       setResendTrainerTeams(String(userItem.team_names || '').trim());
       setResendTrainerLink(inviteUrl);
+      setResendInviteMessageDraft('');
+      setIsEditingResendInviteMessage(false);
       setCopiedResendTrainerLink(false);
       setShowResendTrainerLinkModal(true);
       showToast('Einladungslink erfolgreich neu erstellt', 'success');
@@ -559,7 +569,7 @@ export default function AdminPage() {
 
   const handleCopyResendTrainerLink = async () => {
     if (!resendTrainerLink) return;
-    const inviteMessage = buildInviteMessage(resendTrainerName, resendTrainerTeams || 'deines Teams', resendTrainerLink);
+    const inviteMessage = (resendInviteMessageDraft || buildInviteMessage(resendTrainerName, resendTrainerTeams || 'deines Teams', resendTrainerLink)).trim();
     const copied = await copyTextToClipboard(inviteMessage);
     if (!copied) {
       showToast('Einladungstext konnte nicht kopiert werden', 'error');
@@ -835,12 +845,14 @@ export default function AdminPage() {
   const auditCellClass = 'py-1.5 pr-3';
   const auditExpandedRowClass = 'py-2 px-2 bg-gray-50 dark:bg-gray-800';
   const tableSearchInputClass = 'input text-sm py-2';
-  const trainerInviteMessage = trainerInviteLink
+  const trainerInviteMessageBase = trainerInviteLink
     ? buildInviteMessage(trainerName, getSelectedTrainerTeamLabel(), trainerInviteLink)
     : '';
-  const resendInviteMessage = resendTrainerLink
+  const trainerInviteMessage = trainerInviteMessageDraft || trainerInviteMessageBase;
+  const resendInviteMessageBase = resendTrainerLink
     ? buildInviteMessage(resendTrainerName, resendTrainerTeams || 'deines Teams', resendTrainerLink)
     : '';
+  const resendInviteMessage = resendInviteMessageDraft || resendInviteMessageBase;
 
   return (
     <div className="space-y-6">
@@ -1906,12 +1918,27 @@ export default function AdminPage() {
                 <div className="p-3 rounded-lg border border-blue-200 bg-blue-50 space-y-2">
                   <p className="text-sm text-blue-800">Einladungstext für <strong>{trainerName}</strong>:</p>
                   <textarea
-                    readOnly
+                    readOnly={!isEditingTrainerInviteMessage}
                     value={trainerInviteMessage}
+                    onChange={(e) => setTrainerInviteMessageDraft(e.target.value)}
                     rows={9}
                     className="input text-sm"
                   />
                   <div className="flex flex-col sm:flex-row gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!isEditingTrainerInviteMessage) {
+                          setTrainerInviteMessageDraft(trainerInviteMessageBase);
+                          setIsEditingTrainerInviteMessage(true);
+                          return;
+                        }
+                        setIsEditingTrainerInviteMessage(false);
+                      }}
+                      className="btn btn-secondary w-full sm:w-auto"
+                    >
+                      {isEditingTrainerInviteMessage ? 'Bearbeitung beenden' : 'Text bearbeiten'}
+                    </button>
                     <button
                       type="button"
                       onClick={handleCopyTrainerLink}
@@ -2035,12 +2062,27 @@ export default function AdminPage() {
             </p>
             <textarea
               autoFocus
-              readOnly
+              readOnly={!isEditingResendInviteMessage}
               value={resendInviteMessage}
+              onChange={(e) => setResendInviteMessageDraft(e.target.value)}
               rows={9}
               className="input mb-4 text-sm"
             />
             <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  if (!isEditingResendInviteMessage) {
+                    setResendInviteMessageDraft(resendInviteMessageBase);
+                    setIsEditingResendInviteMessage(true);
+                    return;
+                  }
+                  setIsEditingResendInviteMessage(false);
+                }}
+                className="btn btn-secondary w-full sm:w-auto"
+              >
+                {isEditingResendInviteMessage ? 'Bearbeitung beenden' : 'Text bearbeiten'}
+              </button>
               <button
                 type="button"
                 onClick={handleCopyResendTrainerLink}
@@ -2056,6 +2098,8 @@ export default function AdminPage() {
                   setResendTrainerName('');
                   setResendTrainerTeams('');
                   setResendTrainerLink('');
+                  setResendInviteMessageDraft('');
+                  setIsEditingResendInviteMessage(false);
                   setCopiedResendTrainerLink(false);
                 }}
                 className="btn btn-primary w-full sm:w-auto"
