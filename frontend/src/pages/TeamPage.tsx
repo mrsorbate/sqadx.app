@@ -132,6 +132,7 @@ export default function TeamPage() {
       navigator.clipboard.writeText(createdPlayerInfo.invite_url);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+      showToast('Einladungslink wurde in die Zwischenablage kopiert', 'info');
     }
   };
 

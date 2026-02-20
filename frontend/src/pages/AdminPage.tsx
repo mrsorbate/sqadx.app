@@ -328,6 +328,7 @@ export default function AdminPage() {
     await navigator.clipboard.writeText(trainerInviteLink);
     setCopiedTrainerLink(true);
     setTimeout(() => setCopiedTrainerLink(false), 2000);
+    showToast('Einladungslink wurde in die Zwischenablage kopiert', 'info');
   };
 
   const handleShareTrainerLink = async () => {
@@ -394,6 +395,7 @@ export default function AdminPage() {
     await navigator.clipboard.writeText(resendTrainerLink);
     setCopiedResendTrainerLink(true);
     setTimeout(() => setCopiedResendTrainerLink(false), 2000);
+    showToast('Neuer Einladungslink wurde in die Zwischenablage kopiert', 'info');
   };
 
   const handleShareResendTrainerLink = async () => {
@@ -442,6 +444,7 @@ export default function AdminPage() {
     await navigator.clipboard.writeText(generatedPassword);
     setCopiedGeneratedPassword(true);
     setTimeout(() => setCopiedGeneratedPassword(false), 2000);
+    showToast('Neues Passwort wurde in die Zwischenablage kopiert', 'info');
   };
 
   if (teamsLoading || usersLoading || settingsLoading) {
