@@ -139,6 +139,9 @@ export const adminAPI = {
 
   createTrainerInvite: (data: { name: string; teamIds: number[]; expiresInDays?: number }) =>
     api.post('/admin/trainer-invites', data),
+
+  resendTrainerInvite: (userId: number) =>
+    api.post(`/admin/users/${userId}/trainer-invite-resend`),
   
   getSettings: () => api.get('/admin/settings'),
   

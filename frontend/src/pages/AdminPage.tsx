@@ -139,6 +139,10 @@ export default function AdminPage() {
     },
   });
 
+  const resendTrainerInviteMutation = useMutation({
+    mutationFn: (userId: number) => adminAPI.resendTrainerInvite(userId),
+  });
+
   const addMemberMutation = useMutation({
     mutationFn: (data: { teamId: number; userId: number; role: string; jerseyNumber?: number; position?: string }) =>
       adminAPI.addUserToTeam(data.teamId, {
@@ -286,6 +290,31 @@ export default function AdminPage() {
     const confirmation = window.confirm(`Benutzer \"${userItem.name}\" wirklich löschen? Dies kann nicht rückgängig gemacht werden.`);
     if (!confirmation) return;
     deleteUserMutation.mutate(userItem.id);
+  };
+
+  const handleResendTrainerInvite = async (userItem: any) => {
+    try {
+      const response = await resendTrainerInviteMutation.mutateAsync(userItem.id);
+      const inviteUrl = response?.data?.invite_url;
+
+      if (!inviteUrl) {
+        alert('Einladungslink konnte nicht erstellt werden.');
+        return;
+      }
+
+      if ((navigator as any).share) {
+        await (navigator as any).share({
+          title: 'Trainer-Registrierung',
+          text: `Einladungslink für Trainer ${userItem.name}`,
+          url: inviteUrl,
+        });
+      } else {
+        await navigator.clipboard.writeText(inviteUrl);
+        alert('Neuer Registrierungslink wurde in die Zwischenablage kopiert.');
+      }
+    } catch (error: any) {
+      alert(error?.response?.data?.error || 'Link konnte nicht neu versendet werden');
+    }
   };
 
   if (teamsLoading || usersLoading || settingsLoading) {
@@ -718,14 +747,26 @@ export default function AdminPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{user.team_count} Team{user.team_count !== 1 ? 's' : ''}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <button
-                          onClick={() => handleDeleteUser(user)}
-                          disabled={deleteUserMutation.isPending}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Benutzer löschen"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center space-x-2">
+                          {user.registration_status === 'pending' && (
+                            <button
+                              onClick={() => handleResendTrainerInvite(user)}
+                              disabled={resendTrainerInviteMutation.isPending}
+                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              title="Link neu versenden"
+                            >
+                              <Share2 className="w-4 h-4" />
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleDeleteUser(user)}
+                            disabled={deleteUserMutation.isPending}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Benutzer löschen"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

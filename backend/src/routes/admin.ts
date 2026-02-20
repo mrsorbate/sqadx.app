@@ -376,6 +376,66 @@ router.post('/trainer-invites', (req: AuthRequest, res) => {
   }
 });
 
+// Regenerate trainer setup invite link for existing trainer (admin only)
+router.post('/users/:id/trainer-invite-resend', (req: AuthRequest, res) => {
+  try {
+    ensureTrainerInviteSchema();
+
+    const userId = parseInt(req.params.id);
+    if (!Number.isInteger(userId) || userId <= 0) {
+      return res.status(400).json({ error: 'Invalid user id' });
+    }
+
+    const trainer = db.prepare('SELECT id, name, role FROM users WHERE id = ?').get(userId) as any;
+    if (!trainer || trainer.role !== 'trainer') {
+      return res.status(404).json({ error: 'Trainer not found' });
+    }
+
+    const memberships = db.prepare(
+      'SELECT team_id FROM team_members WHERE user_id = ? AND role = ? ORDER BY team_id ASC'
+    ).all(userId, 'trainer') as Array<{ team_id: number }>;
+
+    const teamIds = memberships.map((membership) => membership.team_id);
+    if (teamIds.length === 0) {
+      return res.status(400).json({ error: 'Trainer has no assigned teams' });
+    }
+
+    const token = crypto.randomBytes(24).toString('hex');
+    const expiry = new Date();
+    expiry.setDate(expiry.getDate() + 7);
+    const expiresAt = expiry.toISOString();
+
+    const trainerInviteColumns = db.pragma('table_info(trainer_invites)') as Array<{ name: string }>;
+    const hasInvitedUserId = trainerInviteColumns.some((col) => col.name === 'invited_user_id');
+
+    if (hasInvitedUserId) {
+      db.prepare('DELETE FROM trainer_invites WHERE used_count < 1 AND invited_user_id = ?').run(trainer.id);
+    } else {
+      db.prepare('DELETE FROM trainer_invites WHERE used_count < 1 AND invited_name = ?').run(trainer.name);
+    }
+
+    if (hasInvitedUserId) {
+      db.prepare(
+        'INSERT INTO trainer_invites (token, invited_name, invited_user_id, team_ids, created_by, expires_at) VALUES (?, ?, ?, ?, ?, ?)'
+      ).run(token, trainer.name, trainer.id, JSON.stringify(teamIds), req.user!.id, expiresAt);
+    } else {
+      db.prepare(
+        'INSERT INTO trainer_invites (token, invited_name, team_ids, created_by, expires_at) VALUES (?, ?, ?, ?, ?)'
+      ).run(token, trainer.name, JSON.stringify(teamIds), req.user!.id, expiresAt);
+    }
+
+    res.status(201).json({
+      user_id: trainer.id,
+      token,
+      expires_at: expiresAt,
+      invite_url: `${process.env.FRONTEND_URL || 'http://localhost:5174'}/invite/${token}`
+    });
+  } catch (error) {
+    console.error('Resend trainer invite error:', error);
+    res.status(500).json({ error: (error as any)?.message || 'Failed to resend trainer invite' });
+  }
+});
+
 // Create trainer user (admin only)
 router.post('/users/trainer', async (req: AuthRequest, res) => {
   try {
