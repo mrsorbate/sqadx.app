@@ -1,4 +1,4 @@
-# kadr - Designed for teams
+# kadr.app
 
 Eine benutzerfreundliche Team-Management-App für Sportvereine mit Fokus auf Terminverwaltung, Zu-/Absagen und Kaderverwaltung.
 

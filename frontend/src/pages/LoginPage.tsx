@@ -62,10 +62,7 @@ export default function LoginPage() {
           <h2 className="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">
             {organizationName}
           </h2>
-          <p className="mt-2 text-sm text-primary-600 dark:text-primary-400 font-medium">
-            Designed for teams
-          </p>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
             Melde dich an, um fortzufahren
           </p>
         </div>

@@ -96,11 +96,8 @@ export default function FirstTimeSetupPage() {
         <div className="text-center">
           <img src="/kadr-logo.svg" alt="kadr logo" className="mx-auto h-16 w-16" />
           <h1 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white">
-            kadr
+            kadr.app
           </h1>
-          <p className="mt-2 text-sm text-primary-600 dark:text-primary-400 font-medium">
-            Designed for teams
-          </p>
           <p className="mt-4 text-lg font-semibold text-gray-700 dark:text-gray-300">
             {step === 1 ? 'Dein Verein' : 'Admin Account'}
           </p>
