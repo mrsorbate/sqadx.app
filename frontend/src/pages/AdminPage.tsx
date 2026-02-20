@@ -932,8 +932,8 @@ export default function AdminPage() {
       {/* Assign Trainer Modal */}
       {showAssignTrainer && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold mb-4 flex items-center">
+          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="assign-trainer-title">
+            <h3 id="assign-trainer-title" className="text-lg font-semibold mb-4 flex items-center">
               <Shield className="w-5 h-5 mr-2 text-blue-600" />
               Trainer zuweisen
             </h3>
@@ -984,8 +984,8 @@ export default function AdminPage() {
       {/* Delete Team Confirm Modal */}
       {showDeleteTeamConfirmModal && teamToDelete && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold mb-4">Team löschen</h3>
+          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="delete-team-title">
+            <h3 id="delete-team-title" className="text-lg font-semibold mb-4">Team löschen</h3>
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
               Soll <strong>{teamToDelete.name}</strong> wirklich gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden.
             </p>
@@ -1017,8 +1017,8 @@ export default function AdminPage() {
       {/* Remove Trainer Modal */}
       {showRemoveTrainer && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold mb-4 flex items-center">
+          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="remove-trainer-title">
+            <h3 id="remove-trainer-title" className="text-lg font-semibold mb-4 flex items-center">
               <UserMinus className="w-5 h-5 mr-2 text-orange-600" />
               Trainer entfernen
             </h3>
@@ -1489,8 +1489,8 @@ export default function AdminPage() {
       {/* Create Team Modal */}
       {showCreateTeam && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold mb-4">Neues Team erstellen</h3>
+          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="create-team-title">
+            <h3 id="create-team-title" className="text-lg font-semibold mb-4">Neues Team erstellen</h3>
             <form onSubmit={handleCreateTeam} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Team Name *</label>
@@ -1533,8 +1533,8 @@ export default function AdminPage() {
       {/* Create Trainer Modal */}
       {showCreateTrainer && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="card max-w-xl w-full max-h-[90vh] overflow-y-auto">
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Trainer anlegen & Registrierungslink erstellen</h3>
+          <div className="card max-w-xl w-full max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="create-trainer-title">
+            <h3 id="create-trainer-title" className="font-semibold text-gray-900 dark:text-white mb-4">Trainer anlegen & Registrierungslink erstellen</h3>
 
             <form onSubmit={handleCreateTrainer} className="space-y-4">
               <div>
@@ -1637,8 +1637,8 @@ export default function AdminPage() {
       {/* Reset Password Confirm Modal */}
       {showResetPasswordConfirmModal && userToResetPassword && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold mb-4">Passwort zurücksetzen</h3>
+          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="reset-password-title">
+            <h3 id="reset-password-title" className="text-lg font-semibold mb-4">Passwort zurücksetzen</h3>
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
               Soll das Passwort für <strong>{userToResetPassword.name}</strong> wirklich zurückgesetzt und neu generiert werden?
             </p>
@@ -1670,8 +1670,8 @@ export default function AdminPage() {
       {/* Delete User Confirm Modal */}
       {showDeleteUserConfirmModal && userToDelete && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold mb-4">Benutzer löschen</h3>
+          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="delete-user-title">
+            <h3 id="delete-user-title" className="text-lg font-semibold mb-4">Benutzer löschen</h3>
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
               Soll <strong>{userToDelete.name}</strong> wirklich gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden.
             </p>
@@ -1703,8 +1703,8 @@ export default function AdminPage() {
       {/* Resend Trainer Link Modal */}
       {showResendTrainerLinkModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold mb-4">Registrierungslink</h3>
+          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="resend-link-title">
+            <h3 id="resend-link-title" className="text-lg font-semibold mb-4">Registrierungslink</h3>
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
               Neuer Registrierungslink für <strong>{resendTrainerName}</strong>:
             </p>
@@ -1750,8 +1750,8 @@ export default function AdminPage() {
       {/* Generated Password Modal */}
       {showGeneratedPasswordModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold mb-4">Neues Passwort</h3>
+          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="generated-password-title">
+            <h3 id="generated-password-title" className="text-lg font-semibold mb-4">Neues Passwort</h3>
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
               Das Passwort wurde zurückgesetzt. Teile dieses Passwort sicher mit dem Benutzer.
             </p>
