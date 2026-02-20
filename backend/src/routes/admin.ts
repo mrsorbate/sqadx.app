@@ -164,6 +164,9 @@ router.get('/teams', (req: AuthRequest, res) => {
 // Get all users (admin only)
 router.get('/users', (req: AuthRequest, res) => {
   try {
+    const userColumns = db.pragma('table_info(users)') as Array<{ name: string }>;
+    const hasIsRegistered = userColumns.some((col) => col.name === 'is_registered');
+
     const users = db.prepare(`
       SELECT 
         u.id,
@@ -171,9 +174,9 @@ router.get('/users', (req: AuthRequest, res) => {
         u.name,
         u.email,
         u.role,
-        u.is_registered,
+        ${hasIsRegistered ? 'u.is_registered' : '1 as is_registered'},
         CASE
-          WHEN u.role = 'trainer' AND COALESCE(u.is_registered, 1) = 0 THEN 'pending'
+          WHEN u.role = 'trainer' AND COALESCE(${hasIsRegistered ? 'u.is_registered' : '1'}, 1) = 0 THEN 'pending'
           ELSE 'registered'
         END as registration_status,
         u.created_at,
@@ -263,6 +266,12 @@ router.post('/trainer-invites', (req: AuthRequest, res) => {
       expiresAt = expiry.toISOString();
     }
 
+    const userColumns = db.pragma('table_info(users)') as Array<{ name: string }>;
+    const hasIsRegistered = userColumns.some((col) => col.name === 'is_registered');
+
+    const trainerInviteColumns = db.pragma('table_info(trainer_invites)') as Array<{ name: string }>;
+    const hasInvitedUserId = trainerInviteColumns.some((col) => col.name === 'invited_user_id');
+
     const generatePendingUsername = (): string => {
       while (true) {
         const candidate = `pending_tr_${crypto.randomBytes(6).toString('hex')}`.slice(0, 30);
@@ -280,9 +289,13 @@ router.post('/trainer-invites', (req: AuthRequest, res) => {
     let createdUserId = 0;
 
     const transaction = db.transaction(() => {
-      const userResult = db.prepare(
-        'INSERT INTO users (username, email, password, name, role, is_registered) VALUES (?, ?, ?, ?, ?, 0)'
-      ).run(pendingUsername, pendingEmail, pendingPasswordHash, normalizedName, 'trainer');
+      const userResult = hasIsRegistered
+        ? db.prepare(
+            'INSERT INTO users (username, email, password, name, role, is_registered) VALUES (?, ?, ?, ?, ?, 0)'
+          ).run(pendingUsername, pendingEmail, pendingPasswordHash, normalizedName, 'trainer')
+        : db.prepare(
+            'INSERT INTO users (username, email, password, name, role) VALUES (?, ?, ?, ?, ?)'
+          ).run(pendingUsername, pendingEmail, pendingPasswordHash, normalizedName, 'trainer');
 
       createdUserId = Number(userResult.lastInsertRowid);
 
@@ -306,9 +319,15 @@ router.post('/trainer-invites', (req: AuthRequest, res) => {
         }
       }
 
-      db.prepare(
-        'INSERT INTO trainer_invites (token, invited_name, invited_user_id, team_ids, created_by, expires_at) VALUES (?, ?, ?, ?, ?, ?)'
-      ).run(token, normalizedName, createdUserId, JSON.stringify(normalizedTeamIds), req.user!.id, expiresAt);
+      if (hasInvitedUserId) {
+        db.prepare(
+          'INSERT INTO trainer_invites (token, invited_name, invited_user_id, team_ids, created_by, expires_at) VALUES (?, ?, ?, ?, ?, ?)'
+        ).run(token, normalizedName, createdUserId, JSON.stringify(normalizedTeamIds), req.user!.id, expiresAt);
+      } else {
+        db.prepare(
+          'INSERT INTO trainer_invites (token, invited_name, team_ids, created_by, expires_at) VALUES (?, ?, ?, ?, ?)'
+        ).run(token, normalizedName, JSON.stringify(normalizedTeamIds), req.user!.id, expiresAt);
+      }
     });
 
     transaction();

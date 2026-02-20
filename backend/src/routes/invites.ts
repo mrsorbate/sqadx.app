@@ -329,8 +329,11 @@ router.post('/invites/:token/register', async (req, res) => {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
+    const trainerInviteColumns = db.pragma('table_info(trainer_invites)') as Array<{ name: string }>;
+    const hasInvitedUserId = trainerInviteColumns.some((col) => col.name === 'invited_user_id');
+
     const trainerInvite = db.prepare(`
-      SELECT id, invited_name, invited_user_id, team_ids, expires_at, used_count
+      SELECT id, invited_name, ${hasInvitedUserId ? 'invited_user_id' : 'NULL as invited_user_id'}, team_ids, expires_at, used_count
       FROM trainer_invites
       WHERE token = ?
     `).get(token) as any;
@@ -383,6 +386,9 @@ router.post('/invites/:token/register', async (req, res) => {
 
       let trainerUserId = Number(trainerInvite.invited_user_id || 0);
 
+      const userColumns = db.pragma('table_info(users)') as Array<{ name: string }>;
+      const hasIsRegistered = userColumns.some((col) => col.name === 'is_registered');
+
       const transaction = db.transaction(() => {
         if (trainerUserId > 0) {
           const existingTrainer = db.prepare('SELECT id FROM users WHERE id = ? AND role = ?').get(trainerUserId, 'trainer');
@@ -390,13 +396,23 @@ router.post('/invites/:token/register', async (req, res) => {
             throw new Error('Linked trainer account not found');
           }
 
-          db.prepare(
-            'UPDATE users SET username = ?, email = ?, password = ?, is_registered = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
-          ).run(normalizedUsername, normalizedEmail, hashedPassword, trainerUserId);
+          if (hasIsRegistered) {
+            db.prepare(
+              'UPDATE users SET username = ?, email = ?, password = ?, is_registered = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+            ).run(normalizedUsername, normalizedEmail, hashedPassword, trainerUserId);
+          } else {
+            db.prepare(
+              'UPDATE users SET username = ?, email = ?, password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+            ).run(normalizedUsername, normalizedEmail, hashedPassword, trainerUserId);
+          }
         } else {
-          const userStmt = db.prepare(
-            'INSERT INTO users (username, email, password, name, role, is_registered) VALUES (?, ?, ?, ?, ?, 1)'
-          );
+          const userStmt = hasIsRegistered
+            ? db.prepare(
+                'INSERT INTO users (username, email, password, name, role, is_registered) VALUES (?, ?, ?, ?, ?, 1)'
+              )
+            : db.prepare(
+                'INSERT INTO users (username, email, password, name, role) VALUES (?, ?, ?, ?, ?)'
+              );
           const userResult = userStmt.run(normalizedUsername, normalizedEmail, hashedPassword, trainerInvite.invited_name, 'trainer');
           trainerUserId = Number(userResult.lastInsertRowid);
 
@@ -420,7 +436,9 @@ router.post('/invites/:token/register', async (req, res) => {
             }
           }
 
-          db.prepare('UPDATE trainer_invites SET invited_user_id = ? WHERE id = ?').run(trainerUserId, trainerInvite.id);
+          if (hasInvitedUserId) {
+            db.prepare('UPDATE trainer_invites SET invited_user_id = ? WHERE id = ?').run(trainerUserId, trainerInvite.id);
+          }
         }
 
         db.prepare('UPDATE trainer_invites SET used_count = used_count + 1 WHERE id = ?').run(trainerInvite.id);
