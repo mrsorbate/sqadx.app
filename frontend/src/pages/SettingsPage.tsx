@@ -140,11 +140,11 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center space-x-3">
+      <div className="flex items-start sm:items-center gap-3">
         <User className="w-8 h-8 text-primary-600" />
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Einstellungen</h1>
-          <p className="text-gray-600 dark:text-gray-300 mt-1">Verwalte dein Profil und deine Einstellungen</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Einstellungen</h1>
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mt-1">Verwalte dein Profil und deine Einstellungen</p>
         </div>
       </div>
 
@@ -155,7 +155,7 @@ export default function SettingsPage() {
           Profilbild
         </h2>
 
-        <div className="flex items-center space-x-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
           <div className="relative">
             {profilePictureUrl ? (
               <img
@@ -175,11 +175,11 @@ export default function SettingsPage() {
             )}
           </div>
 
-          <div className="flex-1 space-y-3">
+          <div className="flex-1 space-y-3 w-full">
             <p className="text-sm text-gray-600 dark:text-gray-300">
               Erlaubte Formate: JPG, PNG, GIF, WebP (max. 5MB)
             </p>
-            <div className="flex space-x-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <input
                 type="file"
                 ref={fileInputRef}
@@ -190,7 +190,7 @@ export default function SettingsPage() {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadPictureMutation.isPending}
-                className="btn btn-primary"
+                className="btn btn-primary w-full sm:w-auto"
               >
                 {profilePictureUrl ? 'Bild ändern' : 'Bild hochladen'}
               </button>
@@ -198,7 +198,7 @@ export default function SettingsPage() {
                 <button
                   onClick={handleDeletePicture}
                   disabled={deletePictureMutation.isPending}
-                  className="btn btn-secondary flex items-center space-x-2"
+                  className="btn btn-secondary flex items-center justify-center space-x-2 w-full sm:w-auto"
                 >
                   <Trash2 className="w-4 h-4" />
                   <span>Entfernen</span>
@@ -327,7 +327,7 @@ export default function SettingsPage() {
           <button
             type="submit"
             disabled={updatePasswordMutation.isPending}
-            className="btn btn-primary"
+            className="btn btn-primary w-full sm:w-auto"
           >
             {updatePasswordMutation.isPending ? 'Wird gespeichert...' : 'Passwort ändern'}
           </button>
@@ -342,12 +342,12 @@ export default function SettingsPage() {
               Möchtest du dein Profilbild wirklich dauerhaft entfernen?
             </p>
 
-            <div className="mt-6 flex justify-end space-x-3">
+            <div className="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3">
               <button
                 type="button"
                 onClick={() => setShowDeletePictureConfirmModal(false)}
                 disabled={deletePictureMutation.isPending}
-                className="btn btn-secondary"
+                className="btn btn-secondary w-full sm:w-auto"
               >
                 Abbrechen
               </button>
@@ -355,7 +355,7 @@ export default function SettingsPage() {
                 type="button"
                 onClick={confirmDeletePicture}
                 disabled={deletePictureMutation.isPending}
-                className="btn bg-red-600 hover:bg-red-700 text-white"
+                className="btn bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto"
               >
                 {deletePictureMutation.isPending ? 'Löscht...' : 'Löschen'}
               </button>

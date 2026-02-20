@@ -153,14 +153,14 @@ export default function TeamPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center space-x-4">
-        <Link to="/" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+      <div className="flex items-start sm:items-center gap-3 sm:gap-4">
+        <Link to="/" className="mt-1 sm:mt-0 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
           <ArrowLeft className="w-6 h-6" />
         </Link>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{team?.name}</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white break-words">{team?.name}</h1>
           {team?.description && (
-            <p className="text-gray-600 dark:text-gray-300 mt-1">{team.description}</p>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mt-1 break-words">{team.description}</p>
           )}
         </div>
       </div>
@@ -215,10 +215,10 @@ export default function TeamPage() {
       )}
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         <Link
           to={`/teams/${teamId}/events`}
-          className="card hover:shadow-md transition-shadow flex items-center space-x-4"
+          className="card hover:shadow-md transition-shadow flex items-center space-x-3 sm:space-x-4"
         >
           <div className="bg-primary-100 p-3 rounded-lg">
             <Calendar className="w-6 h-6 text-primary-600" />
@@ -229,7 +229,7 @@ export default function TeamPage() {
           </div>
         </Link>
 
-        <button className="card hover:shadow-md transition-shadow flex items-center space-x-4">
+        <button className="card hover:shadow-md transition-shadow flex items-center space-x-3 sm:space-x-4 text-left">
           <div className="bg-green-100 p-3 rounded-lg">
             <Users className="w-6 h-6 text-green-600" />
           </div>
@@ -241,7 +241,7 @@ export default function TeamPage() {
 
         <Link
           to={`/teams/${teamId}/stats`}
-          className="card hover:shadow-md transition-shadow flex items-center space-x-4"
+          className="card hover:shadow-md transition-shadow flex items-center space-x-3 sm:space-x-4"
         >
           <div className="bg-blue-100 p-3 rounded-lg">
             <BarChart className="w-6 h-6 text-blue-600" />
@@ -288,7 +288,7 @@ export default function TeamPage() {
 
         {/* Players */}
         <div className="card">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
             <h2 className="text-xl font-semibold flex items-center">
               <span className="mr-2">⚽</span>
               Spieler ({totalPlayers})
@@ -296,7 +296,7 @@ export default function TeamPage() {
             {isTrainer && (
               <button
                 onClick={() => setShowCreatePlayer(true)}
-                className="btn btn-primary flex items-center space-x-2 text-sm"
+                className="btn btn-primary flex items-center justify-center space-x-2 text-sm w-full sm:w-auto"
               >
                 <UserPlus className="w-4 h-4" />
                 <span>Spieler anlegen</span>
@@ -384,7 +384,7 @@ export default function TeamPage() {
       {/* Create Player Modal */}
       {showCreatePlayer && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-semibold">Neuen Spieler anlegen</h3>
               <button
@@ -410,7 +410,7 @@ export default function TeamPage() {
                   <p className="text-blue-800 font-semibold mb-2">
                     📩 Einladungslink für {createdPlayerInfo.name}
                   </p>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                     <input
                       type="text"
                       value={createdPlayerInfo.invite_url}
@@ -419,7 +419,7 @@ export default function TeamPage() {
                     />
                     <button
                       onClick={handleCopyLink}
-                      className="btn btn-secondary flex items-center space-x-2"
+                      className="btn btn-secondary flex items-center justify-center space-x-2 w-full sm:w-auto"
                     >
                       {copied ? (
                         <>
@@ -497,18 +497,18 @@ export default function TeamPage() {
                   </p>
                 </div>
 
-                <div className="flex space-x-3">
+                <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
                   <button
                     type="submit"
                     disabled={createPlayerMutation.isPending}
-                    className="btn btn-primary flex-1"
+                    className="btn btn-primary w-full sm:flex-1"
                   >
                     {createPlayerMutation.isPending ? 'Wird erstellt...' : 'Spieler anlegen'}
                   </button>
                   <button
                     type="button"
                     onClick={handleCloseModal}
-                    className="btn btn-secondary"
+                    className="btn btn-secondary w-full sm:w-auto"
                   >
                     Abbrechen
                   </button>

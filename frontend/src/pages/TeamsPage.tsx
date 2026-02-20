@@ -75,14 +75,14 @@ export default function TeamsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Meine Teams</h1>
-          <p className="text-gray-600 mt-1">Verwalte deine Teams und bleibe über Aktivitäten auf dem Laufenden</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Meine Teams</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Verwalte deine Teams und bleibe über Aktivitäten auf dem Laufenden</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {teams?.map((team: any) => (
           <div key={team.id} className="card hover:shadow-md transition-shadow">
             {/* Team Photo Section (Trainer only) */}
@@ -93,7 +93,7 @@ export default function TeamsPage() {
                     <img
                       src={getTeamPhotoUrl(team)}
                       alt={team.name}
-                      className="w-full h-48 object-cover rounded-lg"
+                      className="w-full h-40 sm:h-48 object-cover rounded-lg"
                     />
                     <button
                       onClick={(e) => {
@@ -114,7 +114,7 @@ export default function TeamsPage() {
                       fileInputRefs.current[team.id]?.click();
                     }}
                     disabled={uploadingTeamId === team.id}
-                    className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center hover:border-primary-500 hover:bg-primary-50 transition-colors disabled:opacity-50"
+                    className="w-full h-40 sm:h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center hover:border-primary-500 hover:bg-primary-50 transition-colors disabled:opacity-50"
                   >
                     <ImageIcon className="w-10 h-10 text-gray-400 mb-2" />
                     <span className="text-sm text-gray-600">
@@ -133,7 +133,7 @@ export default function TeamsPage() {
             )}
 
             <Link to={`/teams/${team.id}`} className="block">
-              <div className="flex items-start justify-between">
+              <div className="flex items-start justify-between gap-2">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">{team.name}</h3>
                   <p className="text-sm text-gray-600 mt-1">
@@ -146,7 +146,7 @@ export default function TeamsPage() {
                 <Users className="w-6 h-6 text-gray-400" />
               </div>
 
-              <div className="mt-4 pt-4 border-t border-gray-200 flex space-x-4">
+              <div className="mt-3 pt-3 border-t border-gray-200 flex flex-wrap gap-3 sm:gap-4">
                 <div className="flex items-center text-sm text-gray-600">
                   <Calendar className="w-4 h-4 mr-1" />
                   <span>Termine</span>
