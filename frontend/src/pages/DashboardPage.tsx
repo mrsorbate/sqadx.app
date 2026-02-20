@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, Navigate } from 'react-router-dom';
 import { eventsAPI, teamsAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
-import { Calendar, MapPin, Clock, CheckCircle, XCircle, HelpCircle, AlertCircle, Users } from 'lucide-react';
+import { Calendar, MapPin, Clock, CheckCircle, XCircle, HelpCircle, AlertCircle, Users, RotateCw } from 'lucide-react';
 import { resolveAssetUrl } from '../lib/utils';
 
 export default function DashboardPage() {
@@ -54,6 +54,16 @@ export default function DashboardPage() {
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
         <p className="text-gray-600 dark:text-gray-300 mt-2">Willkommen zurück, {user?.name}!</p>
+        <div className="mt-3">
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="btn btn-secondary inline-flex items-center gap-2"
+          >
+            <RotateCw className="w-4 h-4" />
+            Reload
+          </button>
+        </div>
       </div>
 
       {/* Team Section (Trainers only) - Only show if team photos exist */}
@@ -77,7 +87,7 @@ export default function DashboardPage() {
                 />
                 <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 via-black/25 to-transparent" />
                 <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 px-4 text-center">
-                  <span className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-black/55 text-white text-sm font-semibold backdrop-blur-sm">
+                  <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-md bg-black/55 text-white text-base font-semibold backdrop-blur-sm">
                     <Users className="w-4 h-4" />
                     Mein Team
                   </span>
