@@ -43,7 +43,37 @@ Eine benutzerfreundliche Team-Management-App für Sportvereine mit Fokus auf Ter
 
 ## Installation
 
-### Backend
+### 🔥 TrueNAS Deployment (empfohlen für Produktion)
+
+Complete setup mit automatischem JWT_SECRET, Backup und Updates:
+
+```bash
+# SSH zu deiner TrueNAS
+ssh root@<TRUENAS-IP>
+
+# Repository klonen
+cd /mnt/DATA/docker
+git clone https://github.com/mrsorbate/TeamPilot-App.git
+cd TeamPilot-App
+
+# Initial Setup (5-10 Min)
+chmod +x setup-truenas-build.sh
+./setup-truenas-build.sh
+
+# Zugriff: http://<TRUENAS-IP>:18080
+```
+
+**Updates einspielen:**
+```bash
+chmod +x update-truenas.sh
+./update-truenas.sh
+```
+
+📖 **Vollständiger Guide:** [TRUENAS-SETUP.md](TRUENAS-SETUP.md)
+
+---
+
+### Backend (lokal entwickeln)
 ```bash
 cd backend
 npm install
