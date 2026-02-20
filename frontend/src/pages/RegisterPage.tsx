@@ -15,13 +15,34 @@ export default function RegisterPage() {
   const setAuth = useAuthStore((state) => state.setAuth);
 
   const registerMutation = useMutation({
-    mutationFn: () => authAPI.register({ name, email, password, role }),
+    mutationFn: () => {
+      // Validate input
+      if (!name.trim()) {
+        throw new Error('Name ist erforderlich');
+      }
+      if (!email.trim()) {
+        throw new Error('E-Mail ist erforderlich');
+      }
+      if (password.length < 6) {
+        throw new Error('Passwort muss mindestens 6 Zeichen lang sein');
+      }
+      return authAPI.register({ name, email, password, role });
+    },
     onSuccess: (response) => {
       setAuth(response.data.token, response.data.user);
       navigate('/');
     },
     onError: (error: any) => {
-      setError(error.response?.data?.error || 'Registrierung fehlgeschlagen');
+      let message = 'Registrierung fehlgeschlagen';
+      
+      if (error?.message) {
+        message = error.message;
+      } else if (error?.response?.data?.error) {
+        message = error.response.data.error;
+      }
+      
+      setError(message);
+      console.error('Registration error:', error);
     },
   });
 

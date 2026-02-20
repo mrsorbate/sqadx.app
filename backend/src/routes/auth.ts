@@ -17,6 +17,16 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Email, password and name are required' });
     }
 
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    // Validate role
+    const validRoles = ['admin', 'trainer', 'player'];
+    if (!validRoles.includes(role as string)) {
+      return res.status(400).json({ error: 'Invalid role. Must be admin, trainer, or player' });
+    }
+
     // Check if user exists
     const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
     if (existing) {
@@ -75,6 +85,7 @@ router.post('/login', async (req, res) => {
     // Verify password
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
+      console.error(`Invalid password for user: ${email}`);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
