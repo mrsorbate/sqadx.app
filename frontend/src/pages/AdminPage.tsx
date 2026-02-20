@@ -62,6 +62,9 @@ export default function AdminPage() {
   const [showGeneratedPasswordModal, setShowGeneratedPasswordModal] = useState(false);
   const [generatedPassword, setGeneratedPassword] = useState('');
   const [copiedGeneratedPassword, setCopiedGeneratedPassword] = useState(false);
+  const [auditActionFilter, setAuditActionFilter] = useState('all');
+  const [auditActorFilter, setAuditActorFilter] = useState('all');
+  const [auditPeriodFilter, setAuditPeriodFilter] = useState('all');
 
   const showToast = (message: string, type: ToastType = 'error') => {
     showGlobalToast(message, type, { position: 'bottom-right' });
@@ -551,6 +554,42 @@ export default function AdminPage() {
     return actionMap[action] || action;
   };
 
+  const auditActions: string[] = Array.from(
+    new Set<string>((auditLogs || []).map((log: any) => String(log.action || '')).filter(Boolean))
+  );
+
+  const auditActors: Array<{ id: string; label: string }> = Array.from(
+    new Map<string, { id: string; label: string }>(
+      (auditLogs || []).map((log: any) => [
+        String(log.actor_id),
+        {
+          id: String(log.actor_id),
+          label: log.actor_name || log.actor_username || `#${log.actor_id}`,
+        },
+      ])
+    ).values()
+  );
+
+  const getPeriodCutoffMs = () => {
+    if (auditPeriodFilter === '24h') return Date.now() - 24 * 60 * 60 * 1000;
+    if (auditPeriodFilter === '7d') return Date.now() - 7 * 24 * 60 * 60 * 1000;
+    if (auditPeriodFilter === '30d') return Date.now() - 30 * 24 * 60 * 60 * 1000;
+    return null;
+  };
+
+  const filteredAuditLogs = (auditLogs || []).filter((log: any) => {
+    if (auditActionFilter !== 'all' && log.action !== auditActionFilter) return false;
+    if (auditActorFilter !== 'all' && String(log.actor_id) !== auditActorFilter) return false;
+
+    const cutoff = getPeriodCutoffMs();
+    if (cutoff) {
+      const createdAtMs = new Date(log.created_at).getTime();
+      if (Number.isNaN(createdAtMs) || createdAtMs < cutoff) return false;
+    }
+
+    return true;
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex items-center">
@@ -795,7 +834,47 @@ export default function AdminPage() {
         {auditLogsLoading ? (
           <div className="text-sm text-gray-500 dark:text-gray-400">Audit-Log wird geladen...</div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <select
+                value={auditActionFilter}
+                onChange={(e) => setAuditActionFilter(e.target.value)}
+                className="input"
+              >
+                <option value="all">Alle Aktionen</option>
+                {auditActions.map((action) => (
+                  <option key={action} value={action}>
+                    {formatAuditAction(action)}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={auditActorFilter}
+                onChange={(e) => setAuditActorFilter(e.target.value)}
+                className="input"
+              >
+                <option value="all">Alle Admins</option>
+                {auditActors.map((actor) => (
+                  <option key={actor.id} value={actor.id}>
+                    {actor.label}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={auditPeriodFilter}
+                onChange={(e) => setAuditPeriodFilter(e.target.value)}
+                className="input"
+              >
+                <option value="all">Gesamter Zeitraum</option>
+                <option value="24h">Letzte 24 Stunden</option>
+                <option value="7d">Letzte 7 Tage</option>
+                <option value="30d">Letzte 30 Tage</option>
+              </select>
+            </div>
+
+            <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead>
                 <tr className="text-left text-gray-500 dark:text-gray-400 border-b dark:border-gray-700">
@@ -807,7 +886,7 @@ export default function AdminPage() {
                 </tr>
               </thead>
               <tbody>
-                {(auditLogs || []).map((log: any) => (
+                {filteredAuditLogs.map((log: any) => (
                   <tr key={log.id} className="border-b dark:border-gray-800 align-top">
                     <td className="py-2 pr-4 whitespace-nowrap text-gray-700 dark:text-gray-200">
                       {formatDateTime(log.created_at)}
@@ -826,15 +905,16 @@ export default function AdminPage() {
                     </td>
                   </tr>
                 ))}
-                {(!auditLogs || auditLogs.length === 0) && (
+                {filteredAuditLogs.length === 0 && (
                   <tr>
                     <td colSpan={5} className="py-6 text-center text-gray-500 dark:text-gray-400">
-                      Noch keine protokollierten Admin-Aktionen.
+                      Keine Audit-Einträge für die gewählten Filter.
                     </td>
                   </tr>
                 )}
               </tbody>
             </table>
+          </div>
           </div>
         )}
       </div>
