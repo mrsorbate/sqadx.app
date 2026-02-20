@@ -157,11 +157,11 @@ export default function DashboardPage() {
                 const baseClass = 'px-3 py-1 rounded text-sm font-medium transition-colors disabled:opacity-50';
                 
                 if (status === 'accepted') {
-                  return `${baseClass} ${isSelected ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700 hover:bg-green-200'}`;
+                  return `${baseClass} ${isSelected ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50'}`;
                 } else if (status === 'declined') {
-                  return `${baseClass} ${isSelected ? 'bg-red-600 text-white' : 'bg-red-100 text-red-700 hover:bg-red-200'}`;
+                  return `${baseClass} ${isSelected ? 'bg-red-600 text-white' : 'bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50'}`;
                 } else if (status === 'tentative') {
-                  return `${baseClass} ${isSelected ? 'bg-yellow-600 text-white' : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'}`;
+                  return `${baseClass} ${isSelected ? 'bg-yellow-600 text-white' : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:hover:bg-yellow-900/50'}`;
                 }
               };
 
@@ -175,8 +175,8 @@ export default function DashboardPage() {
                   onClick={handleCardClick}
                   className={`p-4 rounded-lg border-2 transition-all hover:shadow-md cursor-pointer ${
                     isToday 
-                      ? 'bg-primary-50 border-primary-300' 
-                      : 'bg-white border-gray-200 hover:border-primary-200'
+                      ? 'bg-primary-50 border-primary-300 dark:bg-primary-900/25 dark:border-primary-700' 
+                      : 'bg-white border-gray-200 hover:border-primary-200 dark:bg-gray-800 dark:border-gray-700 dark:hover:border-primary-700'
                   }`}
                 >
                   <div className="flex items-start justify-between mb-3">
@@ -220,7 +220,7 @@ export default function DashboardPage() {
                     <div className="flex flex-col items-end space-y-2 ml-4">
                       <div className="flex items-center space-x-1">
                         {getStatusIcon(event.my_status)}
-                        <span className="text-sm font-medium">{getStatusLabel(event.my_status)}</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{getStatusLabel(event.my_status)}</span>
                       </div>
                       
                       <div className="flex items-center space-x-3 text-xs text-gray-600 dark:text-gray-400">
@@ -245,7 +245,7 @@ export default function DashboardPage() {
                   </div>
 
                   {/* Response Buttons */}
-                  <div className="flex space-x-2 border-t pt-3">
+                  <div className="flex space-x-2 border-t border-gray-200 dark:border-gray-700 pt-3">
                     <button
                       onClick={(e) => handleStatusClick('accepted', e)}
                       disabled={updateResponseMutation.isPending}
@@ -282,17 +282,17 @@ export default function DashboardPage() {
 
       <Link
         to="/events"
-        className="block p-6 rounded-lg border-2 border-primary-200 bg-gradient-to-br from-primary-50 to-primary-100 hover:border-primary-300 hover:shadow-md transition-all group"
+        className="block p-6 rounded-lg border-2 border-primary-200 bg-gradient-to-br from-primary-50 to-primary-100 hover:border-primary-300 hover:shadow-md transition-all group dark:border-primary-800 dark:from-primary-900/30 dark:to-gray-800 dark:hover:border-primary-700"
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <Calendar className="w-6 h-6 text-primary-600" />
+            <Calendar className="w-6 h-6 text-primary-600 dark:text-primary-400" />
             <div>
               <h3 className="font-semibold text-gray-900 dark:text-white">Alle Termine anzeigen</h3>
               <p className="text-sm text-gray-600 dark:text-gray-300">Vollständige Übersicht aller zukünftigen Termine</p>
             </div>
           </div>
-          <ArrowRight className="w-5 h-5 text-primary-600 group-hover:translate-x-1 transition-transform" />
+          <ArrowRight className="w-5 h-5 text-primary-600 dark:text-primary-400 group-hover:translate-x-1 transition-transform" />
         </div>
       </Link>
     </div>
