@@ -174,6 +174,8 @@ Optionale Feineinstellungen in `.env`:
 - `API_RATE_LIMIT_WINDOW_MS` (Standard `900000` = 15 Min)
 - `API_RATE_LIMIT_MAX` (Standard `300` Requests/Window)
 - `AUTH_RATE_LIMIT_MAX` (Standard `20` Requests/Window)
+- `LOGIN_RATE_LIMIT_WINDOW_MS` (Standard `900000` = 15 Min)
+- `LOGIN_RATE_LIMIT_MAX` (Standard `8` fehlgeschlagene Login-Versuche pro IP+Username)
 
 ## Lizenz
 
