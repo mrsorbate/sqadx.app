@@ -21,6 +21,7 @@ const TIMEZONES = [
 
 export default function FirstTimeSetupPage() {
   const [organizationName, setOrganizationName] = useState('');
+  const [adminUsername, setAdminUsername] = useState('');
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -37,6 +38,9 @@ export default function FirstTimeSetupPage() {
       if (!adminEmail.trim()) {
         throw new Error('Admin E-Mail ist erforderlich');
       }
+      if (!adminUsername.trim()) {
+        throw new Error('Admin Benutzername ist erforderlich');
+      }
       if (adminPassword.length < 6) {
         throw new Error('Passwort muss mindestens 6 Zeichen lang sein');
       }
@@ -46,6 +50,7 @@ export default function FirstTimeSetupPage() {
 
       const response = await axios.post(`${API_URL}/api/admin/first-setup`, {
         organizationName,
+        adminUsername: adminUsername.trim().toLowerCase(),
         adminEmail,
         adminPassword,
         timezone,
@@ -96,7 +101,7 @@ export default function FirstTimeSetupPage() {
         <div className="text-center">
           <img src="/kadr-logo.svg" alt="kadr logo" className="mx-auto h-16 w-16" />
           <h1 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white">
-            kadr.app
+            sqadX.app
           </h1>
           <p className="mt-4 text-lg font-semibold text-gray-700 dark:text-gray-300">
             {step === 1 ? 'Dein Verein' : 'Admin Account'}
@@ -162,6 +167,22 @@ export default function FirstTimeSetupPage() {
           {step === 2 && (
             <div className="space-y-4">
               <div>
+                <label htmlFor="admin-username" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Admin Benutzername
+                </label>
+                <input
+                  id="admin-username"
+                  type="text"
+                  required
+                  value={adminUsername}
+                  onChange={(e) => setAdminUsername(e.target.value)}
+                  className="input mt-1"
+                  placeholder="admin"
+                  autoFocus
+                />
+              </div>
+
+              <div>
                 <label htmlFor="admin-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Admin E-Mail
                 </label>
@@ -173,7 +194,6 @@ export default function FirstTimeSetupPage() {
                   onChange={(e) => setAdminEmail(e.target.value)}
                   className="input mt-1"
                   placeholder="admin@verein.de"
-                  autoFocus
                 />
               </div>
 

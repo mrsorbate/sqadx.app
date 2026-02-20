@@ -49,11 +49,16 @@ const upload = multer({
 // This creates the first admin user and completes organization setup
 router.post('/first-setup', async (req, res) => {
   try {
-    const { organizationName, adminEmail, adminPassword, timezone } = req.body;
+    const { organizationName, adminUsername, adminEmail, adminPassword, timezone } = req.body;
 
     // Validate input
-    if (!organizationName || !adminEmail || !adminPassword) {
-      return res.status(400).json({ error: 'Organization name, email and password are required' });
+    if (!organizationName || !adminUsername || !adminEmail || !adminPassword) {
+      return res.status(400).json({ error: 'Organization name, username, email and password are required' });
+    }
+
+    const normalizedUsername = String(adminUsername).trim().toLowerCase();
+    if (!/^[a-z0-9_]{3,30}$/.test(normalizedUsername)) {
+      return res.status(400).json({ error: 'Username must be 3-30 chars and can only contain letters, numbers and underscores' });
     }
 
     if (adminPassword.length < 6) {
@@ -72,7 +77,12 @@ router.post('/first-setup', async (req, res) => {
       return res.status(403).json({ error: 'Admin already exists' });
     }
 
-    // Check if email is already used
+    // Check if username or email is already used
+    const existingUsername = db.prepare('SELECT id FROM users WHERE LOWER(username) = ?').get(normalizedUsername);
+    if (existingUsername) {
+      return res.status(409).json({ error: 'Username already exists' });
+    }
+
     const existingEmail = db.prepare('SELECT id FROM users WHERE email = ?').get(adminEmail);
     if (existingEmail) {
       return res.status(409).json({ error: 'Email already exists' });
@@ -83,9 +93,9 @@ router.post('/first-setup', async (req, res) => {
 
     // Create admin user
     const userStmt = db.prepare(
-      'INSERT INTO users (email, password, name, role) VALUES (?, ?, ?, ?)'
+      'INSERT INTO users (username, email, password, name, role) VALUES (?, ?, ?, ?, ?)'
     );
-    const userResult = userStmt.run(adminEmail, hashedPassword, 'Admin', 'admin');
+    const userResult = userStmt.run(normalizedUsername, adminEmail, hashedPassword, 'Admin', 'admin');
 
     // Update organization
     db.prepare(`
@@ -96,7 +106,7 @@ router.post('/first-setup', async (req, res) => {
 
     // Generate token
     const token = jwt.sign(
-      { id: userResult.lastInsertRowid, email: adminEmail, role: 'admin' },
+      { id: userResult.lastInsertRowid, username: normalizedUsername, email: adminEmail, role: 'admin' },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -105,6 +115,7 @@ router.post('/first-setup', async (req, res) => {
       token,
       user: {
         id: userResult.lastInsertRowid,
+        username: normalizedUsername,
         email: adminEmail,
         name: 'Admin',
         role: 'admin'

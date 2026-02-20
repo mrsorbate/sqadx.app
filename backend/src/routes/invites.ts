@@ -244,10 +244,15 @@ router.delete('/invites/:id', authenticate, (req: AuthRequest, res) => {
 router.post('/invites/:token/register', async (req, res) => {
   try {
     const { token } = req.params;
-    const { email, password } = req.body;
+    const { username, email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
+    if (!username || !email || !password) {
+      return res.status(400).json({ error: 'Username, email and password are required' });
+    }
+
+    const normalizedUsername = String(username).trim().toLowerCase();
+    if (!/^[a-z0-9_]{3,30}$/.test(normalizedUsername)) {
+      return res.status(400).json({ error: 'Username must be 3-30 chars and can only contain letters, numbers and underscores' });
     }
 
     if (password.length < 6) {
@@ -279,8 +284,13 @@ router.post('/invites/:token/register', async (req, res) => {
       return res.status(400).json({ error: 'This invite is not for player registration. Please login and accept the invite.' });
     }
 
-    // Check if user with this email already exists
-    const existingUser = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+    // Check if user with this username or email already exists
+    const existingUsername = db.prepare('SELECT id FROM users WHERE LOWER(username) = ?').get(normalizedUsername);
+    if (existingUsername) {
+      return res.status(409).json({ error: 'Username already exists' });
+    }
+
+    const existingUser = db.prepare('SELECT id FROM users WHERE LOWER(email) = LOWER(?)').get(email);
     if (existingUser) {
       return res.status(409).json({ error: 'User with this email already exists' });
     }
@@ -290,9 +300,9 @@ router.post('/invites/:token/register', async (req, res) => {
 
     // Create user with data from invite
     const userStmt = db.prepare(
-      'INSERT INTO users (email, password, name, role, birth_date) VALUES (?, ?, ?, ?, ?)'
+      'INSERT INTO users (username, email, password, name, role, birth_date) VALUES (?, ?, ?, ?, ?, ?)'
     );
-    const userResult = userStmt.run(email, hashedPassword, invite.player_name, invite.role, invite.player_birth_date);
+    const userResult = userStmt.run(normalizedUsername, email, hashedPassword, invite.player_name, invite.role, invite.player_birth_date);
 
     // Add user to team
     const memberStmt = db.prepare(
@@ -318,7 +328,7 @@ router.post('/invites/:token/register', async (req, res) => {
 
     // Generate token
     const authToken = jwt.sign(
-      { id: userResult.lastInsertRowid, email, role: invite.role },
+      { id: userResult.lastInsertRowid, username: normalizedUsername, email, role: invite.role },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -327,6 +337,7 @@ router.post('/invites/:token/register', async (req, res) => {
       token: authToken,
       user: {
         id: userResult.lastInsertRowid,
+        username: normalizedUsername,
         email,
         name: invite.player_name,
         role: invite.role,
@@ -336,7 +347,7 @@ router.post('/invites/:token/register', async (req, res) => {
   } catch (error: any) {
     console.error('Register with invite error:', error);
     if (error.message.includes('UNIQUE constraint failed')) {
-      return res.status(409).json({ error: 'Email already in use' });
+      return res.status(409).json({ error: 'Username or email already in use' });
     }
     res.status(500).json({ error: 'Failed to register' });
   }

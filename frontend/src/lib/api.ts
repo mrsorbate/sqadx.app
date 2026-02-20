@@ -17,10 +17,10 @@ api.interceptors.request.use((config) => {
 
 // Auth API
 export const authAPI = {
-  login: (email: string, password: string) => 
-    api.post('/auth/login', { email, password }),
+  login: (username: string, password: string) => 
+    api.post('/auth/login', { username, password }),
   
-  register: (data: { email: string; password: string; name: string; role?: string }) =>
+  register: (data: { username: string; email: string; password: string; name: string; role?: string }) =>
     api.post('/auth/register', data),
   
   getCurrentUser: () => api.get('/auth/me'),
@@ -120,7 +120,7 @@ export const invitesAPI = {
   
   acceptInvite: (token: string) => api.post(`/invites/${token}/accept`),
   
-  registerWithInvite: (token: string, data: { email: string; password: string }) =>
+  registerWithInvite: (token: string, data: { username: string; email: string; password: string }) =>
     api.post(`/invites/${token}/register`, data),
   
   deleteInvite: (inviteId: number) => api.delete(`/invites/${inviteId}`),

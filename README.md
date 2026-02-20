@@ -1,4 +1,4 @@
-# KADR.app
+# sqadX.app
 
 Eine benutzerfreundliche Team-Management-App für Sportvereine mit Fokus auf Terminverwaltung, Zu-/Absagen und Kaderverwaltung.
 
@@ -53,8 +53,8 @@ ssh root@<TRUENAS-IP>
 
 # Repository klonen
 cd /mnt/DATA/docker
-git clone https://github.com/mrsorbate/KADR.app.git
-cd KADR.app
+git clone https://github.com/mrsorbate/sqadX.app.git
+cd sqadX.app
 
 # Initial Setup (5-10 Min)
 chmod +x setup-truenas-build.sh

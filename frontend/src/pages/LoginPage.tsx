@@ -7,7 +7,7 @@ import { authAPI, settingsAPI } from '../lib/api';
 const API_URL = import.meta.env.VITE_API_URL || '';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const setAuth = useAuthStore((state) => state.setAuth);
@@ -26,7 +26,7 @@ export default function LoginPage() {
   const organizationLogo = organization?.logo;
 
   const loginMutation = useMutation({
-    mutationFn: () => authAPI.login(email, password),
+    mutationFn: () => authAPI.login(username, password),
     onSuccess: (response) => {
       setAuth(response.data.token, response.data.user);
       // Reload page to ensure App.tsx useEffect runs and loads organization
@@ -52,7 +52,7 @@ export default function LoginPage() {
           {/* App Branding */}
           <div className="flex flex-col items-center mb-6">
             <img src="/kadr-logo.svg" alt="kadr logo" className="h-16 w-16 mb-3" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">KADR.app</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">sqadX.app</h1>
           </div>
 
           {/* Separator */}
@@ -86,17 +86,17 @@ export default function LoginPage() {
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                E-Mail
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Benutzername
               </label>
               <input
-                id="email"
-                type="email"
+                id="username"
+                type="text"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className="input mt-1"
-                placeholder="deine@email.de"
+                placeholder="dein_benutzername"
               />
             </div>
 

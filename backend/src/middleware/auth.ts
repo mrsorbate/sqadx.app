@@ -6,6 +6,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 export interface AuthRequest extends Request {
   user?: {
     id: number;
+    username: string;
     email: string;
     role: string;
   };
@@ -24,6 +25,7 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
     
     req.user = {
       id: decoded.id,
+      username: decoded.username || '',
       email: decoded.email,
       role: decoded.role
     };

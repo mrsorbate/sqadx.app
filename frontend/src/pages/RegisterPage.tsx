@@ -8,6 +8,7 @@ const API_URL = import.meta.env.VITE_API_URL || '';
 
 export default function RegisterPage() {
   const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<'player' | 'trainer'>('player');
@@ -33,13 +34,16 @@ export default function RegisterPage() {
       if (!name.trim()) {
         throw new Error('Name ist erforderlich');
       }
+      if (!username.trim()) {
+        throw new Error('Benutzername ist erforderlich');
+      }
       if (!email.trim()) {
         throw new Error('E-Mail ist erforderlich');
       }
       if (password.length < 6) {
         throw new Error('Passwort muss mindestens 6 Zeichen lang sein');
       }
-      return authAPI.register({ name, email, password, role });
+      return authAPI.register({ name, username: username.trim().toLowerCase(), email, password, role });
     },
     onSuccess: (response) => {
       setAuth(response.data.token, response.data.user);
@@ -75,7 +79,7 @@ export default function RegisterPage() {
           {/* App Branding */}
           <div className="flex flex-col items-center mb-6">
             <img src="/kadr-logo.svg" alt="kadr logo" className="h-16 w-16 mb-3" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">KADR.app</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">sqadX.app</h1>
           </div>
 
           {/* Separator */}
@@ -120,6 +124,21 @@ export default function RegisterPage() {
                 onChange={(e) => setName(e.target.value)}
                 className="input mt-1"
                 placeholder="Max Mustermann"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Benutzername
+              </label>
+              <input
+                id="username"
+                type="text"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="input mt-1"
+                placeholder="max_mustermann"
               />
             </div>
 

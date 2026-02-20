@@ -41,7 +41,7 @@ export default function Layout({ organization }: LayoutProps) {
               <Link to={user?.role === 'admin' ? '/admin' : '/'} className="flex items-center space-x-2">
                 <img src="/kadr-logo.svg" alt="kadr logo" className="w-6 h-6" />
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">kadr.app</span>
+                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">sqadX.app</span>
                   {(organizationLogo || organizationName !== 'kadr-Verein') && (
                     <>
                       <span className="text-gray-400 dark:text-gray-500">-</span>

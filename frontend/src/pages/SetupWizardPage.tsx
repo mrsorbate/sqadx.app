@@ -116,7 +116,7 @@ export default function SetupWizardPage() {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Willkommen bei KADR.app
+            Willkommen bei sqadX.app
           </h1>
           <p className="text-lg text-gray-600">
             Lassen Sie uns Ihren Verein einrichten

@@ -1,5 +1,6 @@
 export interface User {
   id: number;
+  username: string;
   email: string;
   password: string;
   name: string;
@@ -89,6 +90,7 @@ export interface PlayerStats {
 
 // DTOs for API requests/responses
 export interface CreateUserDTO {
+  username: string;
   email: string;
   password: string;
   name: string;

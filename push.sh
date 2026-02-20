@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ============================================
-# KADR.app - Push Script
+# sqadX.app - Push Script
 # ============================================
 # Lokal ausführen zum Code pushen
 # Usage: ./push.sh "Deine Commit-Nachricht"
@@ -31,5 +31,5 @@ echo -e "${GREEN}✅ Push erfolgreich!${NC}"
 echo ""
 echo -e "${YELLOW}⚠️  Nächster Schritt auf dem VPS:${NC}"
 echo "  ssh user@your-vps-ip"
-echo "  cd KADR.app"
+echo "  cd sqadX.app"
 echo "  ./deploy.sh"

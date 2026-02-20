@@ -15,6 +15,7 @@ export default function InvitePage() {
 
   // Registrierungsformular-State
   const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -57,11 +58,11 @@ export default function InvitePage() {
       // Check if this is a player invite (with predefined player data)
       if (invite?.player_name) {
         // Use the new register-with-invite endpoint
-        const response = await invitesAPI.registerWithInvite(token!, { email, password });
+        const response = await invitesAPI.registerWithInvite(token!, { username: username.trim().toLowerCase(), email, password });
         return response;
       } else {
         // Regular registration flow
-        const registerResponse = await authAPI.register({ name, email, password, role: 'player' });
+        const registerResponse = await authAPI.register({ name, username: username.trim().toLowerCase(), email, password, role: 'player' });
         return registerResponse;
       }
     },
@@ -136,7 +137,7 @@ export default function InvitePage() {
           {/* App Branding */}
           <div className="flex flex-col items-center mb-6">
             <img src="/kadr-logo.svg" alt="kadr logo" className="h-16 w-16 mb-3" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">KADR.app</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">sqadX.app</h1>
           </div>
 
           {/* Separator */}
@@ -290,6 +291,21 @@ export default function InvitePage() {
                   />
                 </div>
               )}
+
+              <div>
+                <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                  Benutzername *
+                </label>
+                <input
+                  id="username"
+                  type="text"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="input mt-1"
+                  placeholder="dein_benutzername"
+                />
+              </div>
 
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">

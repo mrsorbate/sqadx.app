@@ -24,6 +24,7 @@ db.exec(`
   -- Users table
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     name TEXT NOT NULL,
@@ -132,6 +133,57 @@ db.exec(`
 // Migration: Add profile_picture column if it doesn't exist
 try {
   const columns = db.pragma('table_info(users)') as Array<{ name: string }>;
+  const hasUsername = columns.some((col) => col.name === 'username');
+  if (!hasUsername) {
+    db.exec('ALTER TABLE users ADD COLUMN username TEXT');
+    console.log('✅ Added username column to users table');
+
+    const usersWithoutUsername = db.prepare(
+      'SELECT id, name, email FROM users WHERE username IS NULL OR TRIM(username) = "" ORDER BY id ASC'
+    ).all() as Array<{ id: number; name: string; email: string }>;
+
+    const existingUsernames = new Set(
+      (db.prepare('SELECT LOWER(username) as username FROM users WHERE username IS NOT NULL').all() as Array<{ username: string | null }>)
+        .map((row) => (row.username || '').trim())
+        .filter((value) => value.length > 0)
+    );
+
+    const normalizeUsername = (value: string): string =>
+      value
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9_]/g, '_')
+        .replace(/_+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .slice(0, 30);
+
+    const createUniqueUsername = (preferredBase: string): string => {
+      const fallbackBase = preferredBase || 'user';
+      let candidate = fallbackBase;
+      let suffix = 1;
+
+      while (existingUsernames.has(candidate)) {
+        candidate = `${fallbackBase}${suffix}`;
+        suffix += 1;
+      }
+
+      existingUsernames.add(candidate);
+      return candidate;
+    };
+
+    const updateUsernameStmt = db.prepare('UPDATE users SET username = ? WHERE id = ?');
+
+    for (const user of usersWithoutUsername) {
+      const baseFromName = normalizeUsername(user.name);
+      const baseFromEmail = normalizeUsername((user.email || '').split('@')[0] || '');
+      const base = baseFromName || baseFromEmail || `user${user.id}`;
+      const username = createUniqueUsername(base);
+      updateUsernameStmt.run(username, user.id);
+    }
+  }
+
+  db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username)');
+
   const hasProfilePicture = columns.some((col) => col.name === 'profile_picture');
   if (!hasProfilePicture) {
     db.exec('ALTER TABLE users ADD COLUMN profile_picture TEXT');
