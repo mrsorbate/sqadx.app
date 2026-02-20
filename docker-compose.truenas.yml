@@ -7,13 +7,11 @@ services:
       NODE_ENV: production
       JWT_SECRET: CHANGE_ME_TO_A_LONG_RANDOM_SECRET
       DATABASE_PATH: /app/data/database.sqlite
-      FRONTEND_URL: http://<TRUENAS-IP>:8080
+      FRONTEND_URL: http://<TRUENAS-IP>:18080
       TZ: Europe/Berlin
     volumes:
       - /mnt/DATA/docker/teampilot/data:/app/data
       - /mnt/DATA/docker/teampilot/uploads:/app/uploads
-    ports:
-      - '3000:3000'
     restart: unless-stopped
 
   teampilot-frontend:
@@ -22,5 +20,5 @@ services:
     depends_on:
       - teampilot-backend
     ports:
-      - '8080:80'
+      - '18080:80'
     restart: unless-stopped
