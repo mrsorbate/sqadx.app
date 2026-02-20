@@ -673,6 +673,37 @@ export default function AdminPage() {
     return true;
   });
 
+  const selectedAuditActor = auditActors.find((actor) => actor.id === auditActorFilter);
+
+  const activeAuditFilterChips = [
+    auditActionFilter !== 'all'
+      ? {
+          key: 'action',
+          label: `Aktion: ${formatAuditAction(auditActionFilter)}`,
+          clear: () => setAuditActionFilter('all'),
+        }
+      : null,
+    auditActorFilter !== 'all'
+      ? {
+          key: 'actor',
+          label: `Admin: ${selectedAuditActor?.label || auditActorFilter}`,
+          clear: () => setAuditActorFilter('all'),
+        }
+      : null,
+    auditPeriodFilter !== 'all'
+      ? {
+          key: 'period',
+          label:
+            auditPeriodFilter === '24h'
+              ? 'Zeitraum: 24h'
+              : auditPeriodFilter === '7d'
+              ? 'Zeitraum: 7 Tage'
+              : 'Zeitraum: 30 Tage',
+          clear: () => setAuditPeriodFilter('all'),
+        }
+      : null,
+  ].filter(Boolean) as Array<{ key: string; label: string; clear: () => void }>;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center">
@@ -1473,6 +1504,27 @@ export default function AdminPage() {
                 Filter zurücksetzen
               </button>
             </div>
+
+            {activeAuditFilterChips.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {activeAuditFilterChips.map((chip) => (
+                  <span
+                    key={chip.key}
+                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                  >
+                    {chip.label}
+                    <button
+                      type="button"
+                      onClick={chip.clear}
+                      className="text-blue-700 hover:text-blue-900"
+                      aria-label={`${chip.label} entfernen`}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
 
             <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
