@@ -164,7 +164,91 @@ const ensureTrainerInviteSchema = () => {
   }
 };
 
+const ensureAdminAuditSchema = () => {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS admin_audit_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      actor_id INTEGER NOT NULL,
+      actor_username TEXT,
+      actor_role TEXT,
+      action TEXT NOT NULL,
+      target_type TEXT,
+      target_id INTEGER,
+      details_json TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+    CREATE INDEX IF NOT EXISTS idx_admin_audit_logs_created_at ON admin_audit_logs(created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_admin_audit_logs_actor_id ON admin_audit_logs(actor_id);
+  `);
+};
+
+const logAdminAction = (
+  req: AuthRequest,
+  action: string,
+  targetType?: string,
+  targetId?: number,
+  details?: Record<string, any>
+) => {
+  try {
+    ensureAdminAuditSchema();
+    db.prepare(`
+      INSERT INTO admin_audit_logs (actor_id, actor_username, actor_role, action, target_type, target_id, details_json)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      req.user!.id,
+      req.user!.username || null,
+      req.user!.role || null,
+      action,
+      targetType || null,
+      typeof targetId === 'number' ? targetId : null,
+      details ? JSON.stringify(details) : null
+    );
+  } catch (auditError) {
+    console.error('Audit log write error:', auditError);
+  }
+};
+
+ensureAdminAuditSchema();
+
 router.use(requireAdmin);
+
+// Get recent admin audit logs
+router.get('/audit-logs', (req: AuthRequest, res) => {
+  try {
+    ensureAdminAuditSchema();
+    const limitRaw = Number(req.query.limit || 50);
+    const limit = Number.isInteger(limitRaw) ? Math.min(Math.max(limitRaw, 1), 200) : 50;
+
+    const logs = db.prepare(`
+      SELECT
+        l.id,
+        l.actor_id,
+        l.actor_username,
+        l.actor_role,
+        l.action,
+        l.target_type,
+        l.target_id,
+        l.details_json,
+        l.created_at,
+        COALESCE(u.name, l.actor_username) as actor_name
+      FROM admin_audit_logs l
+      LEFT JOIN users u ON u.id = l.actor_id
+      ORDER BY l.created_at DESC, l.id DESC
+      LIMIT ?
+    `).all(limit) as Array<any>;
+
+    res.json(
+      logs.map((log) => ({
+        ...log,
+        details: log.details_json ? JSON.parse(log.details_json) : null,
+      }))
+    );
+  } catch (error) {
+    console.error('Get audit logs error:', error);
+    res.status(500).json({ error: 'Failed to fetch audit logs' });
+  }
+});
 
 // Get system health (admin only)
 router.get('/health', (req: AuthRequest, res) => {
@@ -349,7 +433,7 @@ router.delete('/users/:id', (req: AuthRequest, res) => {
       return res.status(400).json({ error: 'You cannot delete your own account' });
     }
 
-    const targetUser = db.prepare('SELECT id, role FROM users WHERE id = ?').get(userId) as any;
+    const targetUser = db.prepare('SELECT id, role, name, username, email FROM users WHERE id = ?').get(userId) as any;
     if (!targetUser) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -368,6 +452,13 @@ router.delete('/users/:id', (req: AuthRequest, res) => {
     });
 
     transaction();
+
+    logAdminAction(req, 'user_deleted', 'user', userId, {
+      target_name: targetUser.name,
+      target_username: targetUser.username,
+      target_email: targetUser.email,
+      target_role: targetUser.role,
+    });
 
     res.json({ success: true });
   } catch (error) {
@@ -402,7 +493,7 @@ router.post('/users/:id/reset-password', async (req: AuthRequest, res) => {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
-    const targetUser = db.prepare('SELECT id, role FROM users WHERE id = ?').get(userId) as any;
+    const targetUser = db.prepare('SELECT id, role, name, username, email FROM users WHERE id = ?').get(userId) as any;
     if (!targetUser) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -415,6 +506,14 @@ router.post('/users/:id/reset-password', async (req: AuthRequest, res) => {
 
     db.prepare('UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
       .run(hashedPassword, userId);
+
+    logAdminAction(req, 'user_password_reset', 'user', userId, {
+      target_name: targetUser.name,
+      target_username: targetUser.username,
+      target_email: targetUser.email,
+      target_role: targetUser.role,
+      custom_password_provided: Boolean(newPassword),
+    });
 
     res.json({ success: true, generatedPassword: finalPassword });
   } catch (error) {
@@ -671,13 +770,13 @@ router.post('/teams/:teamId/members', (req: AuthRequest, res) => {
     }
 
     // Check if team exists
-    const team = db.prepare('SELECT id FROM teams WHERE id = ?').get(teamId);
+    const team = db.prepare('SELECT id, name FROM teams WHERE id = ?').get(teamId) as any;
     if (!team) {
       return res.status(404).json({ error: 'Team not found' });
     }
 
     // Check if user exists
-    const user = db.prepare('SELECT id, role FROM users WHERE id = ?').get(user_id) as any;
+    const user = db.prepare('SELECT id, role, name, username, email FROM users WHERE id = ?').get(user_id) as any;
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -704,6 +803,14 @@ router.post('/teams/:teamId/members', (req: AuthRequest, res) => {
     for (const event of upcomingEvents) {
       responseStmt.run(event.id, user_id, 'pending');
     }
+
+    logAdminAction(req, 'trainer_assigned_to_team', 'team', teamId, {
+      team_name: team.name,
+      trainer_id: user.id,
+      trainer_name: user.name,
+      trainer_username: user.username,
+      trainer_email: user.email,
+    });
 
     res.status(201).json({
       id: result.lastInsertRowid,
@@ -756,11 +863,20 @@ router.delete('/teams/:id', (req: AuthRequest, res) => {
   try {
     const teamId = parseInt(req.params.id);
 
+    const team = db.prepare('SELECT id, name FROM teams WHERE id = ?').get(teamId) as any;
+    if (!team) {
+      return res.status(404).json({ error: 'Team not found' });
+    }
+
     const result = db.prepare('DELETE FROM teams WHERE id = ?').run(teamId);
 
     if (result.changes === 0) {
       return res.status(404).json({ error: 'Team not found' });
     }
+
+    logAdminAction(req, 'team_deleted', 'team', teamId, {
+      team_name: team.name,
+    });
 
     res.json({ success: true });
   } catch (error) {
@@ -774,6 +890,17 @@ router.delete('/teams/:teamId/members/:userId', (req: AuthRequest, res) => {
   try {
     const teamId = parseInt(req.params.teamId);
     const userId = parseInt(req.params.userId);
+
+    const team = db.prepare('SELECT id, name FROM teams WHERE id = ?').get(teamId) as any;
+    const user = db.prepare('SELECT id, name, username, email FROM users WHERE id = ?').get(userId) as any;
+
+    if (!team) {
+      return res.status(404).json({ error: 'Team not found' });
+    }
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
 
     const membership = db.prepare(
       'SELECT role FROM team_members WHERE team_id = ? AND user_id = ?'
@@ -790,6 +917,16 @@ router.delete('/teams/:teamId/members/:userId', (req: AuthRequest, res) => {
     const result = db.prepare(
       'DELETE FROM team_members WHERE team_id = ? AND user_id = ?'
     ).run(teamId, userId);
+
+    if (result.changes > 0) {
+      logAdminAction(req, 'trainer_removed_from_team', 'team', teamId, {
+        team_name: team.name,
+        trainer_id: user.id,
+        trainer_name: user.name,
+        trainer_username: user.username,
+        trainer_email: user.email,
+      });
+    }
 
     res.json({ success: true });
   } catch (error) {

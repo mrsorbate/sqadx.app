@@ -98,6 +98,15 @@ export default function AdminPage() {
     },
   });
 
+  const { data: auditLogs, isLoading: auditLogsLoading } = useQuery({
+    queryKey: ['admin-audit-logs'],
+    queryFn: async () => {
+      const response = await adminAPI.getAuditLogs(50);
+      return response.data;
+    },
+    refetchInterval: 60000,
+  });
+
   const { data: systemHealth, isLoading: systemHealthLoading } = useQuery({
     queryKey: ['admin-system-health'],
     queryFn: async () => {
@@ -531,6 +540,17 @@ export default function AdminPage() {
     return `${(value / (1024 * 1024)).toFixed(1)} MB`;
   };
 
+  const formatAuditAction = (action: string) => {
+    const actionMap: Record<string, string> = {
+      user_deleted: 'Benutzer gelöscht',
+      user_password_reset: 'Passwort zurückgesetzt',
+      trainer_assigned_to_team: 'Trainer zu Team zugewiesen',
+      trainer_removed_from_team: 'Trainer aus Team entfernt',
+      team_deleted: 'Team gelöscht',
+    };
+    return actionMap[action] || action;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center">
@@ -760,6 +780,63 @@ export default function AdminPage() {
         <p className="text-sm text-blue-800">
           <strong>Workflow:</strong> Erstelle Teams → Weise Trainer zu → Trainer fügen Spieler hinzu. Der Admin ist Manager und nicht Teil der Teams.
         </p>
+      </div>
+
+      {/* Audit Log */}
+      <div className="card">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold flex items-center">
+            <Shield className="w-6 h-6 mr-2 text-primary-600" />
+            Audit-Log Admin-Aktionen
+          </h2>
+          <span className="text-xs text-gray-500 dark:text-gray-400">Auto-Refresh: 60s</span>
+        </div>
+
+        {auditLogsLoading ? (
+          <div className="text-sm text-gray-500 dark:text-gray-400">Audit-Log wird geladen...</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="text-left text-gray-500 dark:text-gray-400 border-b dark:border-gray-700">
+                  <th className="py-2 pr-4">Zeitpunkt</th>
+                  <th className="py-2 pr-4">Admin</th>
+                  <th className="py-2 pr-4">Aktion</th>
+                  <th className="py-2 pr-4">Ziel</th>
+                  <th className="py-2">Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(auditLogs || []).map((log: any) => (
+                  <tr key={log.id} className="border-b dark:border-gray-800 align-top">
+                    <td className="py-2 pr-4 whitespace-nowrap text-gray-700 dark:text-gray-200">
+                      {formatDateTime(log.created_at)}
+                    </td>
+                    <td className="py-2 pr-4 text-gray-700 dark:text-gray-200">
+                      {log.actor_name || log.actor_username || `#${log.actor_id}`}
+                    </td>
+                    <td className="py-2 pr-4 text-gray-900 dark:text-white font-medium">
+                      {formatAuditAction(log.action)}
+                    </td>
+                    <td className="py-2 pr-4 text-gray-700 dark:text-gray-200">
+                      {log.target_type ? `${log.target_type} #${log.target_id ?? '—'}` : '—'}
+                    </td>
+                    <td className="py-2 text-gray-600 dark:text-gray-300">
+                      {log.details?.team_name || log.details?.target_name || log.details?.trainer_name || '—'}
+                    </td>
+                  </tr>
+                ))}
+                {(!auditLogs || auditLogs.length === 0) && (
+                  <tr>
+                    <td colSpan={5} className="py-6 text-center text-gray-500 dark:text-gray-400">
+                      Noch keine protokollierten Admin-Aktionen.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Teams Section */}

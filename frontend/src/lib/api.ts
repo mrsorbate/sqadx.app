@@ -131,6 +131,8 @@ export const adminAPI = {
   getAllTeams: () => api.get('/admin/teams'),
 
   getSystemHealth: () => api.get('/admin/health'),
+
+  getAuditLogs: (limit = 50) => api.get(`/admin/audit-logs?limit=${limit}`),
   
   getAllUsers: () => api.get('/admin/users'),
 
