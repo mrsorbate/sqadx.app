@@ -34,6 +34,7 @@ export default function AdminPage() {
   const [teamName, setTeamName] = useState('');
   const [teamDescription, setTeamDescription] = useState('');
   const [teamSearch, setTeamSearch] = useState('');
+  const [adminSearch, setAdminSearch] = useState('');
   const [trainerSearch, setTrainerSearch] = useState('');
   const [playerSearch, setPlayerSearch] = useState('');
   const [showDeleteTeamConfirmModal, setShowDeleteTeamConfirmModal] = useState(false);
@@ -612,6 +613,7 @@ export default function AdminPage() {
   const players = users?.filter((u: any) => u.role === 'player') || [];
 
   const normalizedTeamSearch = teamSearch.trim().toLowerCase();
+  const normalizedAdminSearch = adminSearch.trim().toLowerCase();
   const normalizedTrainerSearch = trainerSearch.trim().toLowerCase();
   const normalizedPlayerSearch = playerSearch.trim().toLowerCase();
 
@@ -640,6 +642,15 @@ export default function AdminPage() {
       .join(' ')
       .toLowerCase();
     return haystack.includes(normalizedPlayerSearch);
+  });
+
+  const filteredAdmins = admins.filter((admin: any) => {
+    if (!normalizedAdminSearch) return true;
+    const haystack = [admin.name, admin.username, admin.email]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+    return haystack.includes(normalizedAdminSearch);
   });
 
   const formatTrainerOptionLabel = (trainer: any) => {
@@ -1223,6 +1234,15 @@ export default function AdminPage() {
         <div className="space-y-6">
           <div>
             <h3 className="text-lg font-semibold mb-3 text-violet-800 dark:text-violet-300">Admins ({admins.length})</h3>
+            <div className="mb-3">
+              <input
+                type="text"
+                value={adminSearch}
+                onChange={(e) => setAdminSearch(e.target.value)}
+                className={tableSearchInputClass}
+                placeholder="Admins durchsuchen..."
+              />
+            </div>
             <div className="overflow-x-auto">
               <table className="min-w-[620px] sm:min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -1234,7 +1254,7 @@ export default function AdminPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-                  {admins.map((admin: any) => (
+                  {filteredAdmins.map((admin: any) => (
                     <tr key={admin.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                       <td className={userTableCellClass}>
                         <div className="text-sm font-medium text-gray-900 dark:text-white">{admin.name || '-'}</div>
@@ -1252,10 +1272,17 @@ export default function AdminPage() {
                       </td>
                     </tr>
                   ))}
-                  {admins.length === 0 && (
+                  {filteredAdmins.length === 0 && (
                     <tr>
                       <td colSpan={4} className={userTableEmptyCellClass}>
-                        Keine Admins vorhanden.
+                        <div className="flex flex-col gap-2 items-start">
+                          <span>{admins.length ? 'Keine Admins gefunden.' : 'Keine Admins vorhanden.'}</span>
+                          {admins.length > 0 && (
+                            <button type="button" onClick={() => setAdminSearch('')} className="btn btn-secondary text-xs">
+                              Filter zurücksetzen
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   )}
