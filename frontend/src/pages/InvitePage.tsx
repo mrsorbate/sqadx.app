@@ -87,10 +87,10 @@ export default function InvitePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Einladung wird geladen...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-300">Einladung wird geladen...</p>
         </div>
       </div>
     );
@@ -98,13 +98,13 @@ export default function InvitePage() {
 
   if (inviteError || !invite) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4">
         <div className="max-w-md w-full text-center">
           <XCircle className="mx-auto h-16 w-16 text-red-600 mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
             Einladung ungültig
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
             Diese Einladung existiert nicht oder ist abgelaufen.
           </p>
           <Link to="/login" className="btn btn-primary">
@@ -147,32 +147,32 @@ export default function InvitePage() {
           </p>
         </div>
 
-        <div className="card">
+        <div className="card text-gray-900 dark:text-gray-100">
           <div className="text-center mb-6">
-            {invite.team_name && <h3 className="text-2xl font-bold text-gray-900">{invite.team_name}</h3>}
+            {invite.team_name && <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{invite.team_name}</h3>}
             {invite.team_description && (
-              <p className="text-gray-600 mt-2">{invite.team_description}</p>
+              <p className="text-gray-600 dark:text-gray-300 mt-2">{invite.team_description}</p>
             )}
             {invite.invite_type === 'trainer_setup' && Array.isArray(invite.team_names) && invite.team_names.length > 0 && (
-              <div className="mt-2 text-sm text-gray-700">
+              <div className="mt-2 text-sm text-gray-700 dark:text-gray-200">
                 <span className="font-medium">Zugewiesene Teams:</span> {invite.team_names.join(', ')}
               </div>
             )}
             {invite.player_name && (
-              <p className="text-sm text-blue-700 mt-3 font-medium">
+              <p className="text-sm text-blue-700 dark:text-blue-300 mt-3 font-medium">
                 Registrierung ist fest zugeordnet: {invite.player_name}
               </p>
             )}
-            <p className="text-sm text-gray-500 mt-4">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
               Eingeladen von <span className="font-medium">{invite.invited_by_name}</span>
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Rolle: <span className="font-medium capitalize">{invite.role}</span>
             </p>
           </div>
 
           {invite.expires_at && (
-            <div className="flex items-center justify-center text-sm text-gray-600 mb-6">
+            <div className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-300 mb-6">
               <Clock className="w-4 h-4 mr-2" />
               <span>
                 Gültig bis: {new Date(invite.expires_at).toLocaleDateString('de-DE')}
@@ -189,8 +189,8 @@ export default function InvitePage() {
           {authToken && user ? (
             // User is logged in
             <div className="space-y-4">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <p className="text-sm text-gray-700">
+              <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                <p className="text-sm text-gray-700 dark:text-green-100">
                   Angemeldet als <span className="font-medium">{user.name}</span>
                 </p>
               </div>
@@ -210,7 +210,7 @@ export default function InvitePage() {
                   Für diese Trainer-Einladung bitte zuerst abmelden und den Account über den Link registrieren.
                 </p>
               )}
-              <p className="text-center text-sm text-gray-600">
+              <p className="text-center text-sm text-gray-600 dark:text-gray-300">
                 Nicht {user.name}?{' '}
                 <button
                   onClick={() => {
@@ -237,16 +237,16 @@ export default function InvitePage() {
                   </button>
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-gray-300"></div>
+                      <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
                     </div>
                     <div className="relative flex justify-center text-sm">
-                      <span className="px-2 bg-white text-gray-500">oder</span>
+                      <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">oder</span>
                     </div>
                   </div>
                 </>
               )}
               {invite.invite_type === 'trainer_setup' && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+                <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-3 text-sm text-blue-800 dark:text-blue-200">
                   Richte jetzt deinen Trainer-Account ein und lege Benutzername, E-Mail und Passwort selbst fest.
                 </div>
               )}
@@ -258,12 +258,12 @@ export default function InvitePage() {
                 {invite.invite_type === 'trainer_setup' ? 'Trainer-Account einrichten' : 'Neuen Account erstellen'}
               </button>
               {!invite.player_name && (
-                <p className="text-xs text-center text-red-600">
+                <p className="text-xs text-center text-red-600 dark:text-red-400">
                   Für diesen Link ist keine Registrierung möglich, da kein fester Name hinterlegt ist.
                 </p>
               )}
               {invite.invite_type !== 'trainer_setup' && (
-                <p className="text-center text-sm text-gray-600">
+                <p className="text-center text-sm text-gray-600 dark:text-gray-300">
                   Bereits einen Account?{' '}
                   <Link to={`/login?redirect=/invite/${token}`} className="font-medium text-primary-600 hover:text-primary-500">
                     Jetzt anmelden
@@ -274,28 +274,28 @@ export default function InvitePage() {
           ) : (
             // Registration form
             <form onSubmit={handleRegisterAndAccept} className="space-y-4">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-sm text-blue-800">
+              <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                <p className="text-sm text-blue-800 dark:text-blue-200">
                   <span className="font-medium">Registrierung für:</span> {invite.player_name || 'Nicht hinterlegt'}
                 </p>
                 {invite.player_birth_date && (
-                  <p className="text-sm text-blue-800 mt-1">
+                  <p className="text-sm text-blue-800 dark:text-blue-200 mt-1">
                     <span className="font-medium">Geburtsdatum:</span>{' '}
                     {new Date(invite.player_birth_date).toLocaleDateString('de-DE')}
                   </p>
                 )}
                 {invite.player_jersey_number && (
-                  <p className="text-sm text-blue-800 mt-1">
+                  <p className="text-sm text-blue-800 dark:text-blue-200 mt-1">
                     <span className="font-medium">Trikotnummer:</span> {invite.player_jersey_number}
                   </p>
                 )}
-                <p className="text-xs text-blue-700 mt-2">
+                <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
                   Der Name ist durch die Einladung fest vorgegeben und kann nicht geändert werden.
                 </p>
               </div>
 
               <div>
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Benutzername *
                 </label>
                 <input
@@ -310,7 +310,7 @@ export default function InvitePage() {
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   E-Mail *
                 </label>
                 <input
@@ -325,7 +325,7 @@ export default function InvitePage() {
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Passwort *
                 </label>
                 <input
