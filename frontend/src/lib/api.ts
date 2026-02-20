@@ -168,6 +168,8 @@ export const adminAPI = {
   
   addUserToTeam: (teamId: number, data: { user_id: number; role?: string; jersey_number?: number; position?: string }) =>
     api.post(`/admin/teams/${teamId}/members`, data),
+
+  getTeamTrainers: (teamId: number) => api.get(`/admin/teams/${teamId}/trainers`),
   
   removeUserFromTeam: (teamId: number, userId: number) =>
     api.delete(`/admin/teams/${teamId}/members/${userId}`),

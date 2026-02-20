@@ -603,6 +603,35 @@ router.post('/teams/:teamId/members', (req: AuthRequest, res) => {
   }
 });
 
+// Get trainers of a team (admin only)
+router.get('/teams/:teamId/trainers', (req: AuthRequest, res) => {
+  try {
+    const teamId = parseInt(req.params.teamId);
+
+    if (!Number.isInteger(teamId) || teamId <= 0) {
+      return res.status(400).json({ error: 'Invalid team id' });
+    }
+
+    const team = db.prepare('SELECT id FROM teams WHERE id = ?').get(teamId);
+    if (!team) {
+      return res.status(404).json({ error: 'Team not found' });
+    }
+
+    const trainers = db.prepare(`
+      SELECT u.id, u.name, u.username, u.email
+      FROM team_members tm
+      INNER JOIN users u ON tm.user_id = u.id
+      WHERE tm.team_id = ? AND tm.role = 'trainer'
+      ORDER BY u.name ASC
+    `).all(teamId);
+
+    res.json(trainers);
+  } catch (error) {
+    console.error('Get team trainers error:', error);
+    res.status(500).json({ error: 'Failed to fetch team trainers' });
+  }
+});
+
 // Delete team (admin only)
 router.delete('/teams/:id', (req: AuthRequest, res) => {
   try {
@@ -627,13 +656,21 @@ router.delete('/teams/:teamId/members/:userId', (req: AuthRequest, res) => {
     const teamId = parseInt(req.params.teamId);
     const userId = parseInt(req.params.userId);
 
+    const membership = db.prepare(
+      'SELECT role FROM team_members WHERE team_id = ? AND user_id = ?'
+    ).get(teamId, userId) as any;
+
+    if (!membership) {
+      return res.status(404).json({ error: 'Membership not found' });
+    }
+
+    if (membership.role !== 'trainer') {
+      return res.status(400).json({ error: 'Admins can only remove trainers from teams' });
+    }
+
     const result = db.prepare(
       'DELETE FROM team_members WHERE team_id = ? AND user_id = ?'
     ).run(teamId, userId);
-
-    if (result.changes === 0) {
-      return res.status(404).json({ error: 'Membership not found' });
-    }
 
     res.json({ success: true });
   } catch (error) {

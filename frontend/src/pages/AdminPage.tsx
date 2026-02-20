@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import { Navigate } from 'react-router-dom';
-import { Plus, Trash2, Users, UserPlus, Shield, Settings, Upload, Copy, Share2, Check, KeyRound } from 'lucide-react';
+import { Plus, Trash2, Users, UserPlus, UserMinus, Shield, Settings, Upload, Copy, Share2, Check, KeyRound } from 'lucide-react';
 
 const TIMEZONES = [
   'Europe/Berlin',
@@ -35,6 +35,8 @@ export default function AdminPage() {
   const [selectedTeam, setSelectedTeam] = useState<number | null>(null);
   const [showAssignTrainer, setShowAssignTrainer] = useState(false);
   const [selectedTrainer, setSelectedTrainer] = useState('');
+  const [showRemoveTrainer, setShowRemoveTrainer] = useState(false);
+  const [selectedTrainerToRemove, setSelectedTrainerToRemove] = useState('');
   const [showDeleteOrganizationConfirm, setShowDeleteOrganizationConfirm] = useState(false);
   const [deleteOrganizationConfirmText, setDeleteOrganizationConfirmText] = useState('');
   const [showCreateTrainer, setShowCreateTrainer] = useState(false);
@@ -83,6 +85,16 @@ export default function AdminPage() {
       const response = await adminAPI.getAllUsers();
       return response.data;
     },
+  });
+
+  const { data: teamTrainers } = useQuery({
+    queryKey: ['admin-team-trainers', selectedTeam],
+    queryFn: async () => {
+      if (!selectedTeam) return [];
+      const response = await adminAPI.getTeamTrainers(selectedTeam);
+      return response.data;
+    },
+    enabled: showRemoveTrainer && !!selectedTeam,
   });
 
   const updateSettingsMutation = useMutation({
@@ -165,6 +177,20 @@ export default function AdminPage() {
     },
   });
 
+  const removeMemberMutation = useMutation({
+    mutationFn: (data: { teamId: number; userId: number }) =>
+      adminAPI.removeUserFromTeam(data.teamId, data.userId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['admin-teams'] });
+      await queryClient.refetchQueries({ queryKey: ['admin-teams'] });
+      if (selectedTeam) {
+        await queryClient.invalidateQueries({ queryKey: ['admin-team-trainers', selectedTeam] });
+      }
+      setShowRemoveTrainer(false);
+      setSelectedTrainerToRemove('');
+    },
+  });
+
   const deleteOrganizationMutation = useMutation({
     mutationFn: () => adminAPI.deleteOrganization(),
     onSuccess: () => {
@@ -238,6 +264,16 @@ export default function AdminPage() {
         setTrainerInviteLink(response.data.invite_url || '');
       }
     });
+  };
+
+  const handleRemoveTrainer = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (selectedTeam && selectedTrainerToRemove) {
+      removeMemberMutation.mutate({
+        teamId: selectedTeam,
+        userId: parseInt(selectedTrainerToRemove),
+      });
+    }
   };
 
   const toggleTrainerTeam = (teamId: number) => {
@@ -551,6 +587,16 @@ export default function AdminPage() {
                   </button>
                   <button
                     onClick={() => {
+                      setSelectedTeam(team.id);
+                      setShowRemoveTrainer(true);
+                    }}
+                    className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                    title="Trainer entfernen"
+                  >
+                    <UserMinus className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => {
                       if (confirm(`Team "${team.name}" wirklich löschen? Dies kann nicht rückgängig gemacht werden.`)) {
                         deleteTeamMutation.mutate(team.id);
                       }
@@ -611,6 +657,54 @@ export default function AdminPage() {
                   onClick={() => {
                     setShowAssignTrainer(false);
                     setSelectedTrainer('');
+                  }}
+                  className="btn btn-secondary"
+                >
+                  Abbrechen
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Remove Trainer Modal */}
+      {showRemoveTrainer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="card max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4 flex items-center">
+              <UserMinus className="w-5 h-5 mr-2 text-orange-600" />
+              Trainer entfernen
+            </h3>
+            <form onSubmit={handleRemoveTrainer} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Trainer auswählen *
+                </label>
+                <select
+                  required
+                  value={selectedTrainerToRemove}
+                  onChange={(e) => setSelectedTrainerToRemove(e.target.value)}
+                  className="input"
+                >
+                  <option value="">-- Trainer wählen --</option>
+                  {teamTrainers?.map((trainer: any) => (
+                    <option key={trainer.id} value={trainer.id}>
+                      {trainer.name} ({trainer.email})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex space-x-3">
+                <button type="submit" className="btn btn-primary" disabled={removeMemberMutation.isPending || !selectedTrainerToRemove}>
+                  {removeMemberMutation.isPending ? 'Entfernt...' : 'Entfernen'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowRemoveTrainer(false);
+                    setSelectedTrainerToRemove('');
                   }}
                   className="btn btn-secondary"
                 >
