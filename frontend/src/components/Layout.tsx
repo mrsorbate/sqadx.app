@@ -38,9 +38,9 @@ export default function Layout({ organization }: LayoutProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-14 sm:h-16">
             <div className="flex items-center">
-              <Link to={user?.role === 'admin' ? '/admin' : '/'} className="flex items-center space-x-2 min-w-0">
+              <Link to={user?.role === 'admin' ? '/admin' : '/'} className="flex items-center space-x-1 sm:space-x-2 min-w-0">
                 <img src="/sqadx-logo.svg" alt="sqadX.app logo" className="w-6 h-6" />
-                <div className="flex items-center space-x-2 min-w-0">
+                <div className="flex items-center space-x-1 sm:space-x-2 min-w-0">
                   <span className="text-sm font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap">sqadX.app</span>
                   {(organizationLogo || organizationName !== 'Dein Verein') && (
                     <>
