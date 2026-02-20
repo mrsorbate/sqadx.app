@@ -567,9 +567,6 @@ export default function AdminPage() {
       trainer_username: 'Trainer-Benutzername',
       trainer_email: 'Trainer-E-Mail',
       custom_password_provided: 'Manuelles Passwort',
-      file_name: 'Datei',
-      size_bytes: 'Größe (Bytes)',
-      backup_dir: 'Backup-Verzeichnis',
     };
     return labels[key] || key;
   };
