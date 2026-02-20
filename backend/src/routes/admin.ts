@@ -166,6 +166,113 @@ const ensureTrainerInviteSchema = () => {
 
 router.use(requireAdmin);
 
+// Get system health (admin only)
+router.get('/health', (req: AuthRequest, res) => {
+  try {
+    const checkedAt = new Date().toISOString();
+    const apiUptimeSeconds = Math.floor(process.uptime());
+
+    const dbFilePath = process.env.DATABASE_PATH || path.join(__dirname, '../../database.sqlite');
+    const dbFileExists = fs.existsSync(dbFilePath);
+    const dbFileStats = dbFileExists ? fs.statSync(dbFilePath) : null;
+
+    const dbProbeStart = Date.now();
+    const dbProbe = db.prepare('SELECT 1 as ok').get() as { ok: number } | undefined;
+    const dbProbeLatencyMs = Date.now() - dbProbeStart;
+
+    const integrity = db.prepare('PRAGMA integrity_check').get() as { integrity_check?: string } | undefined;
+    const integrityOk = (integrity?.integrity_check || '').toLowerCase() === 'ok';
+
+    const backupDir = process.env.BACKUP_DIR || path.join(__dirname, '../../backups');
+    const backupFiles = fs.existsSync(backupDir)
+      ? fs
+          .readdirSync(backupDir)
+          .filter((fileName) => /(backup|\.bak$|\.sqlite$|\.db$)/i.test(fileName))
+          .map((fileName) => {
+            const filePath = path.join(backupDir, fileName);
+            const stats = fs.statSync(filePath);
+            return {
+              fileName,
+              filePath,
+              mtime: stats.mtime,
+              sizeBytes: stats.size,
+            };
+          })
+          .sort((a, b) => b.mtime.getTime() - a.mtime.getTime())
+      : [];
+
+    const latestBackup = backupFiles[0];
+    const backupAgeHours = latestBackup
+      ? Math.round(((Date.now() - latestBackup.mtime.getTime()) / (1000 * 60 * 60)) * 10) / 10
+      : null;
+
+    let backupStatus: 'ok' | 'stale' | 'missing' = 'missing';
+    if (latestBackup && backupAgeHours !== null) {
+      backupStatus = backupAgeHours <= 24 ? 'ok' : 'stale';
+    }
+
+    const latestSync = db.prepare(`
+      SELECT MAX(ts) as last_sync_at
+      FROM (
+        SELECT updated_at as ts FROM organizations
+        UNION ALL
+        SELECT updated_at as ts FROM users
+        UNION ALL
+        SELECT updated_at as ts FROM teams
+        UNION ALL
+        SELECT updated_at as ts FROM events
+      )
+    `).get() as { last_sync_at?: string | null };
+
+    const hintList: string[] = [];
+    if (!dbFileExists) {
+      hintList.push('Datenbankdatei nicht gefunden');
+    }
+    if (!integrityOk) {
+      hintList.push('Datenbank-Integritätsprüfung ist nicht OK');
+    }
+    if (backupStatus === 'missing') {
+      hintList.push('Kein Backup im Backup-Verzeichnis gefunden');
+    } else if (backupStatus === 'stale') {
+      hintList.push('Letztes Backup ist älter als 24 Stunden');
+    }
+
+    res.json({
+      checked_at: checkedAt,
+      api: {
+        status: 'online',
+        uptime_seconds: apiUptimeSeconds,
+      },
+      database: {
+        status: dbProbe?.ok === 1 && integrityOk ? 'ok' : 'error',
+        latency_ms: dbProbeLatencyMs,
+        path: dbFilePath,
+        size_bytes: dbFileStats?.size || 0,
+        last_modified_at: dbFileStats?.mtime.toISOString() || null,
+        integrity: integrity?.integrity_check || 'unknown',
+      },
+      backup: {
+        status: backupStatus,
+        directory: backupDir,
+        last_backup_file: latestBackup?.fileName || null,
+        last_backup_at: latestBackup?.mtime.toISOString() || null,
+        last_backup_size_bytes: latestBackup?.sizeBytes || null,
+        age_hours: backupAgeHours,
+      },
+      sync: {
+        last_sync_at: latestSync?.last_sync_at || null,
+      },
+      errors: {
+        hints: hintList,
+        last_error_hint: hintList[0] || null,
+      },
+    });
+  } catch (error) {
+    console.error('Get system health error:', error);
+    res.status(500).json({ error: 'Failed to fetch system health' });
+  }
+});
+
 // Get all teams (admin only)
 router.get('/teams', (req: AuthRequest, res) => {
   try {

@@ -129,6 +129,8 @@ export const invitesAPI = {
 // Admin API
 export const adminAPI = {
   getAllTeams: () => api.get('/admin/teams'),
+
+  getSystemHealth: () => api.get('/admin/health'),
   
   getAllUsers: () => api.get('/admin/users'),
 

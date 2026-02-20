@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import { Navigate } from 'react-router-dom';
-import { Plus, Trash2, Users, UserPlus, UserMinus, Shield, Settings, Upload, Copy, Share2, Check, KeyRound } from 'lucide-react';
+import { Plus, Trash2, Users, UserPlus, UserMinus, Shield, Settings, Upload, Copy, Share2, Check, KeyRound, Server, Database, HardDrive, RefreshCw, AlertTriangle } from 'lucide-react';
 import { useToast, type ToastType } from '../lib/useToast';
 
 const TIMEZONES = [
@@ -96,6 +96,15 @@ export default function AdminPage() {
       const response = await adminAPI.getAllUsers();
       return response.data;
     },
+  });
+
+  const { data: systemHealth, isLoading: systemHealthLoading } = useQuery({
+    queryKey: ['admin-system-health'],
+    queryFn: async () => {
+      const response = await adminAPI.getSystemHealth();
+      return response.data;
+    },
+    refetchInterval: 60000,
   });
 
   const { data: teamTrainers } = useQuery({
@@ -510,6 +519,18 @@ export default function AdminPage() {
     return `${trainer.name} (${trainer.email})`;
   };
 
+  const formatDateTime = (value?: string | null) => {
+    if (!value) return '—';
+    return new Date(value).toLocaleString('de-DE');
+  };
+
+  const formatBytes = (value?: number | null) => {
+    if (!value || value <= 0) return '0 B';
+    if (value < 1024) return `${value} B`;
+    if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
+    return `${(value / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center">
@@ -644,6 +665,101 @@ export default function AdminPage() {
         <p className="text-sm text-blue-800">
           <strong>Workflow:</strong> Erstelle Teams → Weise Trainer zu → Trainer fügen Spieler hinzu. Der Admin ist Manager und nicht Teil der Teams.
         </p>
+      </div>
+
+      {/* System Health */}
+      <div className="card">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold flex items-center">
+            <Server className="w-6 h-6 mr-2 text-primary-600" />
+            System-Health
+          </h2>
+          <span className="text-xs text-gray-500 dark:text-gray-400">
+            Letzter Check: {formatDateTime(systemHealth?.checked_at)}
+          </span>
+        </div>
+
+        {systemHealthLoading ? (
+          <div className="text-sm text-gray-500 dark:text-gray-400">Systemstatus wird geladen...</div>
+        ) : (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                    <Server className="w-4 h-4 mr-1" /> API
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${systemHealth?.api?.status === 'online' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    {systemHealth?.api?.status === 'online' ? 'Online' : 'Fehler'}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-700 dark:text-gray-200">Uptime: {Math.floor((systemHealth?.api?.uptime_seconds || 0) / 60)} min</p>
+              </div>
+
+              <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                    <Database className="w-4 h-4 mr-1" /> Datenbank
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${systemHealth?.database?.status === 'ok' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    {systemHealth?.database?.status === 'ok' ? 'OK' : 'Fehler'}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-700 dark:text-gray-200">Latenz: {systemHealth?.database?.latency_ms ?? '—'} ms</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Größe: {formatBytes(systemHealth?.database?.size_bytes)}</p>
+              </div>
+
+              <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                    <HardDrive className="w-4 h-4 mr-1" /> Backup
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${
+                    systemHealth?.backup?.status === 'ok'
+                      ? 'bg-green-100 text-green-800'
+                      : systemHealth?.backup?.status === 'stale'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {systemHealth?.backup?.status === 'ok'
+                      ? 'Aktuell'
+                      : systemHealth?.backup?.status === 'stale'
+                      ? 'Veraltet'
+                      : 'Fehlt'}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-700 dark:text-gray-200">Letztes Backup: {formatDateTime(systemHealth?.backup?.last_backup_at)}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Alter: {systemHealth?.backup?.age_hours ?? '—'} h</p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                <RefreshCw className="w-4 h-4 mr-2 text-primary-600" />
+                Letzte Sync-/Aktualisierungs-Hinweise
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Letzte Datenänderung: {formatDateTime(systemHealth?.sync?.last_sync_at)}
+              </p>
+            </div>
+
+            <div className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+              <div className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                <AlertTriangle className="w-4 h-4 mr-2 text-yellow-600" />
+                Letzte Fehlerhinweise
+              </div>
+              {systemHealth?.errors?.hints?.length ? (
+                <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                  {systemHealth.errors.hints.map((hint: string, index: number) => (
+                    <li key={`${hint}-${index}`}>{hint}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-green-700 dark:text-green-400">Keine aktuellen Fehlerhinweise</p>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Teams Section */}
