@@ -75,7 +75,10 @@ export default function Layout({ organization }: LayoutProps) {
                   </div>
                 )}
                 <span className="text-sm text-gray-700 dark:text-gray-300">
-                  Hallo, <span className="font-medium">{user?.name}</span>
+                  Hallo,{' '}
+                  <Link to="/settings" className="font-medium hover:underline">
+                    {user?.name}
+                  </Link>
                   {user?.role === 'admin' && <span className="ml-2 text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-full">Admin</span>}
                 </span>
               </div>
@@ -112,7 +115,9 @@ export default function Layout({ organization }: LayoutProps) {
                     <UserIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                   </div>
                 )}
-                <span className="font-medium truncate max-w-[110px]">{user?.name}</span>
+                <Link to="/settings" className="font-medium truncate max-w-[110px] hover:underline">
+                  {user?.name}
+                </Link>
               </div>
               <Link
                 to="/settings"
@@ -152,7 +157,12 @@ export default function Layout({ organization }: LayoutProps) {
           {mobileMenuOpen && (
             <div className="md:hidden border-t border-gray-200 dark:border-gray-700 py-3 space-y-2 bg-white dark:bg-gray-800">
               <div className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300">
-                <span>Hallo, <span className="font-medium">{user?.name}</span></span>
+                <span>
+                  Hallo,{' '}
+                  <Link to="/settings" className="font-medium hover:underline" onClick={() => setMobileMenuOpen(false)}>
+                    {user?.name}
+                  </Link>
+                </span>
               </div>
               {user?.role === 'admin' && (
                 <Link
