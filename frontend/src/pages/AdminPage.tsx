@@ -562,7 +562,6 @@ export default function AdminPage() {
                   )}
                   <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
                     <span>👥 {team.member_count} Mitglieder</span>
-                    <span>Erstellt von: {team.created_by_name}</span>
                   </div>
                 </div>
                 
