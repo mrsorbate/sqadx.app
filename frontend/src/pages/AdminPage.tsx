@@ -654,7 +654,7 @@ export default function AdminPage() {
   const userTableCellClass = 'px-4 py-2 whitespace-nowrap';
   const userTableTextCellClass = 'px-4 py-2 text-sm text-gray-600';
   const userTableEmptyCellClass = 'px-4 py-3 text-sm text-gray-500';
-  const userActionButtonClass = 'p-1.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
+  const userActionButtonClass = 'p-2 sm:p-1.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
   const auditHeaderCellClass = 'py-1.5 pr-3';
   const auditCellClass = 'py-1.5 pr-3';
   const auditExpandedRowClass = 'py-2 px-2 bg-gray-50 dark:bg-gray-800';
@@ -674,14 +674,14 @@ export default function AdminPage() {
 
       {/* Organization Settings */}
       <div className="card">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <h2 className="text-xl font-semibold flex items-center">
             <Settings className="w-6 h-6 mr-2 text-primary-600" />
             Vereins-Einstellungen
           </h2>
           <button
             onClick={() => setShowOrganizationSettings(!showOrganizationSettings)}
-            className="btn btn-secondary text-sm"
+            className="btn btn-secondary text-sm w-full sm:w-auto"
           >
             {showOrganizationSettings ? 'Abbrechen' : 'Bearbeiten'}
           </button>
@@ -827,14 +827,14 @@ export default function AdminPage() {
 
       {/* Teams Section */}
       <div className="card">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <h2 className="text-xl font-semibold flex items-center">
             <Users className="w-6 h-6 mr-2 text-primary-600" />
             Alle Teams ({teams?.length || 0})
           </h2>
           <button
             onClick={() => setShowCreateTeam(!showCreateTeam)}
-            className="btn btn-primary flex items-center space-x-2"
+            className="btn btn-primary flex items-center justify-center space-x-2 w-full sm:w-auto"
           >
             <Plus className="w-5 h-5" />
             <span>Team erstellen</span>
@@ -868,7 +868,7 @@ export default function AdminPage() {
                   </div>
                 </div>
                 
-                <div className="flex space-x-2">
+                <div className="flex space-x-1.5 sm:space-x-2 ml-2">
                   <button
                     onClick={() => {
                       setSelectedTeam(team.id);
@@ -1064,11 +1064,11 @@ export default function AdminPage() {
 
       {/* Users Section */}
       <div className="card">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <h2 className="text-xl font-semibold">Benutzer ({users?.length || 0})</h2>
           <button
             onClick={() => setShowCreateTrainer(!showCreateTrainer)}
-            className="btn btn-primary flex items-center space-x-2"
+            className="btn btn-primary flex items-center justify-center space-x-2 w-full sm:w-auto"
           >
             <UserPlus className="w-4 h-4" />
             <span>Trainer erstellen</span>
@@ -1088,7 +1088,7 @@ export default function AdminPage() {
               />
             </div>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+              <table className="min-w-[760px] sm:min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className={userTableHeadCellClass}>Name</th>
@@ -1122,7 +1122,7 @@ export default function AdminPage() {
                       </td>
                       <td className={userTableTextCellClass}>{user.team_names || '-'}</td>
                       <td className={userTableCellClass}>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center flex-wrap gap-1 sm:gap-2">
                           {user.registration_status === 'pending' && (
                             <button
                               onClick={() => handleResendTrainerInvite(user)}
@@ -1184,7 +1184,7 @@ export default function AdminPage() {
               />
             </div>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+              <table className="min-w-[760px] sm:min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className={userTableHeadCellClass}>Name</th>
@@ -1216,7 +1216,7 @@ export default function AdminPage() {
                       </td>
                       <td className={userTableTextCellClass}>{user.team_names || '-'}</td>
                       <td className={userTableCellClass}>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center flex-wrap gap-1 sm:gap-2">
                           <button
                             onClick={() => handleResetUserPassword(user)}
                             disabled={resetUserPasswordMutation.isPending}
@@ -1260,12 +1260,12 @@ export default function AdminPage() {
 
       {/* Audit Log */}
       <div className="card">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <h2 className="text-xl font-semibold flex items-center">
             <Shield className="w-6 h-6 mr-2 text-primary-600" />
             Audit-Log Admin-Aktionen
           </h2>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
             <span className="text-xs text-gray-500 dark:text-gray-400">Auto-Refresh: 60s</span>
             <button
               type="button"
@@ -1327,7 +1327,7 @@ export default function AdminPage() {
                   setAuditActorFilter('all');
                   setAuditPeriodFilter('all');
                 }}
-                className="btn btn-secondary"
+                className="btn btn-secondary w-full md:w-auto"
               >
                 Filter zurücksetzen
               </button>
@@ -1355,7 +1355,7 @@ export default function AdminPage() {
             )}
 
             <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
+            <table className="min-w-[860px] sm:min-w-full text-sm">
               <thead>
                 <tr className="text-left text-gray-500 dark:text-gray-400 border-b dark:border-gray-700">
                   <th className={auditHeaderCellClass}>Zeitpunkt</th>
