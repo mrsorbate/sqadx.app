@@ -66,7 +66,6 @@ export default function AdminPage() {
   const [auditActorFilter, setAuditActorFilter] = useState('all');
   const [auditPeriodFilter, setAuditPeriodFilter] = useState('all');
   const [expandedAuditLogId, setExpandedAuditLogId] = useState<number | null>(null);
-  const [compactView, setCompactView] = useState(false);
 
   const showToast = (message: string, type: ToastType = 'error') => {
     showGlobalToast(message, type, { position: 'bottom-right' });
@@ -651,16 +650,14 @@ export default function AdminPage() {
       : null,
   ].filter(Boolean) as Array<{ key: string; label: string; clear: () => void }>;
 
-  const userTableHeadCellClass = compactView
-    ? 'px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase'
-    : 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase';
-  const userTableCellClass = compactView ? 'px-4 py-2 whitespace-nowrap' : 'px-6 py-4 whitespace-nowrap';
-  const userTableTextCellClass = compactView ? 'px-4 py-2 text-sm text-gray-600' : 'px-6 py-4 text-sm text-gray-600';
-  const userTableEmptyCellClass = compactView ? 'px-4 py-3 text-sm text-gray-500' : 'px-6 py-4 text-sm text-gray-500';
-  const userActionButtonClass = `${compactView ? 'p-1.5' : 'p-2'} rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed`;
-  const auditHeaderCellClass = compactView ? 'py-1.5 pr-3' : 'py-2 pr-4';
-  const auditCellClass = compactView ? 'py-1.5 pr-3' : 'py-2 pr-4';
-  const auditExpandedRowClass = compactView ? 'py-2 px-2 bg-gray-50 dark:bg-gray-800' : 'py-3 px-2 bg-gray-50 dark:bg-gray-800';
+  const userTableHeadCellClass = 'px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase';
+  const userTableCellClass = 'px-4 py-2 whitespace-nowrap';
+  const userTableTextCellClass = 'px-4 py-2 text-sm text-gray-600';
+  const userTableEmptyCellClass = 'px-4 py-3 text-sm text-gray-500';
+  const userActionButtonClass = 'p-1.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
+  const auditHeaderCellClass = 'py-1.5 pr-3';
+  const auditCellClass = 'py-1.5 pr-3';
+  const auditExpandedRowClass = 'py-2 px-2 bg-gray-50 dark:bg-gray-800';
 
   return (
     <div className="space-y-6">
@@ -1039,22 +1036,13 @@ export default function AdminPage() {
       <div className="card">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Benutzer ({users?.length || 0})</h2>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setCompactView((prev) => !prev)}
-              className="btn btn-secondary text-xs"
-            >
-              {compactView ? 'Standardansicht' : 'Kompaktansicht'}
-            </button>
-            <button
-              onClick={() => setShowCreateTrainer(!showCreateTrainer)}
-              className="btn btn-primary flex items-center space-x-2"
-            >
-              <UserPlus className="w-4 h-4" />
-              <span>Trainer erstellen</span>
-            </button>
-          </div>
+          <button
+            onClick={() => setShowCreateTrainer(!showCreateTrainer)}
+            className="btn btn-primary flex items-center space-x-2"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>Trainer erstellen</span>
+          </button>
         </div>
 
         <div className="space-y-6">
@@ -1345,7 +1333,7 @@ export default function AdminPage() {
                   <th className={auditHeaderCellClass}>Aktion</th>
                   <th className={auditHeaderCellClass}>Ziel</th>
                   <th className={auditHeaderCellClass}>Details</th>
-                  <th className={compactView ? 'py-1.5' : 'py-2'}>Mehr</th>
+                  <th className="py-1.5">Mehr</th>
                 </tr>
               </thead>
               <tbody>
@@ -1368,7 +1356,7 @@ export default function AdminPage() {
                       <td className={`${auditCellClass} text-gray-600 dark:text-gray-300`}>
                         {log.details?.team_name || log.details?.target_name || log.details?.trainer_name || '—'}
                       </td>
-                      <td className={compactView ? 'py-1.5' : 'py-2'}>
+                      <td className="py-1.5">
                         <button
                           type="button"
                           onClick={() => setExpandedAuditLogId((prev) => (prev === log.id ? null : log.id))}
