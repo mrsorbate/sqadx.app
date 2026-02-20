@@ -238,10 +238,10 @@ export default function SettingsPage() {
             <div className="mt-1">
               <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${
                 authUser?.role === 'admin'
-                  ? 'bg-purple-100 text-purple-800'
+                  ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-200'
                   : authUser?.role === 'trainer'
-                  ? 'bg-blue-100 text-blue-800'
-                  : 'bg-green-100 text-green-800'
+                  ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200'
+                  : 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200'
               }`}>
                 {authUser?.role === 'admin' ? 'Administrator' : authUser?.role === 'trainer' ? 'Trainer' : 'Spieler'}
               </span>
