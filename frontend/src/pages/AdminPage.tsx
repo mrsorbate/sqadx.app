@@ -23,6 +23,7 @@ export default function AdminPage() {
   const { user, logout } = useAuthStore();
   const queryClient = useQueryClient();
   const logoFileInputRef = useRef<HTMLInputElement>(null);
+  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   const [showOrganizationSettings, setShowOrganizationSettings] = useState(false);
   const [organizationName, setOrganizationName] = useState('');
@@ -60,6 +61,15 @@ export default function AdminPage() {
   const [showGeneratedPasswordModal, setShowGeneratedPasswordModal] = useState(false);
   const [generatedPassword, setGeneratedPassword] = useState('');
   const [copiedGeneratedPassword, setCopiedGeneratedPassword] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'error') => {
+    setToast({ message, type });
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    toastTimeoutRef.current = setTimeout(() => setToast(null), 3000);
+  };
 
   // Redirect if not admin
   if (user?.role !== 'admin') {
@@ -124,7 +134,7 @@ export default function AdminPage() {
     },
     onError: (error: any) => {
       console.error('Logo upload error:', error);
-      alert('Logo-Upload fehlgeschlagen: ' + (error.response?.data?.error || error.message));
+      showToast('Logo-Upload fehlgeschlagen: ' + (error.response?.data?.error || error.message), 'error');
     },
   });
 
@@ -234,14 +244,14 @@ export default function AdminPage() {
     if (file) {
       // Validate file size
       if (file.size > 5 * 1024 * 1024) {
-        alert('Datei ist zu groß. Maximale Größe: 5MB');
+        showToast('Datei ist zu groß. Maximale Größe: 5MB', 'error');
         return;
       }
       
       // Validate file type
       const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
       if (!allowedTypes.includes(file.type)) {
-        alert('Ungültiger Dateityp. Erlaubt: JPG, PNG, GIF, WebP');
+        showToast('Ungültiger Dateityp. Erlaubt: JPG, PNG, GIF, WebP', 'error');
         return;
       }
       
@@ -266,7 +276,7 @@ export default function AdminPage() {
       setShowDeleteTeamConfirmModal(false);
       setTeamToDelete(null);
     } catch (error: any) {
-      alert(error?.response?.data?.error || 'Team konnte nicht gelöscht werden');
+      showToast(error?.response?.data?.error || 'Team konnte nicht gelöscht werden', 'error');
     }
   };
 
@@ -353,7 +363,7 @@ export default function AdminPage() {
       setShowDeleteUserConfirmModal(false);
       setUserToDelete(null);
     } catch (error: any) {
-      alert(error?.response?.data?.error || 'Benutzer konnte nicht gelöscht werden');
+      showToast(error?.response?.data?.error || 'Benutzer konnte nicht gelöscht werden', 'error');
     }
   };
 
@@ -363,7 +373,7 @@ export default function AdminPage() {
       const inviteUrl = response?.data?.invite_url;
 
       if (!inviteUrl) {
-        alert('Einladungslink konnte nicht erstellt werden.');
+        showToast('Einladungslink konnte nicht erstellt werden.', 'error');
         return;
       }
 
@@ -372,7 +382,7 @@ export default function AdminPage() {
       setCopiedResendTrainerLink(false);
       setShowResendTrainerLinkModal(true);
     } catch (error: any) {
-      alert(error?.response?.data?.error || 'Link konnte nicht neu versendet werden');
+      showToast(error?.response?.data?.error || 'Link konnte nicht neu versendet werden', 'error');
     }
   };
 
@@ -409,7 +419,7 @@ export default function AdminPage() {
       const generatedPassword = response?.data?.generatedPassword;
 
       if (!generatedPassword) {
-        alert('Passwort wurde zurückgesetzt, aber kein neues Passwort zurückgegeben.');
+        showToast('Passwort wurde zurückgesetzt, aber kein neues Passwort zurückgegeben.', 'error');
         return;
       }
 
@@ -419,7 +429,7 @@ export default function AdminPage() {
       setCopiedGeneratedPassword(false);
       setShowGeneratedPasswordModal(true);
     } catch (error: any) {
-      alert(error?.response?.data?.error || 'Passwort konnte nicht zurückgesetzt werden');
+      showToast(error?.response?.data?.error || 'Passwort konnte nicht zurückgesetzt werden', 'error');
     }
   };
 
@@ -1364,6 +1374,15 @@ export default function AdminPage() {
                 Schließen
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast */}
+      {toast && (
+        <div className="fixed bottom-4 right-4 z-[70]">
+          <div className={`rounded-lg px-4 py-3 shadow-lg text-sm font-medium ${toast.type === 'error' ? 'bg-red-600 text-white' : 'bg-green-600 text-white'}`}>
+            {toast.message}
           </div>
         </div>
       )}
