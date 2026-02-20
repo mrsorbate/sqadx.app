@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { LogOut, Settings, User as UserIcon, Menu, X, Moon, Sun, Users, Shield, Home } from 'lucide-react';
+import { LogOut, User as UserIcon, Menu, X, Moon, Sun, Users, Shield, Home } from 'lucide-react';
 import { useDarkMode } from '../hooks/useDarkMode';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -134,13 +134,6 @@ export default function Layout({ organization }: LayoutProps) {
                     {firstName}
                 </Link>
               </div>
-              <Link
-                to="/settings"
-                className="hidden md:flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-              >
-                <Settings className="w-4 h-4" />
-                <span>Einstellungen</span>
-              </Link>
               <button
                 onClick={toggleDarkMode}
                 className="hidden md:flex items-center justify-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -199,14 +192,6 @@ export default function Layout({ organization }: LayoutProps) {
                   <span>Meine Teams</span>
                 </Link>
               )}
-              <Link
-                to="/settings"
-                className="flex items-center space-x-2 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <Settings className="w-4 h-4" />
-                <span>Einstellungen</span>
-              </Link>
               <button
                 onClick={() => {
                   toggleDarkMode();
