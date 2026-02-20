@@ -44,6 +44,11 @@ export default function AdminPage() {
   const [expandedInviteTeamId, setExpandedInviteTeamId] = useState<number | null>(null);
   const [showDeleteOrganizationConfirm, setShowDeleteOrganizationConfirm] = useState(false);
   const [deleteOrganizationConfirmText, setDeleteOrganizationConfirmText] = useState('');
+  const [showCreateTrainer, setShowCreateTrainer] = useState(false);
+  const [trainerName, setTrainerName] = useState('');
+  const [trainerUsername, setTrainerUsername] = useState('');
+  const [trainerEmail, setTrainerEmail] = useState('');
+  const [trainerPassword, setTrainerPassword] = useState('');
 
   // Redirect if not admin
   if (user?.role !== 'admin') {
@@ -152,6 +157,20 @@ export default function AdminPage() {
     },
   });
 
+  const createTrainerMutation = useMutation({
+    mutationFn: (data: { name: string; username: string; email: string; password: string }) =>
+      adminAPI.createTrainer(data),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      await queryClient.refetchQueries({ queryKey: ['admin-users'] });
+      setShowCreateTrainer(false);
+      setTrainerName('');
+      setTrainerUsername('');
+      setTrainerEmail('');
+      setTrainerPassword('');
+    },
+  });
+
   const handleUpdateSettings = (e: React.FormEvent) => {
     e.preventDefault();
     updateSettingsMutation.mutate({ organizationName, timezone });
@@ -204,6 +223,16 @@ export default function AdminPage() {
         position: position || undefined,
       });
     }
+  };
+
+  const handleCreateTrainer = (e: React.FormEvent) => {
+    e.preventDefault();
+    createTrainerMutation.mutate({
+      name: trainerName,
+      username: trainerUsername.trim().toLowerCase(),
+      email: trainerEmail,
+      password: trainerPassword,
+    });
   };
 
   if (teamsLoading || usersLoading || settingsLoading) {
@@ -632,7 +661,90 @@ export default function AdminPage() {
 
       {/* Users Section */}
       <div className="card">
-        <h2 className="text-xl font-semibold mb-4">Alle Benutzer ({users?.length || 0})</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">Alle Benutzer ({users?.length || 0})</h2>
+          <button
+            onClick={() => setShowCreateTrainer(!showCreateTrainer)}
+            className="btn btn-primary flex items-center space-x-2"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>Trainer erstellen</span>
+          </button>
+        </div>
+
+        {showCreateTrainer && (
+          <form onSubmit={handleCreateTrainer} className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-4">
+            <h3 className="font-semibold text-gray-900 dark:text-white">Neuen Trainer anlegen</h3>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name *</label>
+              <input
+                type="text"
+                required
+                value={trainerName}
+                onChange={(e) => setTrainerName(e.target.value)}
+                className="input"
+                placeholder="z.B. Max Trainer"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Benutzername *</label>
+              <input
+                type="text"
+                required
+                value={trainerUsername}
+                onChange={(e) => setTrainerUsername(e.target.value)}
+                className="input"
+                placeholder="max_trainer"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">E-Mail *</label>
+              <input
+                type="email"
+                required
+                value={trainerEmail}
+                onChange={(e) => setTrainerEmail(e.target.value)}
+                className="input"
+                placeholder="trainer@verein.de"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Passwort *</label>
+              <input
+                type="password"
+                required
+                minLength={6}
+                value={trainerPassword}
+                onChange={(e) => setTrainerPassword(e.target.value)}
+                className="input"
+                placeholder="Mindestens 6 Zeichen"
+              />
+            </div>
+
+            {createTrainerMutation.isError && (
+              <p className="text-sm text-red-600 dark:text-red-400">
+                {(createTrainerMutation.error as any)?.response?.data?.error || 'Trainer konnte nicht erstellt werden'}
+              </p>
+            )}
+
+            <div className="flex space-x-3">
+              <button type="submit" className="btn btn-primary" disabled={createTrainerMutation.isPending}>
+                {createTrainerMutation.isPending ? 'Erstellt...' : 'Trainer erstellen'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowCreateTrainer(false)}
+                className="btn btn-secondary"
+              >
+                Abbrechen
+              </button>
+            </div>
+          </form>
+        )}
         
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">

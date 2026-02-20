@@ -131,6 +131,9 @@ export const adminAPI = {
   getAllTeams: () => api.get('/admin/teams'),
   
   getAllUsers: () => api.get('/admin/users'),
+
+  createTrainer: (data: { name: string; username: string; email: string; password: string }) =>
+    api.post('/admin/users/trainer', data),
   
   getSettings: () => api.get('/admin/settings'),
   

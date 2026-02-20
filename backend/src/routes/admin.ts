@@ -182,6 +182,60 @@ router.get('/users', (req: AuthRequest, res) => {
   }
 });
 
+// Create trainer user (admin only)
+router.post('/users/trainer', async (req: AuthRequest, res) => {
+  try {
+    const { name, username, email, password } = req.body;
+
+    if (!name || !username || !email || !password) {
+      return res.status(400).json({ error: 'Name, username, email and password are required' });
+    }
+
+    const normalizedUsername = String(username).trim().toLowerCase();
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const normalizedName = String(name).trim();
+
+    if (!normalizedName) {
+      return res.status(400).json({ error: 'Name is required' });
+    }
+
+    if (!/^[a-z0-9_]{3,30}$/.test(normalizedUsername)) {
+      return res.status(400).json({ error: 'Username must be 3-30 chars and can only contain letters, numbers and underscores' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    const existingUsername = db.prepare('SELECT id FROM users WHERE LOWER(username) = ?').get(normalizedUsername);
+    if (existingUsername) {
+      return res.status(409).json({ error: 'Username already exists' });
+    }
+
+    const existingEmail = db.prepare('SELECT id FROM users WHERE LOWER(email) = ?').get(normalizedEmail);
+    if (existingEmail) {
+      return res.status(409).json({ error: 'Email already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const result = db.prepare(
+      'INSERT INTO users (username, email, password, name, role) VALUES (?, ?, ?, ?, ?)' 
+    ).run(normalizedUsername, normalizedEmail, hashedPassword, normalizedName, 'trainer');
+
+    res.status(201).json({
+      id: result.lastInsertRowid,
+      username: normalizedUsername,
+      email: normalizedEmail,
+      name: normalizedName,
+      role: 'trainer'
+    });
+  } catch (error) {
+    console.error('Create trainer error:', error);
+    res.status(500).json({ error: 'Failed to create trainer' });
+  }
+});
+
 // Add user to team (admin only)
 router.post('/teams/:teamId/members', (req: AuthRequest, res) => {
   try {
