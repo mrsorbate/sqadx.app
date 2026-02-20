@@ -960,20 +960,32 @@ export default function AdminPage() {
               )}
 
               <div className="flex space-x-3">
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={createTrainerMutation.isPending || !trainerName.trim() || trainerTeamIds.length === 0}
-                >
-                  {createTrainerMutation.isPending ? 'Erstellt...' : 'Link erstellen'}
-                </button>
-                <button
-                  type="button"
-                  onClick={closeCreateTrainerModal}
-                  className="btn btn-secondary"
-                >
-                  {trainerInviteLink ? 'Schließen' : 'Abbrechen'}
-                </button>
+                {trainerInviteLink ? (
+                  <button
+                    type="button"
+                    onClick={closeCreateTrainerModal}
+                    className="btn bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    Speichern
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      type="submit"
+                      className="btn btn-primary"
+                      disabled={createTrainerMutation.isPending || !trainerName.trim() || trainerTeamIds.length === 0}
+                    >
+                      {createTrainerMutation.isPending ? 'Erstellt...' : 'Link erstellen'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={closeCreateTrainerModal}
+                      className="btn btn-secondary"
+                    >
+                      Abbrechen
+                    </button>
+                  </>
+                )}
               </div>
             </form>
           </div>
