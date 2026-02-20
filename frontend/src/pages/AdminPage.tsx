@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, Fragment } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
@@ -65,6 +65,7 @@ export default function AdminPage() {
   const [auditActionFilter, setAuditActionFilter] = useState('all');
   const [auditActorFilter, setAuditActorFilter] = useState('all');
   const [auditPeriodFilter, setAuditPeriodFilter] = useState('all');
+  const [expandedAuditLogId, setExpandedAuditLogId] = useState<number | null>(null);
 
   const showToast = (message: string, type: ToastType = 'error') => {
     showGlobalToast(message, type, { position: 'bottom-right' });
@@ -603,6 +604,24 @@ export default function AdminPage() {
       team_deleted: 'Team gelöscht',
     };
     return actionMap[action] || action;
+  };
+
+  const formatAuditDetailLabel = (key: string) => {
+    const labels: Record<string, string> = {
+      team_name: 'Team',
+      target_name: 'Name',
+      target_username: 'Benutzername',
+      target_email: 'E-Mail',
+      target_role: 'Rolle',
+      trainer_name: 'Trainer',
+      trainer_username: 'Trainer-Benutzername',
+      trainer_email: 'Trainer-E-Mail',
+      custom_password_provided: 'Manuelles Passwort',
+      file_name: 'Datei',
+      size_bytes: 'Größe (Bytes)',
+      backup_dir: 'Backup-Verzeichnis',
+    };
+    return labels[key] || key;
   };
 
   const getStatusBadgeClasses = (variant: 'ok' | 'warning' | 'error') => {
@@ -1463,33 +1482,63 @@ export default function AdminPage() {
                   <th className="py-2 pr-4">Admin</th>
                   <th className="py-2 pr-4">Aktion</th>
                   <th className="py-2 pr-4">Ziel</th>
-                  <th className="py-2">Details</th>
+                  <th className="py-2 pr-4">Details</th>
+                  <th className="py-2">Mehr</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredAuditLogs.map((log: any) => (
-                  <tr key={log.id} className="border-b dark:border-gray-800 align-top">
-                    <td className="py-2 pr-4 whitespace-nowrap text-gray-700 dark:text-gray-200">
-                      <div>{formatDateTime(log.created_at)}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">{formatRelativeTime(log.created_at)}</div>
-                    </td>
-                    <td className="py-2 pr-4 text-gray-700 dark:text-gray-200">
-                      {log.actor_name || log.actor_username || `#${log.actor_id}`}
-                    </td>
-                    <td className="py-2 pr-4 text-gray-900 dark:text-white font-medium">
-                      {formatAuditAction(log.action)}
-                    </td>
-                    <td className="py-2 pr-4 text-gray-700 dark:text-gray-200">
-                      {log.target_type ? `${log.target_type} #${log.target_id ?? '—'}` : '—'}
-                    </td>
-                    <td className="py-2 text-gray-600 dark:text-gray-300">
-                      {log.details?.team_name || log.details?.target_name || log.details?.trainer_name || '—'}
-                    </td>
-                  </tr>
+                  <Fragment key={log.id}>
+                    <tr className="border-b dark:border-gray-800 align-top">
+                      <td className="py-2 pr-4 whitespace-nowrap text-gray-700 dark:text-gray-200">
+                        <div>{formatDateTime(log.created_at)}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">{formatRelativeTime(log.created_at)}</div>
+                      </td>
+                      <td className="py-2 pr-4 text-gray-700 dark:text-gray-200">
+                        {log.actor_name || log.actor_username || `#${log.actor_id}`}
+                      </td>
+                      <td className="py-2 pr-4 text-gray-900 dark:text-white font-medium">
+                        {formatAuditAction(log.action)}
+                      </td>
+                      <td className="py-2 pr-4 text-gray-700 dark:text-gray-200">
+                        {log.target_type ? `${log.target_type} #${log.target_id ?? '—'}` : '—'}
+                      </td>
+                      <td className="py-2 pr-4 text-gray-600 dark:text-gray-300">
+                        {log.details?.team_name || log.details?.target_name || log.details?.trainer_name || '—'}
+                      </td>
+                      <td className="py-2">
+                        <button
+                          type="button"
+                          onClick={() => setExpandedAuditLogId((prev) => (prev === log.id ? null : log.id))}
+                          className="btn btn-secondary text-xs"
+                        >
+                          {expandedAuditLogId === log.id ? 'Weniger' : 'Details'}
+                        </button>
+                      </td>
+                    </tr>
+                    {expandedAuditLogId === log.id && (
+                      <tr className="border-b dark:border-gray-800">
+                        <td colSpan={6} className="py-3 px-2 bg-gray-50 dark:bg-gray-800">
+                          {log.details && Object.keys(log.details).length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                              {Object.entries(log.details).map(([detailKey, detailValue]) => (
+                                <div key={detailKey} className="text-gray-700 dark:text-gray-200">
+                                  <span className="font-medium">{formatAuditDetailLabel(detailKey)}:</span>{' '}
+                                  <span>{String(detailValue)}</span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Keine zusätzlichen Details vorhanden.</p>
+                          )}
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
                 ))}
                 {filteredAuditLogs.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="py-6 text-center text-gray-500 dark:text-gray-400">
+                    <td colSpan={6} className="py-6 text-center text-gray-500 dark:text-gray-400">
                       Keine Audit-Einträge für die gewählten Filter.
                     </td>
                   </tr>
