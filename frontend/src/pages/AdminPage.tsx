@@ -1,4 +1,4 @@
-import { useState, useRef, Fragment } from 'react';
+import { useState, useRef, Fragment, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
@@ -70,6 +70,92 @@ export default function AdminPage() {
   const showToast = (message: string, type: ToastType = 'error') => {
     showGlobalToast(message, type, { position: 'bottom-right' });
   };
+
+  useEffect(() => {
+    const hasOpenModal =
+      showAssignTrainer ||
+      showDeleteTeamConfirmModal ||
+      showRemoveTrainer ||
+      showCreateTeam ||
+      showCreateTrainer ||
+      showResetPasswordConfirmModal ||
+      showDeleteUserConfirmModal ||
+      showResendTrainerLinkModal ||
+      showGeneratedPasswordModal;
+
+    if (!hasOpenModal) return;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+
+      if (showGeneratedPasswordModal) {
+        setShowGeneratedPasswordModal(false);
+        setGeneratedPassword('');
+        setCopiedGeneratedPassword(false);
+        return;
+      }
+
+      if (showResendTrainerLinkModal) {
+        setShowResendTrainerLinkModal(false);
+        setResendTrainerName('');
+        setResendTrainerLink('');
+        setCopiedResendTrainerLink(false);
+        return;
+      }
+
+      if (showDeleteUserConfirmModal) {
+        setShowDeleteUserConfirmModal(false);
+        setUserToDelete(null);
+        return;
+      }
+
+      if (showResetPasswordConfirmModal) {
+        setShowResetPasswordConfirmModal(false);
+        setUserToResetPassword(null);
+        return;
+      }
+
+      if (showCreateTrainer) {
+        closeCreateTrainerModal();
+        return;
+      }
+
+      if (showCreateTeam) {
+        setShowCreateTeam(false);
+        return;
+      }
+
+      if (showRemoveTrainer) {
+        setShowRemoveTrainer(false);
+        setSelectedTrainerToRemove('');
+        return;
+      }
+
+      if (showDeleteTeamConfirmModal) {
+        setShowDeleteTeamConfirmModal(false);
+        setTeamToDelete(null);
+        return;
+      }
+
+      if (showAssignTrainer) {
+        setShowAssignTrainer(false);
+        setSelectedTrainer('');
+      }
+    };
+
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [
+    showAssignTrainer,
+    showDeleteTeamConfirmModal,
+    showRemoveTrainer,
+    showCreateTeam,
+    showCreateTrainer,
+    showResetPasswordConfirmModal,
+    showDeleteUserConfirmModal,
+    showResendTrainerLinkModal,
+    showGeneratedPasswordModal,
+  ]);
 
   // Redirect if not admin
   if (user?.role !== 'admin') {
@@ -943,6 +1029,7 @@ export default function AdminPage() {
                   Trainer auswählen *
                 </label>
                 <select
+                  autoFocus
                   required
                   value={selectedTrainer}
                   onChange={(e) => setSelectedTrainer(e.target.value)}
@@ -992,6 +1079,7 @@ export default function AdminPage() {
             <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
               <button
                 type="button"
+                autoFocus
                 onClick={() => {
                   setShowDeleteTeamConfirmModal(false);
                   setTeamToDelete(null);
@@ -1028,6 +1116,7 @@ export default function AdminPage() {
                   Trainer auswählen *
                 </label>
                 <select
+                  autoFocus
                   required
                   value={selectedTrainerToRemove}
                   onChange={(e) => setSelectedTrainerToRemove(e.target.value)}
@@ -1496,6 +1585,7 @@ export default function AdminPage() {
                 <label className="block text-sm font-medium text-gray-700">Team Name *</label>
                 <input
                   type="text"
+                  autoFocus
                   required
                   value={teamName}
                   onChange={(e) => setTeamName(e.target.value)}
@@ -1541,6 +1631,7 @@ export default function AdminPage() {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name *</label>
                 <input
                   type="text"
+                  autoFocus
                   required
                   value={trainerName}
                   onChange={(e) => setTrainerName(e.target.value)}
@@ -1645,6 +1736,7 @@ export default function AdminPage() {
             <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
               <button
                 type="button"
+                autoFocus
                 onClick={() => {
                   setShowResetPasswordConfirmModal(false);
                   setUserToResetPassword(null);
@@ -1678,6 +1770,7 @@ export default function AdminPage() {
             <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
               <button
                 type="button"
+                autoFocus
                 onClick={() => {
                   setShowDeleteUserConfirmModal(false);
                   setUserToDelete(null);
@@ -1709,6 +1802,7 @@ export default function AdminPage() {
               Neuer Registrierungslink für <strong>{resendTrainerName}</strong>:
             </p>
             <input
+              autoFocus
               readOnly
               value={resendTrainerLink}
               className="input mb-4"
@@ -1756,6 +1850,7 @@ export default function AdminPage() {
               Das Passwort wurde zurückgesetzt. Teile dieses Passwort sicher mit dem Benutzer.
             </p>
             <input
+              autoFocus
               readOnly
               value={generatedPassword}
               className="input mb-4"
