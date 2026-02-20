@@ -72,7 +72,7 @@ export default function DashboardPage() {
                 <img
                   src={getTeamPhotoUrl(teams[0])}
                   alt={teams[0].name}
-                  className="w-64 h-64 object-cover rounded-lg mx-auto shadow-lg"
+                  className="w-full h-[50vh] sm:h-[70vh] object-cover rounded-xl mx-auto shadow-lg"
                 />
               </div>
             )
@@ -85,7 +85,7 @@ export default function DashboardPage() {
                     <img
                       src={getTeamPhotoUrl(team)!}
                       alt={team.name}
-                      className="w-48 h-48 object-cover rounded-xl shadow-md border-2 border-white dark:border-gray-800"
+                      className="w-[72vw] sm:w-[56vw] max-w-[34rem] h-[50vh] sm:h-[70vh] object-cover rounded-xl shadow-md border-2 border-white dark:border-gray-800"
                     />
                   </div>
                 ))}
