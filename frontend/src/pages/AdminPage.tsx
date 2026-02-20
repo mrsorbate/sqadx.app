@@ -101,7 +101,7 @@ export default function AdminPage() {
     },
   });
 
-  const { data: auditLogs, isLoading: auditLogsLoading } = useQuery({
+  const { data: auditLogs, isLoading: auditLogsLoading, refetch: refetchAuditLogs, isFetching: auditLogsFetching } = useQuery({
     queryKey: ['admin-audit-logs'],
     queryFn: async () => {
       const response = await adminAPI.getAuditLogs(50);
@@ -110,7 +110,7 @@ export default function AdminPage() {
     refetchInterval: 60000,
   });
 
-  const { data: systemHealth, isLoading: systemHealthLoading } = useQuery({
+  const { data: systemHealth, isLoading: systemHealthLoading, refetch: refetchSystemHealth, isFetching: systemHealthFetching } = useQuery({
     queryKey: ['admin-system-health'],
     queryFn: async () => {
       const response = await adminAPI.getSystemHealth();
@@ -569,6 +569,22 @@ export default function AdminPage() {
   const formatDateTime = (value?: string | null) => {
     if (!value) return '—';
     return new Date(value).toLocaleString('de-DE');
+  };
+
+  const formatRelativeTime = (value?: string | null) => {
+    if (!value) return '—';
+    const diffMs = Date.now() - new Date(value).getTime();
+    if (Number.isNaN(diffMs) || diffMs < 0) return 'gerade eben';
+
+    const minutes = Math.floor(diffMs / (1000 * 60));
+    if (minutes < 1) return 'gerade eben';
+    if (minutes < 60) return `vor ${minutes} min`;
+
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `vor ${hours} h`;
+
+    const days = Math.floor(hours / 24);
+    return `vor ${days} d`;
   };
 
   const formatBytes = (value?: number | null) => {
@@ -1248,9 +1264,19 @@ export default function AdminPage() {
             <Server className="w-6 h-6 mr-2 text-primary-600" />
             System-Health
           </h2>
-          <span className="text-xs text-gray-500 dark:text-gray-400">
-            Letzter Check: {formatDateTime(systemHealth?.checked_at)}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              Letzter Check: {formatDateTime(systemHealth?.checked_at)}
+            </span>
+            <button
+              type="button"
+              onClick={() => refetchSystemHealth()}
+              disabled={systemHealthFetching}
+              className="btn btn-secondary text-xs"
+            >
+              {systemHealthFetching ? 'Aktualisiert...' : 'Aktualisieren'}
+            </button>
+          </div>
         </div>
 
         {systemHealthLoading ? (
@@ -1361,7 +1387,17 @@ export default function AdminPage() {
             <Shield className="w-6 h-6 mr-2 text-primary-600" />
             Audit-Log Admin-Aktionen
           </h2>
-          <span className="text-xs text-gray-500 dark:text-gray-400">Auto-Refresh: 60s</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-500 dark:text-gray-400">Auto-Refresh: 60s</span>
+            <button
+              type="button"
+              onClick={() => refetchAuditLogs()}
+              disabled={auditLogsFetching}
+              className="btn btn-secondary text-xs"
+            >
+              {auditLogsFetching ? 'Aktualisiert...' : 'Aktualisieren'}
+            </button>
+          </div>
         </div>
 
         {auditLogsLoading ? (
@@ -1434,7 +1470,8 @@ export default function AdminPage() {
                 {filteredAuditLogs.map((log: any) => (
                   <tr key={log.id} className="border-b dark:border-gray-800 align-top">
                     <td className="py-2 pr-4 whitespace-nowrap text-gray-700 dark:text-gray-200">
-                      {formatDateTime(log.created_at)}
+                      <div>{formatDateTime(log.created_at)}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">{formatRelativeTime(log.created_at)}</div>
                     </td>
                     <td className="py-2 pr-4 text-gray-700 dark:text-gray-200">
                       {log.actor_name || log.actor_username || `#${log.actor_id}`}
