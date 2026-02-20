@@ -463,15 +463,19 @@ export default function AdminPage() {
   const buildInviteMessage = (inviteeName: string, teamLabel: string, inviteUrl: string) => {
     const normalizedInviteeName = (inviteeName || 'Trainer').trim();
     const normalizedTeamLabel = (teamLabel || 'deines Teams').trim();
+    const organizationLabel = String(settings?.name || 'dein Verein').trim();
 
     return [
       `Hallo ${normalizedInviteeName},`,
       '',
-      `wir nutzen jetzt TEAMPUNKT zur Organisation unseres Teams ${normalizedTeamLabel}. Hier ist dein persönlicher Einladungslink.`,
+      `wir nutzen jetzt TEAMPUNKT zur Organisation unseres Teams ${normalizedTeamLabel}. Hier ist dein persönlicher Einladungslink:`,
       '',
       inviteUrl,
       '',
-      'Bitte wähle den Link aus und registriere dich noch heute.',
+      'Bitte öffne den Link und registriere dich noch heute.',
+      '',
+      'Sportliche Grüße',
+      organizationLabel,
     ].join('\n');
   };
 
