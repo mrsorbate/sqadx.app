@@ -131,6 +131,7 @@ export default function AdminPage() {
       if (logoFileInputRef.current) {
         logoFileInputRef.current.value = '';
       }
+      showToast('Logo erfolgreich hochgeladen', 'success');
     },
     onError: (error: any) => {
       console.error('Logo upload error:', error);
@@ -147,6 +148,7 @@ export default function AdminPage() {
       setShowCreateTeam(false);
       setTeamName('');
       setTeamDescription('');
+      showToast('Team erfolgreich erstellt', 'success');
     },
   });
 
@@ -195,6 +197,7 @@ export default function AdminPage() {
       }
       setShowAssignTrainer(false);
       setSelectedTrainer('');
+      showToast('Trainer erfolgreich zugewiesen', 'success');
     },
   });
 
@@ -212,6 +215,7 @@ export default function AdminPage() {
       }
       setShowRemoveTrainer(false);
       setSelectedTrainerToRemove('');
+      showToast('Trainer erfolgreich entfernt', 'success');
     },
   });
 
@@ -275,6 +279,7 @@ export default function AdminPage() {
       await deleteTeamMutation.mutateAsync(teamToDelete.id);
       setShowDeleteTeamConfirmModal(false);
       setTeamToDelete(null);
+      showToast('Team erfolgreich gelöscht', 'success');
     } catch (error: any) {
       showToast(error?.response?.data?.error || 'Team konnte nicht gelöscht werden', 'error');
     }
@@ -362,6 +367,7 @@ export default function AdminPage() {
       await deleteUserMutation.mutateAsync(userToDelete.id);
       setShowDeleteUserConfirmModal(false);
       setUserToDelete(null);
+      showToast('Benutzer erfolgreich gelöscht', 'success');
     } catch (error: any) {
       showToast(error?.response?.data?.error || 'Benutzer konnte nicht gelöscht werden', 'error');
     }
@@ -381,6 +387,7 @@ export default function AdminPage() {
       setResendTrainerLink(inviteUrl);
       setCopiedResendTrainerLink(false);
       setShowResendTrainerLinkModal(true);
+      showToast('Einladungslink erfolgreich erstellt', 'success');
     } catch (error: any) {
       showToast(error?.response?.data?.error || 'Link konnte nicht neu versendet werden', 'error');
     }
@@ -428,6 +435,7 @@ export default function AdminPage() {
       setGeneratedPassword(generatedPassword);
       setCopiedGeneratedPassword(false);
       setShowGeneratedPasswordModal(true);
+      showToast('Passwort erfolgreich zurückgesetzt', 'success');
     } catch (error: any) {
       showToast(error?.response?.data?.error || 'Passwort konnte nicht zurückgesetzt werden', 'error');
     }
