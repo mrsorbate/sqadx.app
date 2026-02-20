@@ -31,6 +31,7 @@ export default function Layout({ organization }: LayoutProps) {
 
   const organizationName = organization?.name || 'Dein Verein';
   const organizationLogo = organization?.logo;
+  const firstName = user?.name?.trim().split(/\s+/)[0] || user?.name || '';
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -81,7 +82,7 @@ export default function Layout({ organization }: LayoutProps) {
                 <span className="text-sm text-gray-700 dark:text-gray-300">
                   Hallo,{' '}
                   <Link to="/settings" className="font-medium hover:underline">
-                    {user?.name}
+                    {firstName}
                   </Link>
                   {user?.role === 'admin' && <span className="ml-2 text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-full">Admin</span>}
                 </span>
@@ -131,7 +132,7 @@ export default function Layout({ organization }: LayoutProps) {
                   </Link>
                 )}
                 <Link to="/settings" className="font-medium truncate max-w-[110px] hover:underline">
-                  {user?.name}
+                    {firstName}
                 </Link>
               </div>
               <Link
@@ -175,7 +176,7 @@ export default function Layout({ organization }: LayoutProps) {
                 <span>
                   Hallo,{' '}
                   <Link to="/settings" className="font-medium hover:underline" onClick={() => setMobileMenuOpen(false)}>
-                    {user?.name}
+                    {firstName}
                   </Link>
                 </span>
               </div>
