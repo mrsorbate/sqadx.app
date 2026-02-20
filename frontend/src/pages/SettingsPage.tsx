@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { profileAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
@@ -16,6 +16,7 @@ export default function SettingsPage() {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [showDeletePictureConfirmModal, setShowDeletePictureConfirmModal] = useState(false);
 
@@ -43,6 +44,17 @@ export default function SettingsPage() {
         text: error.response?.data?.error || 'Fehler beim Ändern des Passworts',
       });
       setTimeout(() => setPasswordMessage(null), 5000);
+    },
+  });
+
+  const updateProfileMutation = useMutation({
+    mutationFn: (data: { phone_number?: string }) => profileAPI.updateProfile(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      showToast('Handynummer gespeichert', 'success');
+    },
+    onError: (error: any) => {
+      showToast(error.response?.data?.error || 'Handynummer konnte nicht gespeichert werden', 'error');
     },
   });
 
@@ -137,6 +149,18 @@ export default function SettingsPage() {
   const profilePictureUrl = profile?.profile_picture
     ? `${API_URL}${profile.profile_picture}`
     : null;
+
+  useEffect(() => {
+    if (typeof profile?.phone_number === 'string') {
+      setPhoneNumber(profile.phone_number);
+    } else {
+      setPhoneNumber('');
+    }
+  }, [profile?.phone_number]);
+
+  const handlePhoneNumberSave = () => {
+    updateProfileMutation.mutate({ phone_number: phoneNumber });
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -247,6 +271,35 @@ export default function SettingsPage() {
               </span>
             </div>
           </div>
+
+          {authUser?.role === 'trainer' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Handynummer
+              </label>
+              <div className="mt-1 flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <input
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className="input"
+                  placeholder="z. B. +49 170 1234567"
+                  maxLength={30}
+                />
+                <button
+                  type="button"
+                  onClick={handlePhoneNumberSave}
+                  disabled={updateProfileMutation.isPending}
+                  className="btn btn-primary w-full sm:w-auto"
+                >
+                  {updateProfileMutation.isPending ? 'Speichert...' : 'Speichern'}
+                </button>
+              </div>
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                Nur für Trainer-Info sichtbar in deinem Profil.
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

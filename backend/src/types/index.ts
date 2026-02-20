@@ -5,6 +5,7 @@ export interface User {
   password: string;
   name: string;
   role: 'admin' | 'trainer' | 'player';
+  phone_number?: string;
   created_at: string;
   updated_at: string;
 }

@@ -183,6 +183,9 @@ export const adminAPI = {
 // Profile API
 export const profileAPI = {
   getProfile: () => api.get('/profile/me'),
+
+  updateProfile: (data: { phone_number?: string }) =>
+    api.put('/profile/me', data),
   
   updatePassword: (data: { currentPassword: string; newPassword: string }) =>
     api.put('/profile/password', data),

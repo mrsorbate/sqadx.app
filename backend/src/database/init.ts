@@ -213,6 +213,12 @@ try {
     console.log('✅ Added birth_date column to users table');
   }
 
+  const hasPhoneNumber = columns.some((col) => col.name === 'phone_number');
+  if (!hasPhoneNumber) {
+    db.exec('ALTER TABLE users ADD COLUMN phone_number TEXT');
+    console.log('✅ Added phone_number column to users table');
+  }
+
   const hasIsRegistered = columns.some((col) => col.name === 'is_registered');
   if (!hasIsRegistered) {
     db.exec('ALTER TABLE users ADD COLUMN is_registered INTEGER NOT NULL DEFAULT 1');

@@ -50,7 +50,7 @@ router.use(authenticate);
 router.get('/me', (req: AuthRequest, res) => {
   try {
     const user = db.prepare(
-      'SELECT id, email, name, role, profile_picture, created_at FROM users WHERE id = ?'
+      'SELECT id, email, name, role, profile_picture, phone_number, created_at FROM users WHERE id = ?'
     ).get(req.user!.id);
 
     if (!user) {
@@ -61,6 +61,39 @@ router.get('/me', (req: AuthRequest, res) => {
   } catch (error) {
     console.error('Get profile error:', error);
     res.status(500).json({ error: 'Failed to fetch profile' });
+  }
+});
+
+router.put('/me', (req: AuthRequest, res) => {
+  try {
+    const { phone_number } = req.body as { phone_number?: string };
+
+    const user = db.prepare('SELECT role FROM users WHERE id = ?').get(req.user!.id) as { role: string } | undefined;
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (user.role !== 'trainer') {
+      return res.status(403).json({ error: 'Only trainers can update phone number' });
+    }
+
+    const normalizedPhone = typeof phone_number === 'string' ? phone_number.trim() : '';
+    if (normalizedPhone.length > 30) {
+      return res.status(400).json({ error: 'Phone number is too long' });
+    }
+
+    db.prepare(
+      'UPDATE users SET phone_number = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+    ).run(normalizedPhone.length > 0 ? normalizedPhone : null, req.user!.id);
+
+    const updatedUser = db.prepare(
+      'SELECT id, email, name, role, profile_picture, phone_number, created_at FROM users WHERE id = ?'
+    ).get(req.user!.id);
+
+    res.json({ message: 'Profile updated successfully', user: updatedUser });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ error: 'Failed to update profile' });
   }
 });
 
