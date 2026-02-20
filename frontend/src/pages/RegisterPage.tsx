@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
 import { authAPI } from '../lib/api';
@@ -11,7 +11,6 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<'player' | 'trainer'>('player');
   const [error, setError] = useState('');
-  const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
 
   const registerMutation = useMutation({
@@ -30,7 +29,10 @@ export default function RegisterPage() {
     },
     onSuccess: (response) => {
       setAuth(response.data.token, response.data.user);
-      navigate('/');
+      // Reload page to ensure App.tsx useEffect runs and loads organization
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 100);
     },
     onError: (error: any) => {
       let message = 'Registrierung fehlgeschlagen';

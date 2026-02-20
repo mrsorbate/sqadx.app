@@ -39,7 +39,8 @@ function App() {
         const response = await settingsAPI.getOrganization();
         if (response.data) {
           setOrganization(response.data);
-          setSetupCompleted(response.data.setup_completed === 1);
+          const isSetupComplete = response.data.setup_completed === 1;
+          setSetupCompleted(isSetupComplete);
         }
       } catch (error) {
         console.error('Failed to fetch organization:', error);

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
 import { authAPI } from '../lib/api';
@@ -9,14 +9,16 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
 
   const loginMutation = useMutation({
     mutationFn: () => authAPI.login(email, password),
     onSuccess: (response) => {
       setAuth(response.data.token, response.data.user);
-      navigate('/');
+      // Reload page to ensure App.tsx useEffect runs and loads organization
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 100);
     },
     onError: (error: any) => {
       setError(error.response?.data?.error || 'Login fehlgeschlagen');
