@@ -472,13 +472,15 @@ export default function AdminPage() {
     const organizationLabel = String(settings?.name || 'dein Verein').trim();
 
     return [
-      `Hallo ${normalizedInviteeName},`,
+      `Hi ${normalizedInviteeName},`,
       '',
-      `wir nutzen jetzt TEAMPUNKT zur Organisation unseres Teams ${normalizedTeamLabel}. Hier ist dein persönlicher Einladungslink:`,
+      `ab sofort organisieren wir unsere ${normalizedTeamLabel} über sqadX.app.`,
+      '',
+      'Hier ist dein persönlicher Einladungslink:',
       '',
       inviteUrl,
       '',
-      'Bitte öffne den Link und registriere dich noch heute.',
+      'Klick kurz drauf und registriere dich – dann bist du direkt bei allen Trainings, Spielen und Infos am Start.',
       '',
       'Sportliche Grüße',
       organizationLabel,
