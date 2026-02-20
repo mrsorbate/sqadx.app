@@ -134,6 +134,13 @@ export default function Layout({ organization }: LayoutProps) {
                     {firstName}
                 </Link>
               </div>
+              <Link
+                to="/settings"
+                className="hidden md:flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <UserIcon className="w-4 h-4" />
+                <span>Profil</span>
+              </Link>
               <button
                 onClick={toggleDarkMode}
                 className="hidden md:flex items-center justify-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
