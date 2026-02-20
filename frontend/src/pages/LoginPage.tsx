@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
 import { authAPI, settingsAPI } from '../lib/api';
-
-const API_URL = import.meta.env.VITE_API_URL || '';
+import { resolveAssetUrl } from '../lib/utils';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -61,7 +60,7 @@ export default function LoginPage() {
           <div className="flex items-center justify-center space-x-3 mb-4">
             {organizationLogo && (
               <img 
-                src={`${API_URL}${organizationLogo}`} 
+                src={resolveAssetUrl(organizationLogo)} 
                 alt="Vereinslogo" 
                 className="h-12 w-auto object-contain"
               />

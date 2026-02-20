@@ -6,8 +6,7 @@ import { useAuthStore } from '../store/authStore';
 import { Calendar, Users, BarChart, ArrowLeft, UserPlus, X, Copy, Check, Clock, Mail, Phone, Upload, Image as ImageIcon } from 'lucide-react';
 import InviteManager from '../components/InviteManager';
 import { useToast } from '../lib/useToast';
-
-const API_URL = import.meta.env.VITE_API_URL || '';
+import { resolveAssetUrl } from '../lib/utils';
 
 export default function TeamPage() {
   const { id } = useParams<{ id: string }>();
@@ -114,10 +113,7 @@ export default function TeamPage() {
   };
 
   const getTeamPhotoUrl = (): string | undefined => {
-    if (team?.team_picture) {
-      return API_URL ? `${API_URL}${team.team_picture}` : team.team_picture;
-    }
-    return undefined;
+    return resolveAssetUrl(team?.team_picture);
   };
 
   const handleCloseModal = () => {

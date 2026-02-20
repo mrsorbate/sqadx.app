@@ -4,8 +4,7 @@ import { profileAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import { User, Lock, Camera, Trash2, Check, AlertCircle } from 'lucide-react';
 import { useToast } from '../lib/useToast';
-
-const API_URL = import.meta.env.VITE_API_URL || '';
+import { resolveAssetUrl } from '../lib/utils';
 
 export default function SettingsPage() {
   const { user: authUser } = useAuthStore();
@@ -146,9 +145,7 @@ export default function SettingsPage() {
     });
   };
 
-  const profilePictureUrl = profile?.profile_picture
-    ? `${API_URL}${profile.profile_picture}`
-    : null;
+  const profilePictureUrl = resolveAssetUrl(profile?.profile_picture) || null;
 
   useEffect(() => {
     if (typeof profile?.phone_number === 'string') {

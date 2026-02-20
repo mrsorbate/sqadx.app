@@ -3,8 +3,7 @@ import { Link, Navigate } from 'react-router-dom';
 import { eventsAPI, teamsAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import { Calendar, MapPin, Clock, CheckCircle, XCircle, HelpCircle, AlertCircle, Users } from 'lucide-react';
-
-const API_URL = import.meta.env.VITE_API_URL || '';
+import { resolveAssetUrl } from '../lib/utils';
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
@@ -42,10 +41,7 @@ export default function DashboardPage() {
   });
 
   const getTeamPhotoUrl = (team: any): string | undefined => {
-    if (team.team_picture) {
-      return API_URL ? `${API_URL}${team.team_picture}` : team.team_picture;
-    }
-    return undefined;
+    return resolveAssetUrl(team.team_picture);
   };
 
   if (eventsLoading || (user?.role === 'trainer' && teamsLoading)) {

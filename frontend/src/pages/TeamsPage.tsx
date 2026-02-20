@@ -5,8 +5,7 @@ import { useAuthStore } from '../store/authStore';
 import { Users, Calendar, BarChart, Upload, Image as ImageIcon } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { useToast } from '../lib/useToast';
-
-const API_URL = import.meta.env.VITE_API_URL || '';
+import { resolveAssetUrl } from '../lib/utils';
 
 export default function TeamsPage() {
   const { user } = useAuthStore();
@@ -60,10 +59,7 @@ export default function TeamsPage() {
   };
 
   const getTeamPhotoUrl = (team: any): string | undefined => {
-    if (team.team_picture) {
-      return API_URL ? `${API_URL}${team.team_picture}` : team.team_picture;
-    }
-    return undefined;
+    return resolveAssetUrl(team.team_picture);
   };
 
   if (isLoading) {

@@ -19,3 +19,15 @@ export function formatDateTime(date: string | Date) {
     minute: '2-digit',
   });
 }
+
+const API_URL = import.meta.env.VITE_API_URL || '';
+
+export function resolveAssetUrl(assetPath?: string | null) {
+  if (!assetPath) return undefined;
+
+  if (assetPath.startsWith('http://') || assetPath.startsWith('https://') || assetPath.startsWith('data:')) {
+    return assetPath;
+  }
+
+  return API_URL ? `${API_URL}${assetPath}` : assetPath;
+}

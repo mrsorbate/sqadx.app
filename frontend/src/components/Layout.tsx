@@ -3,8 +3,7 @@ import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { LogOut, User as UserIcon, Menu, X, Moon, Sun, Users, Shield, Home } from 'lucide-react';
 import { useDarkMode } from '../hooks/useDarkMode';
-
-const API_URL = import.meta.env.VITE_API_URL || '';
+import { resolveAssetUrl } from '../lib/utils';
 
 interface Organization {
   id: number;
@@ -48,7 +47,7 @@ export default function Layout({ organization }: LayoutProps) {
                       <span className="text-gray-400 dark:text-gray-500">-</span>
                       {organizationLogo && (
                         <img 
-                          src={`${API_URL}${organizationLogo}`} 
+                          src={resolveAssetUrl(organizationLogo)} 
                           alt="Vereinslogo" 
                           className="h-5 sm:h-6 w-auto object-contain flex-shrink-0"
                         />
@@ -94,7 +93,7 @@ export default function Layout({ organization }: LayoutProps) {
                 {user?.profile_picture ? (
                   <Link to="/settings" aria-label="Zu den Einstellungen">
                     <img
-                      src={`${API_URL}${user.profile_picture}`}
+                      src={resolveAssetUrl(user.profile_picture)}
                       alt="Profilbild"
                       className="w-7 h-7 rounded-full object-cover border border-gray-300 dark:border-gray-600 hover:opacity-90"
                     />
@@ -114,7 +113,7 @@ export default function Layout({ organization }: LayoutProps) {
                 {user?.profile_picture ? (
                   <Link to="/settings" aria-label="Zu den Einstellungen">
                     <img
-                      src={`${API_URL}${user.profile_picture}`}
+                      src={resolveAssetUrl(user.profile_picture)}
                       alt="Profilbild"
                       className="w-8 h-8 rounded-full object-cover border-2 border-gray-300 dark:border-gray-600 hover:opacity-90"
                     />

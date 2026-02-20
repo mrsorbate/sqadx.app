@@ -4,8 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { invitesAPI, settingsAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import { CheckCircle, XCircle, Clock } from 'lucide-react';
-
-const API_URL = import.meta.env.VITE_API_URL || '';
+import { resolveAssetUrl } from '../lib/utils';
 
 export default function InvitePage() {
   const { token } = useParams<{ token: string }>();
@@ -141,7 +140,7 @@ export default function InvitePage() {
           <div className="flex items-center justify-center space-x-3 mb-4">
             {organizationLogo && (
               <img 
-                src={`${API_URL}${organizationLogo}`} 
+                src={resolveAssetUrl(organizationLogo)} 
                 alt="Vereinslogo" 
                 className="h-12 w-auto object-contain"
               />

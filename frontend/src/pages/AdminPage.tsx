@@ -5,6 +5,7 @@ import { useAuthStore } from '../store/authStore';
 import { Navigate } from 'react-router-dom';
 import { Plus, Trash2, Users, UserPlus, UserMinus, Shield, Settings, Upload, Copy, Share2, Check, KeyRound } from 'lucide-react';
 import { useToast, type ToastType } from '../lib/useToast';
+import { resolveAssetUrl } from '../lib/utils';
 
 const TIMEZONES = [
   'Europe/Berlin',
@@ -652,7 +653,6 @@ export default function AdminPage() {
     return <div className="text-center py-12">Lädt...</div>;
   }
 
-  const API_URL = import.meta.env.VITE_API_URL || '';
   const admins = users?.filter((u: any) => u.role === 'admin') || [];
   const trainers = users?.filter((u: any) => u.role === 'trainer') || [];
   const players = users?.filter((u: any) => u.role === 'player') || [];
@@ -930,7 +930,7 @@ export default function AdminPage() {
               {settings?.logo && (
                 <div className="flex-shrink-0">
                   <img
-                    src={`${API_URL}${settings.logo}`}
+                    src={resolveAssetUrl(settings.logo)}
                     alt="Vereinslogo"
                     className="w-24 h-24 rounded-lg object-contain bg-white border-2 border-gray-200 dark:border-gray-700 p-2"
                   />
