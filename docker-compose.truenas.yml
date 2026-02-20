@@ -1,0 +1,26 @@
+services:
+  teampilot-backend:
+    container_name: teampilot-backend
+    image: ghcr.io/mrsorbate/teampilot-backend:latest
+    environment:
+      PORT: '3000'
+      NODE_ENV: production
+      JWT_SECRET: CHANGE_ME_TO_A_LONG_RANDOM_SECRET
+      DATABASE_PATH: /app/data/database.sqlite
+      FRONTEND_URL: http://<TRUENAS-IP>:8080
+      TZ: Europe/Berlin
+    volumes:
+      - /mnt/DATA/docker/teampilot/data:/app/data
+      - /mnt/DATA/docker/teampilot/uploads:/app/uploads
+    ports:
+      - '3000:3000'
+    restart: unless-stopped
+
+  teampilot-frontend:
+    container_name: teampilot-frontend
+    image: ghcr.io/mrsorbate/teampilot-frontend:latest
+    depends_on:
+      - teampilot-backend
+    ports:
+      - '8080:80'
+    restart: unless-stopped
