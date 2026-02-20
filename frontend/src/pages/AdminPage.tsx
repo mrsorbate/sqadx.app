@@ -334,12 +334,17 @@ export default function AdminPage() {
   const handleShareTrainerLink = async () => {
     if (!trainerInviteLink) return;
     if ((navigator as any).share) {
-      await (navigator as any).share({
-        title: 'Trainer-Registrierung',
-        text: `Einladungslink für Trainer ${trainerName}`,
-        url: trainerInviteLink,
-      });
-      showToast('Einladungslink erfolgreich geteilt', 'success');
+      try {
+        await (navigator as any).share({
+          title: 'Trainer-Registrierung',
+          text: `Einladungslink für Trainer ${trainerName}`,
+          url: trainerInviteLink,
+        });
+        showToast('Einladungslink erfolgreich geteilt', 'success');
+      } catch (error: any) {
+        if (error?.name === 'AbortError') return;
+        showToast('Einladungslink konnte nicht geteilt werden', 'error');
+      }
       return;
     }
     await handleCopyTrainerLink();
@@ -402,12 +407,17 @@ export default function AdminPage() {
   const handleShareResendTrainerLink = async () => {
     if (!resendTrainerLink) return;
     if ((navigator as any).share) {
-      await (navigator as any).share({
-        title: 'Trainer-Registrierung',
-        text: `Einladungslink für Trainer ${resendTrainerName}`,
-        url: resendTrainerLink,
-      });
-      showToast('Einladungslink erfolgreich geteilt', 'success');
+      try {
+        await (navigator as any).share({
+          title: 'Trainer-Registrierung',
+          text: `Einladungslink für Trainer ${resendTrainerName}`,
+          url: resendTrainerLink,
+        });
+        showToast('Einladungslink erfolgreich geteilt', 'success');
+      } catch (error: any) {
+        if (error?.name === 'AbortError') return;
+        showToast('Einladungslink konnte nicht geteilt werden', 'error');
+      }
       return;
     }
     await handleCopyResendTrainerLink();
