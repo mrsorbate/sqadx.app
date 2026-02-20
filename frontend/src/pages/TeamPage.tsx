@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
 import { teamsAPI, invitesAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
-import { Calendar, Users, BarChart, ArrowLeft, UserPlus, X, Copy, Check, Clock, Mail, Upload, Image as ImageIcon } from 'lucide-react';
+import { Calendar, Users, BarChart, ArrowLeft, UserPlus, X, Copy, Check, Clock, Mail, Phone, Upload, Image as ImageIcon } from 'lucide-react';
 import InviteManager from '../components/InviteManager';
 import { useToast } from '../lib/useToast';
 
@@ -278,8 +278,17 @@ export default function TeamPage() {
                   </span>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">{trainer.name}</p>
-                  <p className="text-sm text-gray-600">{trainer.email}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{trainer.name}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-1">
+                    <Mail className="w-3.5 h-3.5" />
+                    {trainer.email}
+                  </p>
+                  {trainer.phone_number && (
+                    <p className="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-1 mt-1">
+                      <Phone className="w-3.5 h-3.5" />
+                      {trainer.phone_number}
+                    </p>
+                  )}
                 </div>
               </div>
             ))}

@@ -139,7 +139,7 @@ router.get('/:id/members', (req: AuthRequest, res) => {
     }
 
     const members = db.prepare(`
-      SELECT u.id, u.name, u.email, u.birth_date, tm.role, tm.jersey_number, tm.position, tm.joined_at
+      SELECT u.id, u.name, u.email, u.phone_number, u.birth_date, tm.role, tm.jersey_number, tm.position, tm.joined_at
       FROM team_members tm
       INNER JOIN users u ON tm.user_id = u.id
       WHERE tm.team_id = ?
