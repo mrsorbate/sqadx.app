@@ -143,18 +143,18 @@ export default function Layout({ organization }: LayoutProps) {
               </Link>
               <button
                 onClick={toggleDarkMode}
-                className="hidden md:flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="hidden md:flex items-center justify-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 title={isDark ? 'Light mode' : 'Dark mode'}
+                aria-label={isDark ? 'Light mode' : 'Dark mode'}
               >
                 {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-                <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>
               </button>
               <button
                 onClick={handleLogout}
-                className="hidden md:flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="hidden md:flex items-center justify-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                aria-label="Logout"
               >
                 <LogOut className="w-4 h-4" />
-                <span>Logout</span>
               </button>
 
               <button
@@ -220,17 +220,17 @@ export default function Layout({ organization }: LayoutProps) {
                   toggleDarkMode();
                   setMobileMenuOpen(false);
                 }}
-                className="flex items-center space-x-2 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg w-full"
+                className="flex items-center justify-center px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg w-full"
+                aria-label={isDark ? 'Light mode' : 'Dark mode'}
               >
                 {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-                <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>
               </button>
               <button
                 onClick={handleLogout}
-                className="flex w-full items-center space-x-2 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                className="flex w-full items-center justify-center px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                aria-label="Logout"
               >
                 <LogOut className="w-4 h-4" />
-                <span>Logout</span>
               </button>
             </div>
           )}
