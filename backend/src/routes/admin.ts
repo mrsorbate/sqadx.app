@@ -139,6 +139,31 @@ const requireAdmin = (req: AuthRequest, res: any, next: any) => {
   next();
 };
 
+const ensureTrainerInviteSchema = () => {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS trainer_invites (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      token TEXT UNIQUE NOT NULL,
+      invited_name TEXT NOT NULL,
+      invited_user_id INTEGER,
+      team_ids TEXT NOT NULL,
+      created_by INTEGER NOT NULL,
+      expires_at DATETIME,
+      used_count INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (created_by) REFERENCES users(id),
+      FOREIGN KEY (invited_user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+    CREATE INDEX IF NOT EXISTS idx_trainer_invites_token ON trainer_invites(token);
+  `);
+
+  const trainerInviteColumns = db.pragma('table_info(trainer_invites)') as Array<{ name: string }>;
+  const hasInvitedUserId = trainerInviteColumns.some((col) => col.name === 'invited_user_id');
+  if (!hasInvitedUserId) {
+    db.exec('ALTER TABLE trainer_invites ADD COLUMN invited_user_id INTEGER');
+  }
+};
+
 router.use(requireAdmin);
 
 // Get all teams (admin only)
@@ -235,6 +260,8 @@ router.delete('/users/:id', (req: AuthRequest, res) => {
 // Create trainer setup invite link (admin only)
 router.post('/trainer-invites', (req: AuthRequest, res) => {
   try {
+    ensureTrainerInviteSchema();
+
     const { name, teamIds, expiresInDays = 7 } = req.body;
 
     const normalizedName = String(name || '').trim();
@@ -345,7 +372,7 @@ router.post('/trainer-invites', (req: AuthRequest, res) => {
     });
   } catch (error) {
     console.error('Create trainer invite error:', error);
-    res.status(500).json({ error: 'Failed to create trainer invite' });
+    res.status(500).json({ error: (error as any)?.message || 'Failed to create trainer invite' });
   }
 });
 
