@@ -21,7 +21,7 @@ const TIMEZONES = [
 ];
 
 export default function AdminPage() {
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const queryClient = useQueryClient();
   const logoFileInputRef = useRef<HTMLInputElement>(null);
   
@@ -42,6 +42,8 @@ export default function AdminPage() {
   const [jerseyNumber, setJerseyNumber] = useState('');
   const [position, setPosition] = useState('');
   const [expandedInviteTeamId, setExpandedInviteTeamId] = useState<number | null>(null);
+  const [showDeleteOrganizationConfirm, setShowDeleteOrganizationConfirm] = useState(false);
+  const [deleteOrganizationConfirmText, setDeleteOrganizationConfirmText] = useState('');
 
   // Redirect if not admin
   if (user?.role !== 'admin') {
@@ -139,6 +141,14 @@ export default function AdminPage() {
       setMemberRole('player');
       setJerseyNumber('');
       setPosition('');
+    },
+  });
+
+  const deleteOrganizationMutation = useMutation({
+    mutationFn: () => adminAPI.deleteOrganization(),
+    onSuccess: () => {
+      logout();
+      window.location.href = '/';
     },
   });
 
@@ -344,6 +354,62 @@ export default function AdminPage() {
         <p className="text-sm text-blue-800">
           <strong>Workflow:</strong> Erstelle Teams → Weise Trainer zu → Trainer fügen Spieler hinzu. Der Admin ist Manager und nicht Teil der Teams.
         </p>
+      </div>
+
+      {/* Danger Zone */}
+      <div className="card border-2 border-red-200 dark:border-red-900">
+        <h2 className="text-xl font-semibold mb-2 text-red-700 dark:text-red-400">Gefahrenzone</h2>
+        <p className="text-sm text-red-700 dark:text-red-300 mb-4">
+          Verein löschen entfernt alle Teams, Benutzer, Einladungen, Termine und Uploads endgültig.
+        </p>
+
+        {!showDeleteOrganizationConfirm ? (
+          <button
+            onClick={() => setShowDeleteOrganizationConfirm(true)}
+            className="btn bg-red-600 hover:bg-red-700 text-white"
+          >
+            Verein löschen
+          </button>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-sm text-gray-700 dark:text-gray-300">
+              Gib zur Bestätigung den Vereinsnamen ein: <strong>{settings?.name || 'Unbekannt'}</strong>
+            </p>
+            <input
+              type="text"
+              value={deleteOrganizationConfirmText}
+              onChange={(e) => setDeleteOrganizationConfirmText(e.target.value)}
+              className="input"
+              placeholder="Vereinsname eingeben"
+            />
+            <div className="flex gap-3">
+              <button
+                onClick={() => deleteOrganizationMutation.mutate()}
+                disabled={
+                  deleteOrganizationMutation.isPending ||
+                  deleteOrganizationConfirmText.trim() !== (settings?.name || '')
+                }
+                className="btn bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {deleteOrganizationMutation.isPending ? 'Löscht...' : 'Jetzt endgültig löschen'}
+              </button>
+              <button
+                onClick={() => {
+                  setShowDeleteOrganizationConfirm(false);
+                  setDeleteOrganizationConfirmText('');
+                }}
+                className="btn btn-secondary"
+              >
+                Abbrechen
+              </button>
+            </div>
+            {deleteOrganizationMutation.isError && (
+              <p className="text-sm text-red-600 dark:text-red-400">
+                Löschen fehlgeschlagen. Bitte erneut versuchen.
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       {showCreateTeam && (

@@ -313,6 +313,48 @@ router.post('/settings/setup', (req: AuthRequest, res) => {
   }
 });
 
+// Delete organization and all related data (admin only)
+router.delete('/organization', (req: AuthRequest, res) => {
+  try {
+    const currentOrg = db.prepare('SELECT name FROM organizations WHERE id = 1').get() as any;
+
+    db.prepare('DELETE FROM team_members').run();
+    db.prepare('DELETE FROM event_responses').run();
+    db.prepare('DELETE FROM events').run();
+    db.prepare('DELETE FROM team_invites').run();
+    db.prepare('DELETE FROM teams').run();
+    db.prepare('DELETE FROM users').run();
+
+    db.prepare(`
+      UPDATE organizations
+      SET name = ?, logo = NULL, timezone = 'Europe/Berlin', setup_completed = 0, updated_at = CURRENT_TIMESTAMP
+      WHERE id = 1
+    `).run('Neuer Verein');
+
+    if (fs.existsSync(uploadsDir)) {
+      const files = fs.readdirSync(uploadsDir);
+      for (const file of files) {
+        const filePath = path.join(uploadsDir, file);
+        try {
+          if (fs.statSync(filePath).isFile()) {
+            fs.unlinkSync(filePath);
+          }
+        } catch (cleanupError) {
+          console.warn('Failed to remove upload file during organization reset:', filePath, cleanupError);
+        }
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `Organization "${currentOrg?.name || 'Unbekannt'}" and all related data deleted. Setup reset required.`
+    });
+  } catch (error) {
+    console.error('Delete organization error:', error);
+    res.status(500).json({ error: 'Failed to delete organization' });
+  }
+});
+
 // Upload organization logo (special handling for file upload with explicit middleware order)
 router.post('/settings/logo', 
   authenticate,

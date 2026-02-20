@@ -136,6 +136,8 @@ export const adminAPI = {
   
   updateSettings: (data: { organizationName: string; timezone: string }) =>
     api.post('/admin/settings/setup', data),
+
+  deleteOrganization: () => api.delete('/admin/organization'),
   
   uploadLogo: (file: File) => {
     const formData = new FormData();
