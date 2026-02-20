@@ -1,13 +1,32 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import { Navigate } from 'react-router-dom';
-import { Plus, Trash2, Users, UserPlus, Shield } from 'lucide-react';
+import { Plus, Trash2, Users, UserPlus, Shield, Settings, Upload } from 'lucide-react';
+
+const TIMEZONES = [
+  'Europe/Berlin',
+  'Europe/London',
+  'Europe/Paris',
+  'Europe/Madrid',
+  'Europe/Amsterdam',
+  'Europe/Vienna',
+  'Europe/Zurich',
+  'Europe/Rome',
+  'Europe/Brussels',
+  'Europe/Budapest',
+  'UTC',
+];
 
 export default function AdminPage() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
+  const logoFileInputRef = useRef<HTMLInputElement>(null);
+  
+  const [showOrganizationSettings, setShowOrganizationSettings] = useState(false);
+  const [organizationName, setOrganizationName] = useState('');
+  const [timezone, setTimezone] = useState('Europe/Berlin');
   
   const [showCreateTeam, setShowCreateTeam] = useState(false);
   const [teamName, setTeamName] = useState('');
@@ -27,6 +46,16 @@ export default function AdminPage() {
     return <Navigate to="/" />;
   }
 
+  const { data: settings, isLoading: settingsLoading } = useQuery({
+    queryKey: ['admin-settings'],
+    queryFn: async () => {
+      const response = await adminAPI.getSettings();
+      setOrganizationName(response.data.name || '');
+      setTimezone(response.data.timezone || 'Europe/Berlin');
+      return response.data;
+    },
+  });
+
   const { data: teams, isLoading: teamsLoading } = useQuery({
     queryKey: ['admin-teams'],
     queryFn: async () => {
@@ -40,6 +69,24 @@ export default function AdminPage() {
     queryFn: async () => {
       const response = await adminAPI.getAllUsers();
       return response.data;
+    },
+  });
+
+  const updateSettingsMutation = useMutation({
+    mutationFn: (data: { organizationName: string; timezone: string }) =>
+      adminAPI.updateSettings(data),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['admin-settings'] });
+      await queryClient.invalidateQueries({ queryKey: ['organization'] });
+      setShowOrganizationSettings(false);
+    },
+  });
+
+  const uploadLogoMutation = useMutation({
+    mutationFn: (file: File) => adminAPI.uploadLogo(file),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['admin-settings'] });
+      await queryClient.invalidateQueries({ queryKey: ['organization'] });
     },
   });
 
@@ -85,6 +132,18 @@ export default function AdminPage() {
     },
   });
 
+  const handleUpdateSettings = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateSettingsMutation.mutate({ organizationName, timezone });
+  };
+
+  const handleLogoFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      uploadLogoMutation.mutate(file);
+    }
+  };
+
   const handleCreateTeam = (e: React.FormEvent) => {
     e.preventDefault();
     createTeamMutation.mutate({ name: teamName, description: teamDescription });
@@ -114,9 +173,11 @@ export default function AdminPage() {
     }
   };
 
-  if (teamsLoading || usersLoading) {
+  if (teamsLoading || usersLoading || settingsLoading) {
     return <div className="text-center py-12">Lädt...</div>;
   }
+
+  const API_URL = import.meta.env.VITE_API_URL || '';
 
   return (
     <div className="space-y-6">
@@ -136,6 +197,108 @@ export default function AdminPage() {
           <Plus className="w-5 h-5" />
           <span>Team erstellen</span>
         </button>
+      </div>
+
+      {/* Organization Settings */}
+      <div className="card">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold flex items-center">
+            <Settings className="w-6 h-6 mr-2 text-primary-600" />
+            Organisations-Einstellungen
+          </h2>
+          <button
+            onClick={() => setShowOrganizationSettings(!showOrganizationSettings)}
+            className="btn btn-secondary text-sm"
+          >
+            {showOrganizationSettings ? 'Abbrechen' : 'Bearbeiten'}
+          </button>
+        </div>
+
+        {showOrganizationSettings ? (
+          <form onSubmit={handleUpdateSettings} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Vereinsname
+              </label>
+              <input
+                type="text"
+                required
+                value={organizationName}
+                onChange={(e) => setOrganizationName(e.target.value)}
+                className="input"
+                placeholder="z.B. SV Musterdorf"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Zeitzone
+              </label>
+              <select
+                value={timezone}
+                onChange={(e) => setTimezone(e.target.value)}
+                className="input"
+              >
+                {TIMEZONES.map((tz) => (
+                  <option key={tz} value={tz}>
+                    {tz}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              type="submit"
+              disabled={updateSettingsMutation.isPending}
+              className="btn btn-primary"
+            >
+              {updateSettingsMutation.isPending ? 'Speichert...' : 'Speichern'}
+            </button>
+          </form>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex items-start space-x-4">
+              {settings?.logo && (
+                <img
+                  src={`${API_URL}${settings.logo}`}
+                  alt="Logo"
+                  className="w-20 h-20 rounded-lg object-contain border-2 border-gray-200 dark:border-gray-700"
+                />
+              )}
+              <div className="flex-1 space-y-2">
+                <div>
+                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Vereinsname:</span>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white">{settings?.name || 'Nicht festgelegt'}</p>
+                </div>
+                <div>
+                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Zeitzone:</span>
+                  <p className="text-gray-900 dark:text-white">{settings?.timezone || 'Europe/Berlin'}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-3 border-t dark:border-gray-700">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Vereinslogo
+              </label>
+              <input
+                type="file"
+                ref={logoFileInputRef}
+                onChange={handleLogoFileSelect}
+                accept="image/*"
+                className="hidden"
+              />
+              <button
+                onClick={() => logoFileInputRef.current?.click()}
+                disabled={uploadLogoMutation.isPending}
+                className="btn btn-secondary flex items-center space-x-2"
+              >
+                <Upload className="w-4 h-4" />
+                <span>{uploadLogoMutation.isPending ? 'Lädt hoch...' : settings?.logo ? 'Logo ändern' : 'Logo hochladen'}</span>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Info Box */}

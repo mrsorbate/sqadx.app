@@ -132,6 +132,19 @@ export const adminAPI = {
   
   getAllUsers: () => api.get('/admin/users'),
   
+  getSettings: () => api.get('/admin/settings'),
+  
+  updateSettings: (data: { organizationName: string; timezone: string }) =>
+    api.post('/admin/settings/setup', data),
+  
+  uploadLogo: (file: File) => {
+    const formData = new FormData();
+    formData.append('logo', file);
+    return api.post('/admin/settings/logo', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  
   createTeam: (data: { name: string; description?: string }) =>
     api.post('/teams', data),
   
