@@ -21,6 +21,8 @@ const TIMEZONES = [
 
 export default function FirstTimeSetupPage() {
   const [organizationName, setOrganizationName] = useState('');
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState('');
   const [adminUsername, setAdminUsername] = useState('');
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
@@ -56,6 +58,17 @@ export default function FirstTimeSetupPage() {
         timezone,
       });
 
+      if (logoFile) {
+        const formData = new FormData();
+        formData.append('logo', logoFile);
+        await axios.post(`${API_URL}/api/admin/upload/logo`, formData, {
+          headers: {
+            Authorization: `Bearer ${response.data.token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+      }
+
       return response.data;
     },
     onSuccess: (data) => {
@@ -86,8 +99,52 @@ export default function FirstTimeSetupPage() {
       }
       setStep(2);
     } else if (step === 2) {
+      if (!adminUsername.trim()) {
+        setError('Admin Benutzername ist erforderlich');
+        return;
+      }
+      if (!adminEmail.trim()) {
+        setError('Admin E-Mail ist erforderlich');
+        return;
+      }
+      if (adminPassword.length < 6) {
+        setError('Passwort muss mindestens 6 Zeichen lang sein');
+        return;
+      }
+      if (adminPassword !== confirmPassword) {
+        setError('Passwörter stimmen nicht überein');
+        return;
+      }
+      setStep(3);
+    } else if (step === 3) {
       handleComplete();
     }
+  };
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setLogoFile(null);
+      setLogoPreview('');
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      setError('Bitte eine gültige Bilddatei auswählen');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Logo ist zu groß. Maximal erlaubt sind 5MB');
+      return;
+    }
+
+    setError('');
+    setLogoFile(file);
+
+    const reader = new FileReader();
+    reader.onload = () => setLogoPreview(reader.result as string);
+    reader.readAsDataURL(file);
   };
 
   const handleComplete = () => {
@@ -104,7 +161,7 @@ export default function FirstTimeSetupPage() {
             sqadX.app
           </h1>
           <p className="mt-4 text-lg font-semibold text-gray-700 dark:text-gray-300">
-            {step === 1 ? 'Dein Verein' : 'Admin Account'}
+            {step === 1 ? 'Dein Verein' : step === 2 ? 'Admin-Daten' : 'Zeitzone & Zusammenfassung'}
           </p>
         </div>
 
@@ -112,6 +169,7 @@ export default function FirstTimeSetupPage() {
         <div className="flex justify-center space-x-2">
           <div className={`h-2 w-8 rounded-full transition-colors ${step >= 1 ? 'bg-primary-600' : 'bg-gray-300'}`} />
           <div className={`h-2 w-8 rounded-full transition-colors ${step >= 2 ? 'bg-primary-600' : 'bg-gray-300'}`} />
+          <div className={`h-2 w-8 rounded-full transition-colors ${step >= 3 ? 'bg-primary-600' : 'bg-gray-300'}`} />
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
@@ -139,26 +197,30 @@ export default function FirstTimeSetupPage() {
                   autoFocus
                 />
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Der Name deines Sportvereins
+                  Dieser Name wird in Navigation, Login und Einladungen angezeigt.
                 </p>
               </div>
 
               <div>
-                <label htmlFor="timezone" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Zeitzone
+                <label htmlFor="org-logo" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Vereinslogo (optional)
                 </label>
-                <select
-                  id="timezone"
-                  value={timezone}
-                  onChange={(e) => setTimezone(e.target.value)}
+                <input
+                  id="org-logo"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoChange}
                   className="input mt-1"
-                >
-                  {TIMEZONES.map((tz) => (
-                    <option key={tz} value={tz}>
-                      {tz}
-                    </option>
-                  ))}
-                </select>
+                />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Formate: PNG, JPG, WebP. Maximal 5MB. Kann später im Admin-Bereich geändert werden.
+                </p>
+                {logoPreview && (
+                  <div className="mt-3 flex items-center space-x-3">
+                    <img src={logoPreview} alt="Logo Vorschau" className="h-12 w-12 rounded object-contain bg-white border" />
+                    <span className="text-sm text-gray-600 dark:text-gray-300">{logoFile?.name}</span>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -180,6 +242,9 @@ export default function FirstTimeSetupPage() {
                   placeholder="admin"
                   autoFocus
                 />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Damit meldest du dich an. Nur Kleinbuchstaben, Zahlen und Unterstrich empfohlen.
+                </p>
               </div>
 
               <div>
@@ -195,6 +260,9 @@ export default function FirstTimeSetupPage() {
                   className="input mt-1"
                   placeholder="admin@verein.de"
                 />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Wird später für Passwort-Reset und Benachrichtigungen verwendet.
+                </p>
               </div>
 
               <div>
@@ -212,7 +280,7 @@ export default function FirstTimeSetupPage() {
                   placeholder="••••••••"
                 />
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Mindestens 6 Zeichen
+                  Mindestens 6 Zeichen, besser 10+ mit Zahlen und Sonderzeichen.
                 </p>
               </div>
 
@@ -234,12 +302,51 @@ export default function FirstTimeSetupPage() {
             </div>
           )}
 
+          {/* Step 3: Timezone + Summary */}
+          {step === 3 && (
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="timezone" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Zeitzone
+                </label>
+                <select
+                  id="timezone"
+                  value={timezone}
+                  onChange={(e) => setTimezone(e.target.value)}
+                  className="input mt-1"
+                  autoFocus
+                >
+                  {TIMEZONES.map((tz) => (
+                    <option key={tz} value={tz}>
+                      {tz}
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Beeinflusst Terminzeiten, Erinnerungen und Deadlines in der App.
+                </p>
+              </div>
+
+              <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4 space-y-2">
+                <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">Finale Zusammenfassung</h3>
+                <p className="text-sm text-gray-700 dark:text-gray-300"><strong>Verein:</strong> {organizationName}</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300"><strong>Logo:</strong> {logoFile ? 'Wird hochgeladen' : 'Kein Logo (optional)'}</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300"><strong>Admin:</strong> {adminUsername} ({adminEmail})</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300"><strong>Zeitzone:</strong> {timezone}</p>
+              </div>
+
+              <p className="text-xs text-blue-700 dark:text-blue-300">
+                Hinweis: Nach dem Setup sind neue Registrierungen nur per persönlichem Einladungslink möglich.
+              </p>
+            </div>
+          )}
+
           {/* Buttons */}
           <div className="flex gap-3">
-            {step === 2 && (
+            {step > 1 && (
               <button
                 type="button"
-                onClick={() => setStep(1)}
+                onClick={() => setStep(step - 1)}
                 className="flex-1 btn btn-secondary"
               >
                 Zurück
@@ -252,14 +359,14 @@ export default function FirstTimeSetupPage() {
             >
               {setupMutation.isPending
                 ? 'Wird konfiguriert...'
-                : step === 1
+                : step < 3
                 ? 'Weiter'
                 : 'Setup abschließen'}
             </button>
           </div>
 
           <p className="text-center text-xs text-gray-500 dark:text-gray-400">
-            Schritt {step} von 2
+            Schritt {step} von 3
           </p>
         </form>
       </div>
