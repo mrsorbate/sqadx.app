@@ -93,6 +93,20 @@ Die App läuft standardmäßig auf:
 - Frontend: http://localhost:5173
 - Backend: http://localhost:3000
 
+### Toast-Guideline (UI-Feedback)
+
+Für konsistente Nutzer-Rückmeldungen im Frontend:
+
+- `success`: Aktion erfolgreich abgeschlossen (z. B. erstellt, gespeichert, gelöscht)
+- `info`: Neutraler Hinweis ohne Handlungsdruck
+- `warning`: Benutzer kann selbst nachbessern (z. B. Dateityp/-größe)
+- `error`: Technischer oder serverseitiger Fehler
+
+Technische Basis:
+- Globaler Provider: `frontend/src/lib/useToast.tsx`
+- Anzeige-Komponente: `frontend/src/components/ToastMessage.tsx`
+- Nutzung in Seiten: `const { showToast } = useToast()`
+
 ## Docker
 
 Die App kann komplett per Docker gestartet werden (Frontend + Backend).
