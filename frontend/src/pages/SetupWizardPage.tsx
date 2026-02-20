@@ -294,7 +294,7 @@ export default function SetupWizardPage() {
             <div className="space-y-6">
               <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                 <Globe className="w-6 h-6 text-primary-600" />
-                Zeitzone & finale Zusammenfassung
+                Zeitzone & Zusammenfassung
               </h2>
 
               <div>
@@ -317,32 +317,29 @@ export default function SetupWizardPage() {
                 <h3 className="font-bold text-primary-900 mb-2">Finale Zusammenfassung:</h3>
                 <div className="space-y-1 text-sm text-primary-800">
                   <p>
-                    <strong>Vereinsname:</strong> {setupData.organizationName}
+                    <strong>Verein:</strong> {setupData.organizationName}
                   </p>
                   <p>
-                    <strong>Admin Benutzername:</strong> {setupData.adminUsername}
-                  </p>
-                  <p>
-                    <strong>Admin E-Mail:</strong> {setupData.adminEmail}
+                    <strong>Admin:</strong> {setupData.adminUsername} ({setupData.adminEmail})
                   </p>
                   <p>
                     <strong>Zeitzone:</strong> {setupData.timezone}
                   </p>
                   {setupData.logo && (
                     <p>
-                      <strong>Logo:</strong> {setupData.logo.name}
+                      <strong>Logo:</strong> Wird hochgeladen
                     </p>
                   )}
                   {!setupData.logo && (
                     <p>
-                      <strong>Logo:</strong> Kein Logo ausgewählt (optional)
+                      <strong>Logo:</strong> Kein Logo (optional)
                     </p>
                   )}
                 </div>
               </div>
 
               <p className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
-                💡 Hinweis: Nach dem Setup sind neue Registrierungen nur per persönlichem Einladungslink möglich.
+                Hinweis: Nach dem Setup sind neue Registrierungen nur per persönlichem Einladungslink möglich.
               </p>
             </div>
           )}

@@ -29,7 +29,7 @@ export default function InvitePage() {
     retry: 1,
   });
 
-  const organizationName = organization?.name || 'kadr-Verein';
+  const organizationName = organization?.name || 'Dein Verein';
   const organizationLogo = organization?.logo;
 
   const { data: invite, isLoading, error: inviteError } = useQuery({

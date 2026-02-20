@@ -21,7 +21,7 @@ export default function LoginPage() {
     retry: 1,
   });
 
-  const organizationName = organization?.name || 'kadr-Verein';
+  const organizationName = organization?.name || 'Dein Verein';
   const organizationLogo = organization?.logo;
 
   const loginMutation = useMutation({

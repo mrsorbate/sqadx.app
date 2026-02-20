@@ -25,7 +25,7 @@ export default function RegisterPage() {
     retry: 1,
   });
 
-  const organizationName = organization?.name || 'kadr-Verein';
+  const organizationName = organization?.name || 'Dein Verein';
   const organizationLogo = organization?.logo;
 
   const registerMutation = useMutation({
