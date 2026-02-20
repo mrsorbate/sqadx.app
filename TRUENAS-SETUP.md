@@ -12,12 +12,19 @@ Diese Dokumentation erklärt, wie du TeamPilot auf deiner TrueNAS nutzt — mit 
 ssh root@<TRUENAS-IP>
 ```
 
-### 2. Repository klonen
+### 2. Repository klonen (oder aktualisieren wenn bereits vorhanden)
 
+**Erste Mal:**
 ```bash
 cd /mnt/DATA/docker
 git clone https://github.com/mrsorbate/TeamPilot-App.git
 cd TeamPilot-App
+```
+
+**Wenn Verzeichnis bereits existiert:**
+```bash
+cd /mnt/DATA/docker/TeamPilot-App
+git pull
 ```
 
 ### 3. Initial Setup
@@ -173,6 +180,19 @@ docker compose --env-file .env -f docker-compose.build.yml down
 ```bash
 cd /mnt/DATA/docker/TeamPilot-App
 docker compose --env-file .env -f docker-compose.build.yml down
+./setup-truenas-build.sh
+```
+
+### "Repository existiert bereits" (`already exists...`)
+Das Verzeichnis `/mnt/DATA/docker/TeamPilot-App` existiert bereits:
+```bash
+# Einfach in das bestehende Verzeichnis wechseln
+cd /mnt/DATA/docker/TeamPilot-App
+
+# Code aktualisieren
+git pull
+
+# Und neu starten
 ./setup-truenas-build.sh
 ```
 
