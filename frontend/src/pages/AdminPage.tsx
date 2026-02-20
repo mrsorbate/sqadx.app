@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import { Navigate } from 'react-router-dom';
-import { Plus, Trash2, Users, UserPlus, Shield, Settings, Upload, Copy, Share2, Check } from 'lucide-react';
+import { Plus, Trash2, Users, UserPlus, Shield, Settings, Upload, Copy, Share2, Check, KeyRound } from 'lucide-react';
 import InviteManager from '../components/InviteManager';
 
 const TIMEZONES = [
@@ -141,6 +141,11 @@ export default function AdminPage() {
 
   const resendTrainerInviteMutation = useMutation({
     mutationFn: (userId: number) => adminAPI.resendTrainerInvite(userId),
+  });
+
+  const resetUserPasswordMutation = useMutation({
+    mutationFn: (data: { userId: number; newPassword: string }) =>
+      adminAPI.resetUserPassword(data.userId, { newPassword: data.newPassword }),
   });
 
   const addMemberMutation = useMutation({
@@ -314,6 +319,26 @@ export default function AdminPage() {
       }
     } catch (error: any) {
       alert(error?.response?.data?.error || 'Link konnte nicht neu versendet werden');
+    }
+  };
+
+  const handleResetUserPassword = async (userItem: any) => {
+    const newPassword = window.prompt(`Neues Passwort für ${userItem.name} eingeben (mind. 6 Zeichen):`);
+    if (!newPassword) return;
+
+    if (newPassword.length < 6) {
+      alert('Passwort muss mindestens 6 Zeichen haben.');
+      return;
+    }
+
+    const confirmReset = window.confirm(`Passwort für ${userItem.name} wirklich zurücksetzen?`);
+    if (!confirmReset) return;
+
+    try {
+      await resetUserPasswordMutation.mutateAsync({ userId: userItem.id, newPassword });
+      alert('Passwort wurde erfolgreich zurückgesetzt.');
+    } catch (error: any) {
+      alert(error?.response?.data?.error || 'Passwort konnte nicht zurückgesetzt werden');
     }
   };
 
@@ -759,6 +784,14 @@ export default function AdminPage() {
                             </button>
                           )}
                           <button
+                            onClick={() => handleResetUserPassword(user)}
+                            disabled={resetUserPasswordMutation.isPending}
+                            className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Passwort zurücksetzen"
+                          >
+                            <KeyRound className="w-4 h-4" />
+                          </button>
+                          <button
                             onClick={() => handleDeleteUser(user)}
                             disabled={deleteUserMutation.isPending}
                             className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -813,14 +846,24 @@ export default function AdminPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{user.team_count} Team{user.team_count !== 1 ? 's' : ''}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <button
-                          onClick={() => handleDeleteUser(user)}
-                          disabled={deleteUserMutation.isPending}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Benutzer löschen"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handleResetUserPassword(user)}
+                            disabled={resetUserPasswordMutation.isPending}
+                            className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Passwort zurücksetzen"
+                          >
+                            <KeyRound className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteUser(user)}
+                            disabled={deleteUserMutation.isPending}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Benutzer löschen"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

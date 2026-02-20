@@ -257,6 +257,41 @@ router.delete('/users/:id', (req: AuthRequest, res) => {
   }
 });
 
+// Reset user password (admin only)
+router.post('/users/:id/reset-password', async (req: AuthRequest, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    const { newPassword } = req.body;
+
+    if (!Number.isInteger(userId) || userId <= 0) {
+      return res.status(400).json({ error: 'Invalid user id' });
+    }
+
+    if (!newPassword || String(newPassword).length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    const targetUser = db.prepare('SELECT id, role FROM users WHERE id = ?').get(userId) as any;
+    if (!targetUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (targetUser.role === 'admin') {
+      return res.status(400).json({ error: 'Admin users cannot be reset here' });
+    }
+
+    const hashedPassword = await bcrypt.hash(String(newPassword), 10);
+
+    db.prepare('UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
+      .run(hashedPassword, userId);
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Reset user password error:', error);
+    res.status(500).json({ error: 'Failed to reset user password' });
+  }
+});
+
 // Create trainer setup invite link (admin only)
 router.post('/trainer-invites', (req: AuthRequest, res) => {
   try {
