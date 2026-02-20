@@ -62,6 +62,24 @@ export default function Layout({ organization }: LayoutProps) {
             </div>
 
             <div className="flex items-center space-x-4">
+              <div className="hidden md:flex items-center space-x-3">
+                {user?.profile_picture ? (
+                  <img
+                    src={`${API_URL}${user.profile_picture}`}
+                    alt="Profilbild"
+                    className="w-8 h-8 rounded-full object-cover border-2 border-gray-300 dark:border-gray-600"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                    <UserIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  </div>
+                )}
+                <span className="text-sm text-gray-700 dark:text-gray-300">
+                  Hallo, <span className="font-medium">{user?.name}</span>
+                  {user?.role === 'admin' && <span className="ml-2 text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-full">Admin</span>}
+                </span>
+              </div>
+
               <div className="hidden md:flex items-center space-x-1">
                 {user?.role === 'admin' && (
                   <Link
@@ -81,30 +99,6 @@ export default function Layout({ organization }: LayoutProps) {
                     <span>Meine Teams</span>
                   </Link>
                 )}
-              </div>
-              <div className="hidden md:flex items-center space-x-3">
-                <button
-                  onClick={toggleDarkMode}
-                  className="p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                  title={isDark ? 'Light mode' : 'Dark mode'}
-                >
-                  {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                </button>
-                {user?.profile_picture ? (
-                  <img
-                    src={`${API_URL}${user.profile_picture}`}
-                    alt="Profilbild"
-                    className="w-8 h-8 rounded-full object-cover border-2 border-gray-300 dark:border-gray-600"
-                  />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                    <UserIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                  </div>
-                )}
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  Hallo, <span className="font-medium">{user?.name}</span>
-                  {user?.role === 'admin' && <span className="ml-2 text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-full">Admin</span>}
-                </span>
               </div>
               <div className="md:hidden flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300">
                 {user?.profile_picture ? (
@@ -128,6 +122,14 @@ export default function Layout({ organization }: LayoutProps) {
                 <span>Einstellungen</span>
               </Link>
               <button
+                onClick={toggleDarkMode}
+                className="hidden md:flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                title={isDark ? 'Light mode' : 'Dark mode'}
+              >
+                {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>
+              </button>
+              <button
                 onClick={handleLogout}
                 className="hidden md:flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
@@ -149,6 +151,9 @@ export default function Layout({ organization }: LayoutProps) {
 
           {mobileMenuOpen && (
             <div className="md:hidden border-t border-gray-200 dark:border-gray-700 py-3 space-y-2 bg-white dark:bg-gray-800">
+              <div className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300">
+                <span>Hallo, <span className="font-medium">{user?.name}</span></span>
+              </div>
               {user?.role === 'admin' && (
                 <Link
                   to="/admin"
@@ -169,6 +174,14 @@ export default function Layout({ organization }: LayoutProps) {
                   <span>Meine Teams</span>
                 </Link>
               )}
+              <Link
+                to="/settings"
+                className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Settings className="w-4 h-4" />
+                <span>Einstellungen</span>
+              </Link>
               <button
                 onClick={() => {
                   toggleDarkMode();
@@ -179,14 +192,6 @@ export default function Layout({ organization }: LayoutProps) {
                 {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                 <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>
               </button>
-              <Link
-                to="/settings"
-                className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <Settings className="w-4 h-4" />
-                <span>Einstellungen</span>
-              </Link>
               <button
                 onClick={handleLogout}
                 className="flex w-full items-center space-x-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
