@@ -182,11 +182,11 @@ export default function TeamPage() {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingTeamPicture}
-                className="absolute bottom-3 right-3 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
+                className="absolute bottom-3 right-3 bg-white/90 hover:bg-white dark:bg-gray-900/85 dark:hover:bg-gray-900 p-3 rounded-full shadow-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
                 title="Neues Bild hochladen"
               >
-                <Upload className="w-5 h-5 text-gray-700 dark:text-gray-800" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-800">Ändern</span>
+                <Upload className="w-5 h-5 text-gray-700 dark:text-gray-100" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-100">Ändern</span>
               </button>
             </div>
           ) : (
@@ -262,9 +262,12 @@ export default function TeamPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Trainers */}
         <div className="card">
-          <h2 className="text-xl font-semibold mb-4 flex items-center">
+          <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-900 dark:text-white">
             <span className="mr-2">👨‍🏫</span>
-            Trainer ({trainers.length})
+            Trainer
+            <span className="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-200">
+              {trainers.length}
+            </span>
           </h2>
           <div className="space-y-2">
             {trainers.map((trainer: any) => (
