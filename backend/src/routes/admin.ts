@@ -173,6 +173,12 @@ router.get('/teams', (req: AuthRequest, res) => {
       SELECT 
         t.*,
         u.name as created_by_name,
+        COALESCE((
+          SELECT GROUP_CONCAT(u2.name, ', ')
+          FROM team_members tm
+          INNER JOIN users u2 ON tm.user_id = u2.id
+          WHERE tm.team_id = t.id AND tm.role = 'trainer'
+        ), '') as trainer_names,
         (SELECT COUNT(*) FROM team_members WHERE team_id = t.id) as member_count
       FROM teams t
       INNER JOIN users u ON t.created_by = u.id

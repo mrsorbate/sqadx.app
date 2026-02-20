@@ -94,7 +94,7 @@ export default function AdminPage() {
       const response = await adminAPI.getTeamTrainers(selectedTeam);
       return response.data;
     },
-    enabled: showRemoveTrainer && !!selectedTeam,
+    enabled: (showAssignTrainer || showRemoveTrainer) && !!selectedTeam,
   });
 
   const updateSettingsMutation = useMutation({
@@ -172,6 +172,12 @@ export default function AdminPage() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin-teams'] });
       await queryClient.refetchQueries({ queryKey: ['admin-teams'] });
+      await queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      await queryClient.refetchQueries({ queryKey: ['admin-users'] });
+      if (selectedTeam) {
+        await queryClient.invalidateQueries({ queryKey: ['admin-team-trainers', selectedTeam] });
+        await queryClient.refetchQueries({ queryKey: ['admin-team-trainers', selectedTeam] });
+      }
       setShowAssignTrainer(false);
       setSelectedTrainer('');
     },
@@ -183,8 +189,11 @@ export default function AdminPage() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin-teams'] });
       await queryClient.refetchQueries({ queryKey: ['admin-teams'] });
+      await queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      await queryClient.refetchQueries({ queryKey: ['admin-users'] });
       if (selectedTeam) {
         await queryClient.invalidateQueries({ queryKey: ['admin-team-trainers', selectedTeam] });
+        await queryClient.refetchQueries({ queryKey: ['admin-team-trainers', selectedTeam] });
       }
       setShowRemoveTrainer(false);
       setSelectedTrainerToRemove('');
@@ -572,6 +581,9 @@ export default function AdminPage() {
                   <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
                     <span>👥 {team.member_count} Mitglieder</span>
                   </div>
+                  <div className="mt-2 text-sm text-gray-600">
+                    <span className="font-medium">Trainer:</span> {team.trainer_names || '-'}
+                  </div>
                 </div>
                 
                 <div className="flex space-x-2">
@@ -640,7 +652,11 @@ export default function AdminPage() {
                   className="input"
                 >
                   <option value="">-- Trainer wählen --</option>
-                  {users?.filter((u: any) => u.role === 'trainer').map((user: any) => (
+                  {users?.filter((u: any) => {
+                    if (u.role !== 'trainer') return false;
+                    const alreadyAssigned = (teamTrainers || []).some((trainer: any) => trainer.id === u.id);
+                    return !alreadyAssigned;
+                  }).map((user: any) => (
                     <option key={user.id} value={user.id}>
                       {user.name} ({user.email})
                     </option>
