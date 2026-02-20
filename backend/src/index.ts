@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import multer from 'multer';
+import path from 'path';
 import './database/init';
 import authRoutes from './routes/auth';
 import teamsRoutes from './routes/teams';
@@ -9,11 +11,36 @@ import statsRoutes from './routes/stats';
 import invitesRoutes from './routes/invites';
 import adminRoutes from './routes/admin';
 import profileRoutes from './routes/profile';
+import settingsRoutes from './routes/settings';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    const allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  }
+});
 
 // Middleware
 app.use(cors());
@@ -66,9 +93,32 @@ app.use('/api/auth', authRoutes);
 app.use('/api/teams', teamsRoutes);
 app.use('/api/events', eventsRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/settings', settingsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api', invitesRoutes);
+
+// File upload endpoint
+app.post('/api/admin/upload/logo', upload.single('logo'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file provided' });
+    }
+    const logoPath = `/uploads/${req.file.filename}`;
+    const db = require('./database/init').default;
+    db.prepare(`
+      UPDATE organizations 
+      SET logo = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = 1
+    `).run(logoPath);
+
+    const org = db.prepare('SELECT * FROM organizations WHERE id = 1').get();
+    res.json(org);
+  } catch (error) {
+    console.error('Logo upload error:', error);
+    res.status(500).json({ error: 'Failed to upload logo' });
+  }
+});
 
 // Error handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

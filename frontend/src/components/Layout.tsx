@@ -5,7 +5,19 @@ import { LogOut, Users, Settings, User as UserIcon, Menu, X } from 'lucide-react
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
-export default function Layout() {
+interface Organization {
+  id: number;
+  name: string;
+  logo?: string;
+  timezone: string;
+  setup_completed: number;
+}
+
+interface LayoutProps {
+  organization?: Organization | null;
+}
+
+export default function Layout({ organization }: LayoutProps) {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -15,6 +27,9 @@ export default function Layout() {
     navigate('/login');
   };
 
+  const organizationName = organization?.name || 'TeamPilot Verein';
+  const organizationLogo = organization?.logo;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white shadow-sm border-b border-gray-200">
@@ -22,8 +37,19 @@ export default function Layout() {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <Link to={user?.role === 'admin' ? '/admin' : '/'} className="flex items-center space-x-2">
-                <Users className="w-8 h-8 text-primary-600" />
-                <span className="text-xl font-bold text-gray-900">TeamPilot</span>
+                {organizationLogo ? (
+                  <img
+                    src={`${API_URL}${organizationLogo}`}
+                    alt={organizationName}
+                    className="w-8 h-8 object-contain"
+                  />
+                ) : (
+                  <Users className="w-8 h-8 text-primary-600" />
+                )}
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold text-gray-500">TeamPilot</span>
+                  <span className="text-xs text-gray-700 font-medium">für {organizationName}</span>
+                </div>
               </Link>
             </div>
 

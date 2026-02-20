@@ -8,6 +8,16 @@ export interface User {
   updated_at: string;
 }
 
+export interface Organization {
+  id: number;
+  name: string;
+  logo?: string;
+  timezone: string;
+  setup_completed: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Team {
   id: number;
   name: string;

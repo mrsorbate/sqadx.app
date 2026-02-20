@@ -156,4 +156,60 @@ router.delete('/teams/:teamId/members/:userId', (req: AuthRequest, res) => {
   }
 });
 
+// Get organization settings
+router.get('/settings', (req: AuthRequest, res) => {
+  try {
+    const org = db.prepare('SELECT * FROM organizations LIMIT 1').get();
+    res.json(org);
+  } catch (error) {
+    console.error('Get settings error:', error);
+    res.status(500).json({ error: 'Failed to fetch settings' });
+  }
+});
+
+// Complete setup wizard
+router.post('/settings/setup', (req: AuthRequest, res) => {
+  try {
+    const { organizationName, timezone } = req.body;
+
+    if (!organizationName) {
+      return res.status(400).json({ error: 'Organization name is required' });
+    }
+
+    db.prepare(`
+      UPDATE organizations 
+      SET name = ?, timezone = ?, setup_completed = 1, updated_at = CURRENT_TIMESTAMP
+      WHERE id = 1
+    `).run(organizationName, timezone || 'Europe/Berlin');
+
+    const org = db.prepare('SELECT * FROM organizations WHERE id = 1').get();
+    res.json(org);
+  } catch (error) {
+    console.error('Setup wizard error:', error);
+    res.status(500).json({ error: 'Failed to complete setup' });
+  }
+});
+
+// Upload organization logo
+router.post('/settings/logo', (req: AuthRequest, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file provided' });
+    }
+
+    const logoPath = `/uploads/${req.file.filename}`;
+    db.prepare(`
+      UPDATE organizations 
+      SET logo = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = 1
+    `).run(logoPath);
+
+    const org = db.prepare('SELECT * FROM organizations WHERE id = 1').get();
+    res.json(org);
+  } catch (error) {
+    console.error('Logo upload error:', error);
+    res.status(500).json({ error: 'Failed to upload logo' });
+  }
+});
+
 export default router;

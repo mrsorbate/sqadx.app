@@ -10,6 +10,17 @@ db.pragma('foreign_keys = ON');
 
 // Create tables
 db.exec(`
+  -- Organization settings table
+  CREATE TABLE IF NOT EXISTS organizations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL DEFAULT 'TeamPilot Verein',
+    logo TEXT,
+    timezone TEXT DEFAULT 'Europe/Berlin',
+    setup_completed INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
   -- Users table
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -182,6 +193,16 @@ try {
   if (!hasTeamPicture) {
     db.exec('ALTER TABLE teams ADD COLUMN team_picture TEXT');
     console.log('✅ Added team_picture column to teams table');
+  }
+
+  // Ensure at least one organization exists
+  const orgCount = db.prepare('SELECT COUNT(*) as count FROM organizations').get() as { count: number };
+  if (orgCount.count === 0) {
+    db.prepare(`
+      INSERT INTO organizations (name, timezone, setup_completed) 
+      VALUES (?, ?, ?)
+    `).run('TeamPilot Verein', 'Europe/Berlin', 0);
+    console.log('✅ Created default organization');
   }
 } catch (error) {
   console.error('Migration error:', error);
