@@ -1,5 +1,5 @@
 {
-  "name": "team-manager-backend",
+  "name": "sqadx-backend",
   "version": "1.0.0",
   "description": "Backend for sqadX.app",
   "main": "dist/index.js",
