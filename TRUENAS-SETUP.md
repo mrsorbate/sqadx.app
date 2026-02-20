@@ -196,6 +196,19 @@ git pull
 ./setup-truenas-build.sh
 ```
 
+### "Dubious ownership in repository" (Git-Fehler)
+Ownership-Problem mit Git-Repository (häufig auf TrueNAS):
+```bash
+# Übergangsweise erlauben:
+git config --global --add safe.directory /mnt/DATA/docker/TeamPilot-App
+
+# Oder Ownership korrigieren (besser):
+sudo chown -R $(whoami):$(whoami) /mnt/DATA/docker/TeamPilot-App
+
+# Dann git pull versuchen
+git pull
+```
+
 ---
 
 ## 🔐 Sicherheit
