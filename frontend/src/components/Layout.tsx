@@ -44,16 +44,16 @@ export default function Layout({ organization }: LayoutProps) {
                   <span className="text-sm font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap">sqadX.app</span>
                   {(organizationLogo || organizationName !== 'Dein Verein') && (
                     <>
-                      <span className="hidden sm:inline text-gray-400 dark:text-gray-500">-</span>
+                      <span className="text-gray-400 dark:text-gray-500">-</span>
                       {organizationLogo && (
                         <img 
                           src={`${API_URL}${organizationLogo}`} 
                           alt="Vereinslogo" 
-                          className="hidden sm:block h-6 w-auto object-contain"
+                          className="h-5 sm:h-6 w-auto object-contain flex-shrink-0"
                         />
                       )}
                       {organizationName !== 'Dein Verein' && (
-                        <span className="hidden sm:inline text-sm font-medium text-gray-600 dark:text-gray-400 truncate max-w-[220px]">{organizationName}</span>
+                        <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate max-w-[120px] sm:max-w-[220px]">{organizationName}</span>
                       )}
                     </>
                   )}
