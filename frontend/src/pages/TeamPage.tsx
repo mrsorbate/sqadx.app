@@ -284,10 +284,13 @@ export default function TeamPage() {
                     {trainer.email}
                   </p>
                   {trainer.phone_number && (
-                    <p className="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-1 mt-1">
+                    <a
+                      href={`tel:${trainer.phone_number}`}
+                      className="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-1 mt-1 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                    >
                       <Phone className="w-3.5 h-3.5" />
                       {trainer.phone_number}
-                    </p>
+                    </a>
                   )}
                 </div>
               </div>
