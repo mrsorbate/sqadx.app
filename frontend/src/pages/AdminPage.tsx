@@ -719,216 +719,11 @@ export default function AdminPage() {
         )}
       </div>
 
-      {/* System Health */}
-      <div className="card">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold flex items-center">
-            <Server className="w-6 h-6 mr-2 text-primary-600" />
-            System-Health
-          </h2>
-          <span className="text-xs text-gray-500 dark:text-gray-400">
-            Letzter Check: {formatDateTime(systemHealth?.checked_at)}
-          </span>
-        </div>
-
-        {systemHealthLoading ? (
-          <div className="text-sm text-gray-500 dark:text-gray-400">Systemstatus wird geladen...</div>
-        ) : (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
-                    <Server className="w-4 h-4 mr-1" /> API
-                  </div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${systemHealth?.api?.status === 'online' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                    {systemHealth?.api?.status === 'online' ? 'Online' : 'Fehler'}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-700 dark:text-gray-200">Uptime: {Math.floor((systemHealth?.api?.uptime_seconds || 0) / 60)} min</p>
-              </div>
-
-              <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
-                    <Database className="w-4 h-4 mr-1" /> Datenbank
-                  </div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${systemHealth?.database?.status === 'ok' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                    {systemHealth?.database?.status === 'ok' ? 'OK' : 'Fehler'}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-700 dark:text-gray-200">Latenz: {systemHealth?.database?.latency_ms ?? '—'} ms</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Größe: {formatBytes(systemHealth?.database?.size_bytes)}</p>
-              </div>
-
-              <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
-                    <HardDrive className="w-4 h-4 mr-1" /> Backup
-                  </div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${
-                    systemHealth?.backup?.status === 'ok'
-                      ? 'bg-green-100 text-green-800'
-                      : systemHealth?.backup?.status === 'stale'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {systemHealth?.backup?.status === 'ok'
-                      ? 'Aktuell'
-                      : systemHealth?.backup?.status === 'stale'
-                      ? 'Veraltet'
-                      : 'Fehlt'}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-700 dark:text-gray-200">Letztes Backup: {formatDateTime(systemHealth?.backup?.last_backup_at)}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Alter: {systemHealth?.backup?.age_hours ?? '—'} h</p>
-              </div>
-            </div>
-
-            <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                <RefreshCw className="w-4 h-4 mr-2 text-primary-600" />
-                Letzte Sync-/Aktualisierungs-Hinweise
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                Letzte Datenänderung: {formatDateTime(systemHealth?.sync?.last_sync_at)}
-              </p>
-            </div>
-
-            <div className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-              <div className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                <AlertTriangle className="w-4 h-4 mr-2 text-yellow-600" />
-                Letzte Fehlerhinweise
-              </div>
-              {systemHealth?.errors?.hints?.length ? (
-                <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700 dark:text-gray-300">
-                  {systemHealth.errors.hints.map((hint: string, index: number) => (
-                    <li key={`${hint}-${index}`}>{hint}</li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-green-700 dark:text-green-400">Keine aktuellen Fehlerhinweise</p>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-
       {/* Info Box */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <p className="text-sm text-blue-800">
           <strong>Workflow:</strong> Erstelle Teams → Weise Trainer zu → Trainer fügen Spieler hinzu. Der Admin ist Manager und nicht Teil der Teams.
         </p>
-      </div>
-
-      {/* Audit Log */}
-      <div className="card">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold flex items-center">
-            <Shield className="w-6 h-6 mr-2 text-primary-600" />
-            Audit-Log Admin-Aktionen
-          </h2>
-          <span className="text-xs text-gray-500 dark:text-gray-400">Auto-Refresh: 60s</span>
-        </div>
-
-        {auditLogsLoading ? (
-          <div className="text-sm text-gray-500 dark:text-gray-400">Audit-Log wird geladen...</div>
-        ) : (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-              <select
-                value={auditActionFilter}
-                onChange={(e) => setAuditActionFilter(e.target.value)}
-                className="input"
-              >
-                <option value="all">Alle Aktionen</option>
-                {auditActions.map((action) => (
-                  <option key={action} value={action}>
-                    {formatAuditAction(action)}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={auditActorFilter}
-                onChange={(e) => setAuditActorFilter(e.target.value)}
-                className="input"
-              >
-                <option value="all">Alle Admins</option>
-                {auditActors.map((actor) => (
-                  <option key={actor.id} value={actor.id}>
-                    {actor.label}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={auditPeriodFilter}
-                onChange={(e) => setAuditPeriodFilter(e.target.value)}
-                className="input"
-              >
-                <option value="all">Gesamter Zeitraum</option>
-                <option value="24h">Letzte 24 Stunden</option>
-                <option value="7d">Letzte 7 Tage</option>
-                <option value="30d">Letzte 30 Tage</option>
-              </select>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setAuditActionFilter('all');
-                  setAuditActorFilter('all');
-                  setAuditPeriodFilter('all');
-                }}
-                className="btn btn-secondary"
-              >
-                Filter zurücksetzen
-              </button>
-            </div>
-
-            <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="text-left text-gray-500 dark:text-gray-400 border-b dark:border-gray-700">
-                  <th className="py-2 pr-4">Zeitpunkt</th>
-                  <th className="py-2 pr-4">Admin</th>
-                  <th className="py-2 pr-4">Aktion</th>
-                  <th className="py-2 pr-4">Ziel</th>
-                  <th className="py-2">Details</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredAuditLogs.map((log: any) => (
-                  <tr key={log.id} className="border-b dark:border-gray-800 align-top">
-                    <td className="py-2 pr-4 whitespace-nowrap text-gray-700 dark:text-gray-200">
-                      {formatDateTime(log.created_at)}
-                    </td>
-                    <td className="py-2 pr-4 text-gray-700 dark:text-gray-200">
-                      {log.actor_name || log.actor_username || `#${log.actor_id}`}
-                    </td>
-                    <td className="py-2 pr-4 text-gray-900 dark:text-white font-medium">
-                      {formatAuditAction(log.action)}
-                    </td>
-                    <td className="py-2 pr-4 text-gray-700 dark:text-gray-200">
-                      {log.target_type ? `${log.target_type} #${log.target_id ?? '—'}` : '—'}
-                    </td>
-                    <td className="py-2 text-gray-600 dark:text-gray-300">
-                      {log.details?.team_name || log.details?.target_name || log.details?.trainer_name || '—'}
-                    </td>
-                  </tr>
-                ))}
-                {filteredAuditLogs.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="py-6 text-center text-gray-500 dark:text-gray-400">
-                      Keine Audit-Einträge für die gewählten Filter.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-          </div>
-        )}
       </div>
 
       {/* Teams Section */}
@@ -1325,6 +1120,211 @@ export default function AdminPage() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* System Health */}
+      <div className="card">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold flex items-center">
+            <Server className="w-6 h-6 mr-2 text-primary-600" />
+            System-Health
+          </h2>
+          <span className="text-xs text-gray-500 dark:text-gray-400">
+            Letzter Check: {formatDateTime(systemHealth?.checked_at)}
+          </span>
+        </div>
+
+        {systemHealthLoading ? (
+          <div className="text-sm text-gray-500 dark:text-gray-400">Systemstatus wird geladen...</div>
+        ) : (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                    <Server className="w-4 h-4 mr-1" /> API
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${systemHealth?.api?.status === 'online' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    {systemHealth?.api?.status === 'online' ? 'Online' : 'Fehler'}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-700 dark:text-gray-200">Uptime: {Math.floor((systemHealth?.api?.uptime_seconds || 0) / 60)} min</p>
+              </div>
+
+              <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                    <Database className="w-4 h-4 mr-1" /> Datenbank
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${systemHealth?.database?.status === 'ok' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    {systemHealth?.database?.status === 'ok' ? 'OK' : 'Fehler'}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-700 dark:text-gray-200">Latenz: {systemHealth?.database?.latency_ms ?? '—'} ms</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Größe: {formatBytes(systemHealth?.database?.size_bytes)}</p>
+              </div>
+
+              <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                    <HardDrive className="w-4 h-4 mr-1" /> Backup
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${
+                    systemHealth?.backup?.status === 'ok'
+                      ? 'bg-green-100 text-green-800'
+                      : systemHealth?.backup?.status === 'stale'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {systemHealth?.backup?.status === 'ok'
+                      ? 'Aktuell'
+                      : systemHealth?.backup?.status === 'stale'
+                      ? 'Veraltet'
+                      : 'Fehlt'}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-700 dark:text-gray-200">Letztes Backup: {formatDateTime(systemHealth?.backup?.last_backup_at)}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Alter: {systemHealth?.backup?.age_hours ?? '—'} h</p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                <RefreshCw className="w-4 h-4 mr-2 text-primary-600" />
+                Letzte Sync-/Aktualisierungs-Hinweise
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Letzte Datenänderung: {formatDateTime(systemHealth?.sync?.last_sync_at)}
+              </p>
+            </div>
+
+            <div className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+              <div className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                <AlertTriangle className="w-4 h-4 mr-2 text-yellow-600" />
+                Letzte Fehlerhinweise
+              </div>
+              {systemHealth?.errors?.hints?.length ? (
+                <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                  {systemHealth.errors.hints.map((hint: string, index: number) => (
+                    <li key={`${hint}-${index}`}>{hint}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-green-700 dark:text-green-400">Keine aktuellen Fehlerhinweise</p>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Audit Log */}
+      <div className="card">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold flex items-center">
+            <Shield className="w-6 h-6 mr-2 text-primary-600" />
+            Audit-Log Admin-Aktionen
+          </h2>
+          <span className="text-xs text-gray-500 dark:text-gray-400">Auto-Refresh: 60s</span>
+        </div>
+
+        {auditLogsLoading ? (
+          <div className="text-sm text-gray-500 dark:text-gray-400">Audit-Log wird geladen...</div>
+        ) : (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+              <select
+                value={auditActionFilter}
+                onChange={(e) => setAuditActionFilter(e.target.value)}
+                className="input"
+              >
+                <option value="all">Alle Aktionen</option>
+                {auditActions.map((action) => (
+                  <option key={action} value={action}>
+                    {formatAuditAction(action)}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={auditActorFilter}
+                onChange={(e) => setAuditActorFilter(e.target.value)}
+                className="input"
+              >
+                <option value="all">Alle Admins</option>
+                {auditActors.map((actor) => (
+                  <option key={actor.id} value={actor.id}>
+                    {actor.label}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={auditPeriodFilter}
+                onChange={(e) => setAuditPeriodFilter(e.target.value)}
+                className="input"
+              >
+                <option value="all">Gesamter Zeitraum</option>
+                <option value="24h">Letzte 24 Stunden</option>
+                <option value="7d">Letzte 7 Tage</option>
+                <option value="30d">Letzte 30 Tage</option>
+              </select>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setAuditActionFilter('all');
+                  setAuditActorFilter('all');
+                  setAuditPeriodFilter('all');
+                }}
+                className="btn btn-secondary"
+              >
+                Filter zurücksetzen
+              </button>
+            </div>
+
+            <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="text-left text-gray-500 dark:text-gray-400 border-b dark:border-gray-700">
+                  <th className="py-2 pr-4">Zeitpunkt</th>
+                  <th className="py-2 pr-4">Admin</th>
+                  <th className="py-2 pr-4">Aktion</th>
+                  <th className="py-2 pr-4">Ziel</th>
+                  <th className="py-2">Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredAuditLogs.map((log: any) => (
+                  <tr key={log.id} className="border-b dark:border-gray-800 align-top">
+                    <td className="py-2 pr-4 whitespace-nowrap text-gray-700 dark:text-gray-200">
+                      {formatDateTime(log.created_at)}
+                    </td>
+                    <td className="py-2 pr-4 text-gray-700 dark:text-gray-200">
+                      {log.actor_name || log.actor_username || `#${log.actor_id}`}
+                    </td>
+                    <td className="py-2 pr-4 text-gray-900 dark:text-white font-medium">
+                      {formatAuditAction(log.action)}
+                    </td>
+                    <td className="py-2 pr-4 text-gray-700 dark:text-gray-200">
+                      {log.target_type ? `${log.target_type} #${log.target_id ?? '—'}` : '—'}
+                    </td>
+                    <td className="py-2 text-gray-600 dark:text-gray-300">
+                      {log.details?.team_name || log.details?.target_name || log.details?.trainer_name || '—'}
+                    </td>
+                  </tr>
+                ))}
+                {filteredAuditLogs.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="py-6 text-center text-gray-500 dark:text-gray-400">
+                      Keine Audit-Einträge für die gewählten Filter.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+          </div>
+        )}
       </div>
 
       {/* Danger Zone */}
