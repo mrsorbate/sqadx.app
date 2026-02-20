@@ -1,4 +1,4 @@
-# kadr - Moderne Team-Management Software
+# kadr - Designed for teams
 
 Eine benutzerfreundliche Team-Management-App für Sportvereine mit Fokus auf Terminverwaltung, Zu-/Absagen und Kaderverwaltung.
 

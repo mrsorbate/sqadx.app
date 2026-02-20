@@ -37,6 +37,9 @@ export default function LoginPage() {
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
             kadr
           </h2>
+          <p className="text-sm text-primary-600 font-medium">
+            Designed for teams
+          </p>
           <p className="mt-2 text-sm text-gray-600">
             Melde dich an, um fortzufahren
           </p>
