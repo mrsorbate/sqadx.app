@@ -763,7 +763,7 @@ export default function AdminPage() {
                           {user.registration_status === 'pending' ? '-' : user.email}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{user.team_count} Team{user.team_count !== 1 ? 's' : ''}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{user.team_names || '-'}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center space-x-2">
                           {user.registration_status === 'pending' && (
@@ -837,7 +837,7 @@ export default function AdminPage() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-600 dark:text-gray-300">{user.email}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{user.team_count} Team{user.team_count !== 1 ? 's' : ''}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{user.team_names || '-'}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center space-x-2">
                           <button

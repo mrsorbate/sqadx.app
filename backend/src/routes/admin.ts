@@ -205,6 +205,12 @@ router.get('/users', (req: AuthRequest, res) => {
           ELSE 'registered'
         END as registration_status,
         u.created_at,
+        COALESCE((
+          SELECT GROUP_CONCAT(t.name, ', ')
+          FROM team_members tm
+          INNER JOIN teams t ON tm.team_id = t.id
+          WHERE tm.user_id = u.id
+        ), '') as team_names,
         (SELECT COUNT(*) FROM team_members WHERE user_id = u.id) as team_count
       FROM users u
       ORDER BY u.created_at DESC
