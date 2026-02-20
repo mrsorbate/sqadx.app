@@ -179,6 +179,13 @@ export default function SetupWizardPage() {
           ))}
           </div>
 
+          <div className="grid grid-cols-4 gap-2 text-center text-xs mb-8">
+            <span className={step >= 1 ? 'text-primary-700 font-medium' : 'text-gray-500'}>1 Verein</span>
+            <span className={step >= 2 ? 'text-primary-700 font-medium' : 'text-gray-500'}>2 Admin</span>
+            <span className={step >= 3 ? 'text-primary-700 font-medium' : 'text-gray-500'}>3 Zeitzone</span>
+            <span className={step >= 4 ? 'text-primary-700 font-medium' : 'text-gray-500'}>4 Zusammenfassung</span>
+          </div>
+
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
               {error}

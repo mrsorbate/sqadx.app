@@ -187,6 +187,13 @@ export default function FirstTimeSetupPage() {
           <div className={`h-2 w-8 rounded-full transition-colors ${step >= 4 ? 'bg-primary-600' : 'bg-gray-300'}`} />
         </div>
 
+        <div className="grid grid-cols-4 gap-2 text-center text-xs">
+          <span className={step >= 1 ? 'text-primary-700 dark:text-primary-300 font-medium' : 'text-gray-500 dark:text-gray-400'}>1 Verein</span>
+          <span className={step >= 2 ? 'text-primary-700 dark:text-primary-300 font-medium' : 'text-gray-500 dark:text-gray-400'}>2 Admin</span>
+          <span className={step >= 3 ? 'text-primary-700 dark:text-primary-300 font-medium' : 'text-gray-500 dark:text-gray-400'}>3 Zeitzone</span>
+          <span className={step >= 4 ? 'text-primary-700 dark:text-primary-300 font-medium' : 'text-gray-500 dark:text-gray-400'}>4 Zusammenfassung</span>
+        </div>
+
         <form className="mt-8 space-y-6" onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
           {error && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-200 px-4 py-3 rounded-lg text-sm">
