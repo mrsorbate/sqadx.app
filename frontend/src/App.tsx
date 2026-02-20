@@ -29,7 +29,7 @@ interface Organization {
 function App() {
   const { token } = useAuthStore();
   const [organization, setOrganization] = useState<Organization | null>(null);
-  const [setupCompleted, setSetupCompleted] = useState<boolean>(true);
+  const [setupCompleted, setSetupCompleted] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
   useDarkMode(); // Initialize dark mode
 
@@ -44,7 +44,7 @@ function App() {
       } catch (error) {
         console.error('Failed to fetch organization:', error);
         // Default to setup incomplete if fetch fails
-        setSetupCompleted(true);
+        setSetupCompleted(false);
       } finally {
         setLoading(false);
       }
