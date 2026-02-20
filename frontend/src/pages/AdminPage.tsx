@@ -589,6 +589,19 @@ export default function AdminPage() {
     return actionMap[action] || action;
   };
 
+  const getStatusBadgeClasses = (variant: 'ok' | 'warning' | 'error') => {
+    if (variant === 'ok') return 'bg-green-100 text-green-800';
+    if (variant === 'warning') return 'bg-yellow-100 text-yellow-800';
+    return 'bg-red-100 text-red-800';
+  };
+
+  const getRegistrationBadge = (registrationStatus: string) => {
+    if (registrationStatus === 'pending') {
+      return { label: 'Ausstehend', className: getStatusBadgeClasses('warning') };
+    }
+    return { label: 'Registriert', className: getStatusBadgeClasses('ok') };
+  };
+
   const auditActions: string[] = Array.from(
     new Set<string>((auditLogs || []).map((log: any) => String(log.action || '')).filter(Boolean))
   );
@@ -633,6 +646,36 @@ export default function AdminPage() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Admin-Panel</h1>
             <p className="text-gray-600 dark:text-gray-300 mt-1">Team- und Benutzerverwaltung</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="sticky top-2 z-20">
+        <div className="card py-3 px-4 flex flex-wrap gap-2 items-center justify-between">
+          <p className="text-sm text-gray-600 dark:text-gray-300">Schnellaktionen</p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setShowCreateTeam(true)}
+              className="btn btn-primary text-sm"
+            >
+              Team erstellen
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowCreateTrainer(true)}
+              className="btn btn-secondary text-sm"
+            >
+              Trainer einladen
+            </button>
+            <button
+              type="button"
+              onClick={() => createBackupMutation.mutate()}
+              disabled={createBackupMutation.isPending}
+              className="btn btn-secondary text-sm"
+            >
+              {createBackupMutation.isPending ? 'Backup läuft...' : 'Backup erstellen'}
+            </button>
           </div>
         </div>
       </div>
@@ -841,6 +884,25 @@ export default function AdminPage() {
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">
               <Users className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
               <p>{teams?.length ? 'Keine Teams gefunden' : 'Noch keine Teams erstellt'}</p>
+              <div className="mt-3 flex justify-center gap-2">
+                {teams?.length ? (
+                  <button
+                    type="button"
+                    onClick={() => setTeamSearch('')}
+                    className="btn btn-secondary text-sm"
+                  >
+                    Filter zurücksetzen
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateTeam(true)}
+                    className="btn btn-primary text-sm"
+                  >
+                    Erstes Team erstellen
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -1028,8 +1090,8 @@ export default function AdminPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${user.registration_status === 'pending' ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'}`}>
-                          {user.registration_status === 'pending' ? 'Ausstehend' : 'Registriert'}
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getRegistrationBadge(user.registration_status).className}`}>
+                          {getRegistrationBadge(user.registration_status).label}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -1072,7 +1134,20 @@ export default function AdminPage() {
                   ))}
                   {filteredTrainers.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-6 py-4 text-sm text-gray-500">{trainers.length ? 'Keine Trainer gefunden.' : 'Keine Trainer vorhanden.'}</td>
+                      <td colSpan={6} className="px-6 py-4 text-sm text-gray-500">
+                        <div className="flex flex-col gap-2 items-start">
+                          <span>{trainers.length ? 'Keine Trainer gefunden.' : 'Keine Trainer vorhanden.'}</span>
+                          {trainers.length ? (
+                            <button type="button" onClick={() => setTrainerSearch('')} className="btn btn-secondary text-xs">
+                              Filter zurücksetzen
+                            </button>
+                          ) : (
+                            <button type="button" onClick={() => setShowCreateTrainer(true)} className="btn btn-primary text-xs">
+                              Trainer einladen
+                            </button>
+                          )}
+                        </div>
+                      </td>
                     </tr>
                   )}
                 </tbody>
@@ -1115,8 +1190,8 @@ export default function AdminPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${user.registration_status === 'pending' ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'}`}>
-                          {user.registration_status === 'pending' ? 'Ausstehend' : 'Registriert'}
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getRegistrationBadge(user.registration_status).className}`}>
+                          {getRegistrationBadge(user.registration_status).label}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -1147,7 +1222,16 @@ export default function AdminPage() {
                   ))}
                   {filteredPlayers.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-6 py-4 text-sm text-gray-500">{players.length ? 'Keine Spieler gefunden.' : 'Keine Spieler vorhanden.'}</td>
+                      <td colSpan={6} className="px-6 py-4 text-sm text-gray-500">
+                        <div className="flex flex-col gap-2 items-start">
+                          <span>{players.length ? 'Keine Spieler gefunden.' : 'Keine Spieler vorhanden.'}</span>
+                          {players.length && (
+                            <button type="button" onClick={() => setPlayerSearch('')} className="btn btn-secondary text-xs">
+                              Filter zurücksetzen
+                            </button>
+                          )}
+                        </div>
+                      </td>
                     </tr>
                   )}
                 </tbody>
@@ -1179,7 +1263,7 @@ export default function AdminPage() {
                   <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
                     <Server className="w-4 h-4 mr-1" /> API
                   </div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${systemHealth?.api?.status === 'online' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${systemHealth?.api?.status === 'online' ? getStatusBadgeClasses('ok') : getStatusBadgeClasses('error')}`}>
                     {systemHealth?.api?.status === 'online' ? 'Online' : 'Fehler'}
                   </span>
                 </div>
@@ -1191,7 +1275,7 @@ export default function AdminPage() {
                   <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
                     <Database className="w-4 h-4 mr-1" /> Datenbank
                   </div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${systemHealth?.database?.status === 'ok' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${systemHealth?.database?.status === 'ok' ? getStatusBadgeClasses('ok') : getStatusBadgeClasses('error')}`}>
                     {systemHealth?.database?.status === 'ok' ? 'OK' : 'Fehler'}
                   </span>
                 </div>
@@ -1206,10 +1290,10 @@ export default function AdminPage() {
                   </div>
                   <span className={`text-xs px-2 py-0.5 rounded-full ${
                     systemHealth?.backup?.status === 'ok'
-                      ? 'bg-green-100 text-green-800'
+                      ? getStatusBadgeClasses('ok')
                       : systemHealth?.backup?.status === 'stale'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-red-100 text-red-800'
+                      ? getStatusBadgeClasses('warning')
+                      : getStatusBadgeClasses('error')
                   }`}>
                     {systemHealth?.backup?.status === 'ok'
                       ? 'Aktuell'
