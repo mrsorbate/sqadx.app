@@ -130,14 +130,7 @@ export const invitesAPI = {
 export const adminAPI = {
   getAllTeams: () => api.get('/admin/teams'),
 
-  getSystemHealth: () => api.get('/admin/health'),
-
   getAuditLogs: (limit = 50) => api.get(`/admin/audit-logs?limit=${limit}`),
-
-  createBackup: () => api.post('/admin/backup/create'),
-
-  downloadBackup: (fileName: string) =>
-    api.get(`/admin/backup/${encodeURIComponent(fileName)}/download`, { responseType: 'blob' }),
   
   getAllUsers: () => api.get('/admin/users'),
 
