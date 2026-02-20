@@ -99,7 +99,7 @@ export default function FirstTimeSetupPage() {
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
-          <img src="/kadr-logo.svg" alt="kadr logo" className="mx-auto h-16 w-16" />
+          <img src="/sqadx-logo.svg" alt="sqadX.app logo" className="mx-auto h-16 w-16" />
           <h1 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white">
             sqadX.app
           </h1>

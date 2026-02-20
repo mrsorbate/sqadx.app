@@ -51,7 +51,7 @@ export default function LoginPage() {
         <div className="text-center">
           {/* App Branding */}
           <div className="flex flex-col items-center mb-6">
-            <img src="/kadr-logo.svg" alt="kadr logo" className="h-16 w-16 mb-3" />
+            <img src="/sqadx-logo.svg" alt="sqadX.app logo" className="h-16 w-16 mb-3" />
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">sqadX.app</h1>
           </div>
 
