@@ -931,8 +931,8 @@ export default function AdminPage() {
 
       {/* Assign Trainer Modal */}
       {showAssignTrainer && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="card max-w-md w-full mx-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold mb-4 flex items-center">
               <Shield className="w-5 h-5 mr-2 text-blue-600" />
               Trainer zuweisen
@@ -961,8 +961,8 @@ export default function AdminPage() {
                 </select>
               </div>
 
-              <div className="flex space-x-3">
-                <button type="submit" className="btn btn-primary" disabled={addMemberMutation.isPending}>
+              <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
+                <button type="submit" className="btn btn-primary w-full sm:w-auto" disabled={addMemberMutation.isPending}>
                   {addMemberMutation.isPending ? 'Weist zu...' : 'Zuweisen'}
                 </button>
                 <button
@@ -971,7 +971,7 @@ export default function AdminPage() {
                     setShowAssignTrainer(false);
                     setSelectedTrainer('');
                   }}
-                  className="btn btn-secondary"
+                  className="btn btn-secondary w-full sm:w-auto"
                 >
                   Abbrechen
                 </button>
@@ -983,20 +983,20 @@ export default function AdminPage() {
 
       {/* Delete Team Confirm Modal */}
       {showDeleteTeamConfirmModal && teamToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="card max-w-md w-full mx-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold mb-4">Team löschen</h3>
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
               Soll <strong>{teamToDelete.name}</strong> wirklich gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden.
             </p>
-            <div className="flex space-x-3">
+            <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
               <button
                 type="button"
                 onClick={() => {
                   setShowDeleteTeamConfirmModal(false);
                   setTeamToDelete(null);
                 }}
-                className="btn btn-secondary"
+                className="btn btn-secondary w-full sm:w-auto"
                 disabled={deleteTeamMutation.isPending}
               >
                 Abbrechen
@@ -1004,7 +1004,7 @@ export default function AdminPage() {
               <button
                 type="button"
                 onClick={confirmDeleteTeam}
-                className="btn bg-red-600 hover:bg-red-700 text-white"
+                className="btn bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto"
                 disabled={deleteTeamMutation.isPending}
               >
                 {deleteTeamMutation.isPending ? 'Löscht...' : 'Löschen'}
@@ -1016,8 +1016,8 @@ export default function AdminPage() {
 
       {/* Remove Trainer Modal */}
       {showRemoveTrainer && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="card max-w-md w-full mx-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold mb-4 flex items-center">
               <UserMinus className="w-5 h-5 mr-2 text-orange-600" />
               Trainer entfernen
@@ -1042,8 +1042,8 @@ export default function AdminPage() {
                 </select>
               </div>
 
-              <div className="flex space-x-3">
-                <button type="submit" className="btn btn-primary" disabled={removeMemberMutation.isPending || !selectedTrainerToRemove}>
+              <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
+                <button type="submit" className="btn btn-primary w-full sm:w-auto" disabled={removeMemberMutation.isPending || !selectedTrainerToRemove}>
                   {removeMemberMutation.isPending ? 'Entfernt...' : 'Entfernen'}
                 </button>
                 <button
@@ -1052,7 +1052,7 @@ export default function AdminPage() {
                     setShowRemoveTrainer(false);
                     setSelectedTrainerToRemove('');
                   }}
-                  className="btn btn-secondary"
+                  className="btn btn-secondary w-full sm:w-auto"
                 >
                   Abbrechen
                 </button>
@@ -1488,8 +1488,8 @@ export default function AdminPage() {
 
       {/* Create Team Modal */}
       {showCreateTeam && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="card max-w-md w-full mx-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold mb-4">Neues Team erstellen</h3>
             <form onSubmit={handleCreateTeam} className="space-y-4">
               <div>
@@ -1513,14 +1513,14 @@ export default function AdminPage() {
                   placeholder="Optionale Beschreibung..."
                 />
               </div>
-              <div className="flex space-x-3">
-                <button type="submit" className="btn btn-primary" disabled={createTeamMutation.isPending}>
+              <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
+                <button type="submit" className="btn btn-primary w-full sm:w-auto" disabled={createTeamMutation.isPending}>
                   {createTeamMutation.isPending ? 'Erstellt...' : 'Team erstellen'}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowCreateTeam(false)}
-                  className="btn btn-secondary"
+                  className="btn btn-secondary w-full sm:w-auto"
                 >
                   Abbrechen
                 </button>
@@ -1532,8 +1532,8 @@ export default function AdminPage() {
 
       {/* Create Trainer Modal */}
       {showCreateTrainer && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="card max-w-xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="card max-w-xl w-full max-h-[90vh] overflow-y-auto">
             <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Trainer anlegen & Registrierungslink erstellen</h3>
 
             <form onSubmit={handleCreateTrainer} className="space-y-4">
@@ -1580,11 +1580,11 @@ export default function AdminPage() {
                     value={trainerInviteLink}
                     className="input text-sm"
                   />
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <button
                       type="button"
                       onClick={handleShareTrainerLink}
-                      className="btn btn-secondary flex items-center space-x-2"
+                      className="btn btn-secondary flex items-center justify-center space-x-2 w-full sm:w-auto"
                     >
                       <Share2 className="w-4 h-4" />
                       <span>Link teilen</span>
@@ -1592,7 +1592,7 @@ export default function AdminPage() {
                     <button
                       type="button"
                       onClick={handleCopyTrainerLink}
-                      className="btn btn-secondary flex items-center space-x-2"
+                      className="btn btn-secondary flex items-center justify-center space-x-2 w-full sm:w-auto"
                     >
                       {copiedTrainerLink ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
                       <span>{copiedTrainerLink ? 'Kopiert' : 'Link kopieren'}</span>
@@ -1601,12 +1601,12 @@ export default function AdminPage() {
                 </div>
               )}
 
-              <div className="flex space-x-3">
+              <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
                 {trainerInviteLink ? (
                   <button
                     type="button"
                     onClick={closeCreateTrainerModal}
-                    className="btn bg-green-600 hover:bg-green-700 text-white"
+                    className="btn bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto"
                   >
                     Speichern
                   </button>
@@ -1614,7 +1614,7 @@ export default function AdminPage() {
                   <>
                     <button
                       type="submit"
-                      className="btn btn-primary"
+                      className="btn btn-primary w-full sm:w-auto"
                       disabled={createTrainerMutation.isPending || !trainerName.trim() || trainerTeamIds.length === 0}
                     >
                       {createTrainerMutation.isPending ? 'Erstellt...' : 'Link erstellen'}
@@ -1622,7 +1622,7 @@ export default function AdminPage() {
                     <button
                       type="button"
                       onClick={closeCreateTrainerModal}
-                      className="btn btn-secondary"
+                      className="btn btn-secondary w-full sm:w-auto"
                     >
                       Abbrechen
                     </button>
@@ -1636,20 +1636,20 @@ export default function AdminPage() {
 
       {/* Reset Password Confirm Modal */}
       {showResetPasswordConfirmModal && userToResetPassword && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="card max-w-md w-full mx-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold mb-4">Passwort zurücksetzen</h3>
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
               Soll das Passwort für <strong>{userToResetPassword.name}</strong> wirklich zurückgesetzt und neu generiert werden?
             </p>
-            <div className="flex space-x-3">
+            <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
               <button
                 type="button"
                 onClick={() => {
                   setShowResetPasswordConfirmModal(false);
                   setUserToResetPassword(null);
                 }}
-                className="btn btn-secondary"
+                className="btn btn-secondary w-full sm:w-auto"
                 disabled={resetUserPasswordMutation.isPending}
               >
                 Abbrechen
@@ -1657,7 +1657,7 @@ export default function AdminPage() {
               <button
                 type="button"
                 onClick={confirmResetUserPassword}
-                className="btn btn-primary"
+                className="btn btn-primary w-full sm:w-auto"
                 disabled={resetUserPasswordMutation.isPending}
               >
                 {resetUserPasswordMutation.isPending ? 'Setzt zurück...' : 'Zurücksetzen'}
@@ -1669,20 +1669,20 @@ export default function AdminPage() {
 
       {/* Delete User Confirm Modal */}
       {showDeleteUserConfirmModal && userToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="card max-w-md w-full mx-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold mb-4">Benutzer löschen</h3>
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
               Soll <strong>{userToDelete.name}</strong> wirklich gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden.
             </p>
-            <div className="flex space-x-3">
+            <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
               <button
                 type="button"
                 onClick={() => {
                   setShowDeleteUserConfirmModal(false);
                   setUserToDelete(null);
                 }}
-                className="btn btn-secondary"
+                className="btn btn-secondary w-full sm:w-auto"
                 disabled={deleteUserMutation.isPending}
               >
                 Abbrechen
@@ -1690,7 +1690,7 @@ export default function AdminPage() {
               <button
                 type="button"
                 onClick={confirmDeleteUser}
-                className="btn bg-red-600 hover:bg-red-700 text-white"
+                className="btn bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto"
                 disabled={deleteUserMutation.isPending}
               >
                 {deleteUserMutation.isPending ? 'Löscht...' : 'Löschen'}
@@ -1702,8 +1702,8 @@ export default function AdminPage() {
 
       {/* Resend Trainer Link Modal */}
       {showResendTrainerLinkModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="card max-w-md w-full mx-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold mb-4">Registrierungslink</h3>
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
               Neuer Registrierungslink für <strong>{resendTrainerName}</strong>:
@@ -1713,11 +1713,11 @@ export default function AdminPage() {
               value={resendTrainerLink}
               className="input mb-4"
             />
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-3">
               <button
                 type="button"
                 onClick={handleShareResendTrainerLink}
-                className="btn btn-secondary flex items-center space-x-2"
+                className="btn btn-secondary flex items-center justify-center space-x-2 w-full sm:w-auto"
               >
                 <Share2 className="w-4 h-4" />
                 <span>Link teilen</span>
@@ -1725,7 +1725,7 @@ export default function AdminPage() {
               <button
                 type="button"
                 onClick={handleCopyResendTrainerLink}
-                className="btn btn-secondary flex items-center space-x-2"
+                className="btn btn-secondary flex items-center justify-center space-x-2 w-full sm:w-auto"
               >
                 {copiedResendTrainerLink ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
                 <span>{copiedResendTrainerLink ? 'Kopiert' : 'Link kopieren'}</span>
@@ -1738,7 +1738,7 @@ export default function AdminPage() {
                   setResendTrainerLink('');
                   setCopiedResendTrainerLink(false);
                 }}
-                className="btn btn-primary"
+                className="btn btn-primary w-full sm:w-auto"
               >
                 Schließen
               </button>
@@ -1749,8 +1749,8 @@ export default function AdminPage() {
 
       {/* Generated Password Modal */}
       {showGeneratedPasswordModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="card max-w-md w-full mx-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold mb-4">Neues Passwort</h3>
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
               Das Passwort wurde zurückgesetzt. Teile dieses Passwort sicher mit dem Benutzer.
@@ -1760,11 +1760,11 @@ export default function AdminPage() {
               value={generatedPassword}
               className="input mb-4"
             />
-            <div className="flex space-x-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <button
                 type="button"
                 onClick={handleCopyGeneratedPassword}
-                className="btn btn-secondary flex items-center space-x-2"
+                className="btn btn-secondary flex items-center justify-center space-x-2 w-full sm:w-auto"
               >
                 {copiedGeneratedPassword ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
                 <span>{copiedGeneratedPassword ? 'Kopiert' : 'Passwort kopieren'}</span>
@@ -1776,7 +1776,7 @@ export default function AdminPage() {
                   setGeneratedPassword('');
                   setCopiedGeneratedPassword(false);
                 }}
-                className="btn btn-primary"
+                className="btn btn-primary w-full sm:w-auto"
               >
                 Schließen
               </button>
