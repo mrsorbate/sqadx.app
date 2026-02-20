@@ -835,7 +835,7 @@ export default function AdminPage() {
           <div className="text-sm text-gray-500 dark:text-gray-400">Audit-Log wird geladen...</div>
         ) : (
           <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
               <select
                 value={auditActionFilter}
                 onChange={(e) => setAuditActionFilter(e.target.value)}
@@ -872,6 +872,18 @@ export default function AdminPage() {
                 <option value="7d">Letzte 7 Tage</option>
                 <option value="30d">Letzte 30 Tage</option>
               </select>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setAuditActionFilter('all');
+                  setAuditActorFilter('all');
+                  setAuditPeriodFilter('all');
+                }}
+                className="btn btn-secondary"
+              >
+                Filter zurücksetzen
+              </button>
             </div>
 
             <div className="overflow-x-auto">
