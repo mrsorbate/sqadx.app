@@ -405,51 +405,6 @@ export default function AdminPage() {
         </p>
       </div>
 
-      {showCreateTeam && (
-        <div className="card">
-          <h3 className="text-lg font-semibold mb-4">Neues Team erstellen</h3>
-          <form onSubmit={handleCreateTeam} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Team Name *
-              </label>
-              <input
-                type="text"
-                required
-                value={teamName}
-                onChange={(e) => setTeamName(e.target.value)}
-                className="input mt-1"
-                placeholder="z.B. FC Musterhausen U19"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Beschreibung
-              </label>
-              <textarea
-                value={teamDescription}
-                onChange={(e) => setTeamDescription(e.target.value)}
-                className="input mt-1"
-                rows={3}
-                placeholder="Optionale Beschreibung..."
-              />
-            </div>
-            <div className="flex space-x-3">
-              <button type="submit" className="btn btn-primary" disabled={createTeamMutation.isPending}>
-                {createTeamMutation.isPending ? 'Erstellt...' : 'Team erstellen'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowCreateTeam(false)}
-                className="btn btn-secondary"
-              >
-                Abbrechen
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
       {/* Teams Section */}
       <div className="card">
         <div className="flex items-center justify-between mb-4">
@@ -690,7 +645,7 @@ export default function AdminPage() {
       {/* Users Section */}
       <div className="card">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Benutzerübersicht</h2>
+          <h2 className="text-xl font-semibold">Benutzer ({users?.length || 0})</h2>
           <button
             onClick={() => setShowCreateTrainer(!showCreateTrainer)}
             className="btn btn-primary flex items-center space-x-2"
@@ -700,99 +655,6 @@ export default function AdminPage() {
           </button>
         </div>
 
-        {showCreateTrainer && (
-          <form onSubmit={handleCreateTrainer} className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-4">
-            <h3 className="font-semibold text-gray-900 dark:text-white">Trainer anlegen & Registrierungslink erstellen</h3>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name *</label>
-              <input
-                type="text"
-                required
-                value={trainerName}
-                onChange={(e) => setTrainerName(e.target.value)}
-                className="input"
-                placeholder="z.B. Max Trainer"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Teams zuweisen *</label>
-              <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-white dark:bg-gray-900">
-                {teams?.map((team: any) => (
-                  <label key={team.id} className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300">
-                    <input
-                      type="checkbox"
-                      checked={trainerTeamIds.includes(team.id)}
-                      onChange={() => toggleTrainerTeam(team.id)}
-                    />
-                    <span>{team.name}</span>
-                  </label>
-                ))}
-              </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Mindestens ein Team auswählen.</p>
-            </div>
-
-            {createTrainerMutation.isError && (
-              <p className="text-sm text-red-600 dark:text-red-400">
-                {(createTrainerMutation.error as any)?.response?.data?.error || 'Trainer-Link konnte nicht erstellt werden'}
-              </p>
-            )}
-
-            {trainerInviteLink && (
-              <div className="p-3 rounded-lg border border-blue-200 bg-blue-50 space-y-2">
-                <p className="text-sm text-blue-800">Registrierungslink für <strong>{trainerName}</strong>:</p>
-                <input
-                  readOnly
-                  value={trainerInviteLink}
-                  className="input text-sm"
-                />
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={handleShareTrainerLink}
-                    className="btn btn-secondary flex items-center space-x-2"
-                  >
-                    <Share2 className="w-4 h-4" />
-                    <span>Link teilen</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleCopyTrainerLink}
-                    className="btn btn-secondary flex items-center space-x-2"
-                  >
-                    {copiedTrainerLink ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
-                    <span>{copiedTrainerLink ? 'Kopiert' : 'Link kopieren'}</span>
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className="flex space-x-3">
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={createTrainerMutation.isPending || !trainerName.trim() || trainerTeamIds.length === 0}
-              >
-                {createTrainerMutation.isPending ? 'Erstellt...' : 'Link erstellen'}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowCreateTrainer(false);
-                  setTrainerName('');
-                  setTrainerTeamIds([]);
-                  setTrainerInviteLink('');
-                  setCopiedTrainerLink(false);
-                }}
-                className="btn btn-secondary"
-              >
-                Abbrechen
-              </button>
-            </div>
-          </form>
-        )}
-        
         <div className="space-y-6">
           <div>
             <h3 className="text-lg font-semibold mb-3 text-blue-800 dark:text-blue-300">Trainer ({trainers.length})</h3>
@@ -917,6 +779,148 @@ export default function AdminPage() {
           </div>
         )}
       </div>
+
+      {/* Create Team Modal */}
+      {showCreateTeam && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="card max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Neues Team erstellen</h3>
+            <form onSubmit={handleCreateTeam} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Team Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={teamName}
+                  onChange={(e) => setTeamName(e.target.value)}
+                  className="input mt-1"
+                  placeholder="z.B. FC Musterhausen U19"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Beschreibung</label>
+                <textarea
+                  value={teamDescription}
+                  onChange={(e) => setTeamDescription(e.target.value)}
+                  className="input mt-1"
+                  rows={3}
+                  placeholder="Optionale Beschreibung..."
+                />
+              </div>
+              <div className="flex space-x-3">
+                <button type="submit" className="btn btn-primary" disabled={createTeamMutation.isPending}>
+                  {createTeamMutation.isPending ? 'Erstellt...' : 'Team erstellen'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowCreateTeam(false)}
+                  className="btn btn-secondary"
+                >
+                  Abbrechen
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Create Trainer Modal */}
+      {showCreateTrainer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="card max-w-xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Trainer anlegen & Registrierungslink erstellen</h3>
+
+            <form onSubmit={handleCreateTrainer} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={trainerName}
+                  onChange={(e) => setTrainerName(e.target.value)}
+                  className="input"
+                  placeholder="z.B. Max Trainer"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Teams zuweisen *</label>
+                <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-white dark:bg-gray-900">
+                  {teams?.map((team: any) => (
+                    <label key={team.id} className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300">
+                      <input
+                        type="checkbox"
+                        checked={trainerTeamIds.includes(team.id)}
+                        onChange={() => toggleTrainerTeam(team.id)}
+                      />
+                      <span>{team.name}</span>
+                    </label>
+                  ))}
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Mindestens ein Team auswählen.</p>
+              </div>
+
+              {createTrainerMutation.isError && (
+                <p className="text-sm text-red-600 dark:text-red-400">
+                  {(createTrainerMutation.error as any)?.response?.data?.error || 'Trainer-Link konnte nicht erstellt werden'}
+                </p>
+              )}
+
+              {trainerInviteLink && (
+                <div className="p-3 rounded-lg border border-blue-200 bg-blue-50 space-y-2">
+                  <p className="text-sm text-blue-800">Registrierungslink für <strong>{trainerName}</strong>:</p>
+                  <input
+                    readOnly
+                    value={trainerInviteLink}
+                    className="input text-sm"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={handleShareTrainerLink}
+                      className="btn btn-secondary flex items-center space-x-2"
+                    >
+                      <Share2 className="w-4 h-4" />
+                      <span>Link teilen</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCopyTrainerLink}
+                      className="btn btn-secondary flex items-center space-x-2"
+                    >
+                      {copiedTrainerLink ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                      <span>{copiedTrainerLink ? 'Kopiert' : 'Link kopieren'}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex space-x-3">
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={createTrainerMutation.isPending || !trainerName.trim() || trainerTeamIds.length === 0}
+                >
+                  {createTrainerMutation.isPending ? 'Erstellt...' : 'Link erstellen'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCreateTrainer(false);
+                    setTrainerName('');
+                    setTrainerTeamIds([]);
+                    setTrainerInviteLink('');
+                    setCopiedTrainerLink(false);
+                  }}
+                  className="btn btn-secondary"
+                >
+                  Abbrechen
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
