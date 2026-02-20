@@ -22,10 +22,10 @@ export default function StatsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
-        <Link to={`/teams/${teamId}`} className="text-gray-600 hover:text-gray-900">
+        <Link to={`/teams/${teamId}`} className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
           <ArrowLeft className="w-6 h-6" />
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900">Statistiken</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Statistiken</h1>
       </div>
 
       {/* Event Summary */}
@@ -36,8 +36,8 @@ export default function StatsPage() {
               <Calendar className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Kommende Termine</p>
-              <p className="text-2xl font-bold text-gray-900">{stats?.events?.upcoming || 0}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">Kommende Termine</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats?.events?.upcoming || 0}</p>
             </div>
           </div>
         </div>
@@ -48,8 +48,8 @@ export default function StatsPage() {
               <Calendar className="w-6 h-6 text-green-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Vergangene Termine</p>
-              <p className="text-2xl font-bold text-gray-900">{stats?.events?.past || 0}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">Vergangene Termine</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats?.events?.past || 0}</p>
             </div>
           </div>
         </div>
@@ -62,41 +62,41 @@ export default function StatsPage() {
           Anwesenheitsstatistik
         </h2>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Spieler
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Teilnahme
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Zugesagt
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Abgesagt
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Keine Antwort
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
               {stats?.attendance?.map((player: any) => (
-                <tr key={player.id} className="hover:bg-gray-50">
+                <tr key={player.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{player.name}</div>
+                    <div className="text-sm font-medium text-gray-900 dark:text-white">{player.name}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="w-24 bg-gray-200 rounded-full h-2 mr-2">
+                      <div className="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-2">
                         <div
                           className="bg-green-600 h-2 rounded-full"
                           style={{ width: `${player.attendance_rate || 0}%` }}
                         />
                       </div>
-                      <span className="text-sm font-medium text-gray-900">
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">
                         {player.attendance_rate || 0}%
                       </span>
                     </div>
@@ -108,7 +108,7 @@ export default function StatsPage() {
                     <span className="text-sm text-red-700 font-medium">{player.declined}</span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm text-gray-700 font-medium">{player.pending}</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">{player.pending}</span>
                   </td>
                 </tr>
               ))}            </tbody>

@@ -149,13 +149,13 @@ export default function TeamPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
-        <Link to="/" className="text-gray-600 hover:text-gray-900">
+        <Link to="/" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
           <ArrowLeft className="w-6 h-6" />
         </Link>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-gray-900">{team?.name}</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{team?.name}</h1>
           {team?.description && (
-            <p className="text-gray-600 mt-1">{team.description}</p>
+            <p className="text-gray-600 dark:text-gray-300 mt-1">{team.description}</p>
           )}
         </div>
       </div>
@@ -180,8 +180,8 @@ export default function TeamPage() {
                 className="absolute bottom-3 right-3 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
                 title="Neues Bild hochladen"
               >
-                <Upload className="w-5 h-5 text-gray-700" />
-                <span className="text-sm font-medium text-gray-700">Ändern</span>
+                <Upload className="w-5 h-5 text-gray-700 dark:text-gray-800" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-800">Ändern</span>
               </button>
             </div>
           ) : (
@@ -191,10 +191,10 @@ export default function TeamPage() {
               className="w-full max-w-md h-64 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center hover:border-primary-500 hover:bg-primary-50 transition-colors disabled:opacity-50"
             >
               <ImageIcon className="w-16 h-16 text-gray-400 mb-3" />
-              <span className="text-base text-gray-600 font-medium">
+              <span className="text-base text-gray-600 dark:text-gray-300 font-medium">
                 {uploadingTeamPicture ? 'Lädt...' : 'Mannschaftsbild hochladen'}
               </span>
-              <span className="text-sm text-gray-500 mt-1">
+              <span className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                 JPEG, PNG, GIF oder WEBP (max. 5MB)
               </span>
             </button>

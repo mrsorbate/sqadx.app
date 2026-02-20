@@ -54,8 +54,8 @@ export default function DashboardPage() {
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Centered Header */}
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-2">Willkommen zurück, {user?.name}!</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+        <p className="text-gray-600 dark:text-gray-300 mt-2">Willkommen zurück, {user?.name}!</p>
       </div>
 
       {/* Team Section (Trainers only) - Only show if team photos exist */}
@@ -70,7 +70,7 @@ export default function DashboardPage() {
             // Single team - simple display without upload
             getTeamPhotoUrl(teams[0]) && (
               <div className="text-center space-y-4">
-                <h3 className="text-lg font-medium text-gray-900">{teams[0].name}</h3>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white">{teams[0].name}</h3>
                 <img
                   src={getTeamPhotoUrl(teams[0])}
                   alt={teams[0].name}
@@ -87,7 +87,7 @@ export default function DashboardPage() {
                     <div className="text-6xl font-thin text-gray-300 mx-2">/</div>
                   )}
                   <div className="text-center space-y-2">
-                    <h3 className="text-sm font-medium text-gray-700">{team.name}</h3>
+                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-200">{team.name}</h3>
                     <img
                       src={getTeamPhotoUrl(team)!}
                       alt={team.name}
@@ -109,7 +109,7 @@ export default function DashboardPage() {
         </h2>
         
         {eventsLoading ? (
-          <div className="text-center py-8 text-gray-500">Lädt...</div>
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400">Lädt...</div>
         ) : upcomingEvents && upcomingEvents.length > 0 ? (
           <div className="space-y-3">
             {upcomingEvents.map((event: any) => {
@@ -184,12 +184,12 @@ export default function DashboardPage() {
                       <div className="flex items-center space-x-2 mb-2">
                         <span className="text-2xl">{getTypeIcon(event.type)}</span>
                         <div>
-                          <h3 className="font-semibold text-gray-900">{event.title}</h3>
-                          <p className="text-sm text-gray-600">{event.team_name}</p>
+                          <h3 className="font-semibold text-gray-900 dark:text-white">{event.title}</h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-300">{event.team_name}</p>
                         </div>
                       </div>
                       
-                      <div className="space-y-1 text-sm text-gray-600 ml-8">
+                      <div className="space-y-1 text-sm text-gray-600 dark:text-gray-300 ml-8">
                         <div className="flex items-center space-x-2">
                           <Clock className="w-4 h-4" />
                           <span>
@@ -223,7 +223,7 @@ export default function DashboardPage() {
                         <span className="text-sm font-medium">{getStatusLabel(event.my_status)}</span>
                       </div>
                       
-                      <div className="flex items-center space-x-3 text-xs text-gray-600">
+                      <div className="flex items-center space-x-3 text-xs text-gray-600 dark:text-gray-400">
                         <span className="flex items-center">
                           <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
                           {event.accepted_count}
@@ -273,8 +273,8 @@ export default function DashboardPage() {
             })}
           </div>
         ) : (
-          <div className="text-center py-8 text-gray-500">
-            <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
             <p>Keine Termine in den nächsten 6 anstehend</p>
           </div>
         )}
@@ -288,8 +288,8 @@ export default function DashboardPage() {
           <div className="flex items-center space-x-3">
             <Calendar className="w-6 h-6 text-primary-600" />
             <div>
-              <h3 className="font-semibold text-gray-900">Alle Termine anzeigen</h3>
-              <p className="text-sm text-gray-600">Vollständige Übersicht aller zukünftigen Termine</p>
+              <h3 className="font-semibold text-gray-900 dark:text-white">Alle Termine anzeigen</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300">Vollständige Übersicht aller zukünftigen Termine</p>
             </div>
           </div>
           <ArrowRight className="w-5 h-5 text-primary-600 group-hover:translate-x-1 transition-transform" />

@@ -93,7 +93,7 @@ export default function EventDetailPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
-        <button onClick={() => navigate(-1)} className="text-gray-600 hover:text-gray-900">
+        <button onClick={() => navigate(-1)} className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
           <ArrowLeft className="w-6 h-6" />
         </button>
         <div className="flex-1">
@@ -103,7 +103,7 @@ export default function EventDetailPage() {
               {event?.type === 'match' && '⚽'}
               {event?.type === 'other' && '📅'}
             </span>
-            <h1 className="text-3xl font-bold text-gray-900">{event?.title}</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{event?.title}</h1>
           </div>
         </div>
       </div>
@@ -117,10 +117,10 @@ export default function EventDetailPage() {
               <div className="flex items-start space-x-3">
                 <Clock className="w-5 h-5 text-gray-400 mt-0.5" />
                 <div>
-                  <p className="font-medium text-gray-900">
+                  <p className="font-medium text-gray-900 dark:text-white">
                     {format(new Date(event?.start_time), 'PPP', { locale: de })}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
                     {format(new Date(event?.start_time), 'p', { locale: de })} -{' '}
                     {format(new Date(event?.end_time), 'p', { locale: de })}
                   </p>
@@ -131,8 +131,8 @@ export default function EventDetailPage() {
                 <div className="flex items-start space-x-3">
                   <Clock className="w-5 h-5 text-gray-400 mt-0.5" />
                   <div>
-                    <p className="font-medium text-gray-900">Dauer</p>
-                    <p className="text-sm text-gray-600">{event.duration_minutes} Minuten</p>
+                    <p className="font-medium text-gray-900 dark:text-white">Dauer</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">{event.duration_minutes} Minuten</p>
                   </div>
                 </div>
               )}
@@ -142,16 +142,16 @@ export default function EventDetailPage() {
                   <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
                   <div>
                     {event?.location_venue && (
-                      <p className="font-medium text-gray-900">{event.location_venue}</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{event.location_venue}</p>
                     )}
                     {event?.location_street && (
-                      <p className="text-sm text-gray-600">{event.location_street}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{event.location_street}</p>
                     )}
                     {event?.location_zip_city && (
-                      <p className="text-sm text-gray-600">{event.location_zip_city}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{event.location_zip_city}</p>
                     )}
                     {!event?.location_venue && !event?.location_street && !event?.location_zip_city && event?.location && (
-                      <p className="font-medium text-gray-900">{event.location}</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{event.location}</p>
                     )}
                   </div>
                 </div>
@@ -161,8 +161,8 @@ export default function EventDetailPage() {
                 <div className="flex items-start space-x-3">
                   <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
                   <div>
-                    <p className="font-medium text-gray-900">Platzart</p>
-                    <p className="text-sm text-gray-600">{event.pitch_type}</p>
+                    <p className="font-medium text-gray-900 dark:text-white">Platzart</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">{event.pitch_type}</p>
                   </div>
                 </div>
               )}
@@ -171,8 +171,8 @@ export default function EventDetailPage() {
                 <div className="flex items-start space-x-3">
                   <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
                   <div>
-                    <p className="font-medium text-gray-900">Treffpunkt</p>
-                    <p className="text-sm text-gray-600">{event.meeting_point}</p>
+                    <p className="font-medium text-gray-900 dark:text-white">Treffpunkt</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">{event.meeting_point}</p>
                   </div>
                 </div>
               )}
@@ -181,8 +181,8 @@ export default function EventDetailPage() {
                 <div className="flex items-start space-x-3">
                   <Clock className="w-5 h-5 text-gray-400 mt-0.5" />
                   <div>
-                    <p className="font-medium text-gray-900">Treffen</p>
-                    <p className="text-sm text-gray-600">{event.arrival_minutes} Minuten vor Beginn</p>
+                    <p className="font-medium text-gray-900 dark:text-white">Treffen</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">{event.arrival_minutes} Minuten vor Beginn</p>
                   </div>
                 </div>
               )}
@@ -191,8 +191,8 @@ export default function EventDetailPage() {
                 <div className="flex items-start space-x-3">
                   <Clock className="w-5 h-5 text-gray-400 mt-0.5" />
                   <div>
-                    <p className="font-medium text-gray-900">Rueckmeldefrist</p>
-                    <p className="text-sm text-gray-600">
+                    <p className="font-medium text-gray-900 dark:text-white">Rueckmeldefrist</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
                       {format(new Date(event.rsvp_deadline), 'PPPp', { locale: de })}
                     </p>
                   </div>
@@ -203,7 +203,7 @@ export default function EventDetailPage() {
                 <div className="flex items-start space-x-3">
                   <MessageSquare className="w-5 h-5 text-gray-400 mt-0.5" />
                   <div>
-                    <p className="text-gray-700">{event.description}</p>
+                    <p className="text-gray-700 dark:text-gray-300">{event.description}</p>
                   </div>
                 </div>
               )}
@@ -214,8 +214,8 @@ export default function EventDetailPage() {
           <div className="card">
             <h2 className="text-xl font-semibold mb-4">Deine Rückmeldung</h2>
             {myResponse && myResponse.status !== 'pending' ? (
-              <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600">Aktuelle Antwort:</p>
+              <div className="mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <p className="text-sm text-gray-600 dark:text-gray-400">Aktuelle Antwort:</p>
                 <p className="font-medium">
                   {myResponse.status === 'accepted' && '✓ Zugesagt'}
                   {myResponse.status === 'declined' && '✗ Abgesagt'}

@@ -124,8 +124,8 @@ export default function AdminPage() {
         <div className="flex items-center space-x-3">
           <Shield className="w-8 h-8 text-primary-600" />
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Admin-Panel</h1>
-            <p className="text-gray-600 mt-1">Team- und Benutzerverwaltung</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Admin-Panel</h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-1">Team- und Benutzerverwaltung</p>
           </div>
         </div>
         
@@ -250,8 +250,8 @@ export default function AdminPage() {
           ))}
 
           {teams?.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              <Users className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <Users className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
               <p>Noch keine Teams erstellt</p>
             </div>
           )}
@@ -351,7 +351,7 @@ export default function AdminPage() {
               {memberRole === 'player' && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Trikotnummer
                     </label>
                     <input
@@ -425,14 +425,14 @@ export default function AdminPage() {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {users?.map((user: any) => (
-                <tr key={user.id} className="hover:bg-gray-50">
+            <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+              {users.map((user: any) => (
+                <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                    <div className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-600">{user.email}</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-300">{user.email}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${

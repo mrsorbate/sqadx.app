@@ -35,13 +35,13 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <img src="/kadr-logo.svg" alt="kadr logo" className="mx-auto h-12 w-12" />
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white">
             kadr
           </h2>
-          <p className="text-sm text-primary-600 font-medium">
+          <p className="mt-2 text-sm text-primary-600 dark:text-primary-400 font-medium">
             Designed for teams
           </p>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Melde dich an, um fortzufahren
           </p>
         </div>
@@ -55,7 +55,7 @@ export default function LoginPage() {
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 E-Mail
               </label>
               <input
@@ -70,7 +70,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Passwort
               </label>
               <input
