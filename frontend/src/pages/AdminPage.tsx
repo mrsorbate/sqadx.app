@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import { Navigate } from 'react-router-dom';
-import { Plus, Trash2, Users, UserPlus, UserMinus, Shield, Settings, Upload, Copy, Share2, Check, KeyRound, Server, Database, HardDrive, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Plus, Trash2, Users, UserPlus, UserMinus, Shield, Settings, Upload, Copy, Share2, Check, KeyRound } from 'lucide-react';
 import { useToast, type ToastType } from '../lib/useToast';
 
 const TIMEZONES = [
@@ -107,15 +107,6 @@ export default function AdminPage() {
     queryKey: ['admin-audit-logs'],
     queryFn: async () => {
       const response = await adminAPI.getAuditLogs(50);
-      return response.data;
-    },
-    refetchInterval: 60000,
-  });
-
-  const { data: systemHealth, isLoading: systemHealthLoading, refetch: refetchSystemHealth, isFetching: systemHealthFetching } = useQuery({
-    queryKey: ['admin-system-health'],
-    queryFn: async () => {
-      const response = await adminAPI.getSystemHealth();
       return response.data;
     },
     refetchInterval: 60000,
@@ -254,18 +245,6 @@ export default function AdminPage() {
       await queryClient.refetchQueries({ queryKey: ['admin-teams'] });
       await queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       await queryClient.refetchQueries({ queryKey: ['admin-users'] });
-    },
-  });
-
-  const createBackupMutation = useMutation({
-    mutationFn: () => adminAPI.createBackup(),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['admin-system-health'] });
-      await queryClient.refetchQueries({ queryKey: ['admin-system-health'] });
-      showToast('Backup erfolgreich erstellt', 'success');
-    },
-    onError: (error: any) => {
-      showToast(error?.response?.data?.error || 'Backup konnte nicht erstellt werden', 'error');
     },
   });
 
@@ -494,29 +473,6 @@ export default function AdminPage() {
     showToast('Neues Passwort wurde in die Zwischenablage kopiert', 'info');
   };
 
-  const handleDownloadBackup = async (fileName?: string | null) => {
-    if (!fileName) {
-      showToast('Kein Backup zum Herunterladen vorhanden', 'warning');
-      return;
-    }
-
-    try {
-      const response = await adminAPI.downloadBackup(fileName);
-      const blob = new Blob([response.data], { type: 'application/octet-stream' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-      showToast('Backup wird heruntergeladen', 'info');
-    } catch (error: any) {
-      showToast(error?.response?.data?.error || 'Backup konnte nicht heruntergeladen werden', 'error');
-    }
-  };
-
   if (teamsLoading || usersLoading || settingsLoading) {
     return <div className="text-center py-12">Lädt...</div>;
   }
@@ -587,13 +543,6 @@ export default function AdminPage() {
 
     const days = Math.floor(hours / 24);
     return `vor ${days} d`;
-  };
-
-  const formatBytes = (value?: number | null) => {
-    if (!value || value <= 0) return '0 B';
-    if (value < 1024) return `${value} B`;
-    if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
-    return `${(value / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   const formatAuditAction = (action: string) => {
@@ -1292,129 +1241,6 @@ export default function AdminPage() {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* System Health */}
-      <div className="card">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold flex items-center">
-            <Server className="w-6 h-6 mr-2 text-primary-600" />
-            System-Health
-          </h2>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              Letzter Check: {formatDateTime(systemHealth?.checked_at)}
-            </span>
-            <button
-              type="button"
-              onClick={() => refetchSystemHealth()}
-              disabled={systemHealthFetching}
-              className="btn btn-secondary text-xs"
-            >
-              {systemHealthFetching ? 'Aktualisiert...' : 'Aktualisieren'}
-            </button>
-          </div>
-        </div>
-
-        {systemHealthLoading ? (
-          <div className="text-sm text-gray-500 dark:text-gray-400">Systemstatus wird geladen...</div>
-        ) : (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
-                    <Server className="w-4 h-4 mr-1" /> API
-                  </div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${systemHealth?.api?.status === 'online' ? getStatusBadgeClasses('ok') : getStatusBadgeClasses('error')}`}>
-                    {systemHealth?.api?.status === 'online' ? 'Online' : 'Fehler'}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-700 dark:text-gray-200">Uptime: {Math.floor((systemHealth?.api?.uptime_seconds || 0) / 60)} min</p>
-              </div>
-
-              <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
-                    <Database className="w-4 h-4 mr-1" /> Datenbank
-                  </div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${systemHealth?.database?.status === 'ok' ? getStatusBadgeClasses('ok') : getStatusBadgeClasses('error')}`}>
-                    {systemHealth?.database?.status === 'ok' ? 'OK' : 'Fehler'}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-700 dark:text-gray-200">Latenz: {systemHealth?.database?.latency_ms ?? '—'} ms</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Größe: {formatBytes(systemHealth?.database?.size_bytes)}</p>
-              </div>
-
-              <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
-                    <HardDrive className="w-4 h-4 mr-1" /> Backup
-                  </div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${
-                    systemHealth?.backup?.status === 'ok'
-                      ? getStatusBadgeClasses('ok')
-                      : systemHealth?.backup?.status === 'stale'
-                      ? getStatusBadgeClasses('warning')
-                      : getStatusBadgeClasses('error')
-                  }`}>
-                    {systemHealth?.backup?.status === 'ok'
-                      ? 'Aktuell'
-                      : systemHealth?.backup?.status === 'stale'
-                      ? 'Veraltet'
-                      : 'Fehlt'}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-700 dark:text-gray-200">Letztes Backup: {formatDateTime(systemHealth?.backup?.last_backup_at)}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Alter: {systemHealth?.backup?.age_hours ?? '—'} h</p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() => createBackupMutation.mutate()}
-                    disabled={createBackupMutation.isPending}
-                    className="btn btn-secondary text-xs"
-                  >
-                    {createBackupMutation.isPending ? 'Erstellt...' : 'Backup erstellen'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDownloadBackup(systemHealth?.backup?.last_backup_file)}
-                    disabled={!systemHealth?.backup?.last_backup_file}
-                    className="btn btn-secondary text-xs disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Letztes Backup laden
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                <RefreshCw className="w-4 h-4 mr-2 text-primary-600" />
-                Letzte Sync-/Aktualisierungs-Hinweise
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                Letzte Datenänderung: {formatDateTime(systemHealth?.sync?.last_sync_at)}
-              </p>
-            </div>
-
-            <div className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-              <div className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                <AlertTriangle className="w-4 h-4 mr-2 text-yellow-600" />
-                Letzte Fehlerhinweise
-              </div>
-              {systemHealth?.errors?.hints?.length ? (
-                <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700 dark:text-gray-300">
-                  {systemHealth.errors.hints.map((hint: string, index: number) => (
-                    <li key={`${hint}-${index}`}>{hint}</li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-green-700 dark:text-green-400">Keine aktuellen Fehlerhinweise</p>
-              )}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Audit Log */}
