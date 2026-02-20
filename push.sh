@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ============================================
-# kadr - Push Script
+# KADR.app - Push Script
 # ============================================
 # Lokal ausführen zum Code pushen
 # Usage: ./push.sh "Deine Commit-Nachricht"
@@ -31,5 +31,5 @@ echo -e "${GREEN}✅ Push erfolgreich!${NC}"
 echo ""
 echo -e "${YELLOW}⚠️  Nächster Schritt auf dem VPS:${NC}"
 echo "  ssh user@your-vps-ip"
-echo "  cd kadr-app"
+echo "  cd KADR.app"
 echo "  ./deploy.sh"

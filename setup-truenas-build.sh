@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# kadr Docker Setup für TrueNAS (lokales Build)
+# KADR.app Docker Setup für TrueNAS (lokales Build)
 # Dieses Skript bereitet die Umgebung vor und startet die Container mit lokalem Build
 
 set -e
@@ -12,7 +12,7 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-echo -e "${BLUE}🚀 kadr - TrueNAS Setup (Build Mode)${NC}\n"
+echo -e "${BLUE}🚀 KADR.app - TrueNAS Setup (Build Mode)${NC}\n"
 
 # Konfiguration
 BASE_PATH="${BASE_PATH:-/mnt/DATA/docker/kadr}"
@@ -43,7 +43,7 @@ else
     JWT_SECRET=$(openssl rand -base64 32)
     
     cat > "$ENV_FILE" << EOF
-# kadr - Docker Compose Environment
+# KADR.app - Docker Compose Environment
 # Generiert am: $(date)
 
 BACKEND_PORT=3000
@@ -74,7 +74,7 @@ fi
 sleep 3
 
 echo -e "\n${GREEN}✅ Setup erfolgreich!${NC}\n"
-echo -e "${YELLOW}📍 kadr erreichbar unter:${NC}"
+echo -e "${YELLOW}📍 KADR.app erreichbar unter:${NC}"
 echo -e "   ${GREEN}http://${TRUENAS_IP}:${FRONTEND_PORT}${NC}\n"
 
 # Status anzeigen

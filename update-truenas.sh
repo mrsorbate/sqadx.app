@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# kadr Update Script für TrueNAS
+# KADR.app Update Script für TrueNAS
 # Aktualisiert den Code, baut neue Docker Images und startet die Container neu
 
 set -e
@@ -12,7 +12,7 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-echo -e "${BLUE}🔄 kadr - Update${NC}\n"
+echo -e "${BLUE}🔄 KADR.app - Update${NC}\n"
 
 # Fehler-Handler
 error_exit() {
@@ -22,7 +22,7 @@ error_exit() {
 
 # Überprüfe, ob wir im korrekten Verzeichnis sind
 if [ ! -f "docker-compose.build.yml" ]; then
-    error_exit "Nicht im kadr-Verzeichnis. Bitte ausführen im ./kadr-app Ordner"
+    error_exit "Nicht im KADR.app-Verzeichnis. Bitte ausführen im ./KADR.app Ordner"
 fi
 
 # Backup erstellen (optional aber empfohlen)

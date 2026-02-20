@@ -1,6 +1,6 @@
-# kadr auf TrueNAS —  Kompletter Setup Guide
+# KADR.app auf TrueNAS —  Kompletter Setup Guide
 
-Diese Dokumentation erklärt, wie du kadr auf deiner TrueNAS nutzt — mit automatischem Setup, Updates und Backups.
+Diese Dokumentation erklärt, wie du KADR.app auf deiner TrueNAS nutzt — mit automatischem Setup, Updates und Backups.
 
 ---
 
