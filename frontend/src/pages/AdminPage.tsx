@@ -5,6 +5,7 @@ import { useAuthStore } from '../store/authStore';
 import { Navigate } from 'react-router-dom';
 import { Plus, Trash2, Users, UserPlus, UserMinus, Shield, Settings, Upload, Copy, Share2, Check, KeyRound } from 'lucide-react';
 import { useToast } from '../lib/useToast';
+import ToastMessage from '../components/ToastMessage';
 
 const TIMEZONES = [
   'Europe/Berlin',
@@ -1378,14 +1379,7 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* Toast */}
-      {toast && (
-        <div className="fixed bottom-4 right-4 z-[70]">
-          <div className={`rounded-lg px-4 py-3 shadow-lg text-sm font-medium ${toast.type === 'error' ? 'bg-red-600 text-white' : 'bg-green-600 text-white'}`}>
-            {toast.message}
-          </div>
-        </div>
-      )}
+      <ToastMessage toast={toast} positionClassName="bottom-4 right-4 z-[70]" textClassName="text-sm font-medium" />
     </div>
   );
 }

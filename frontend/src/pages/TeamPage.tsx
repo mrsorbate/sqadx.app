@@ -6,6 +6,7 @@ import { useAuthStore } from '../store/authStore';
 import { Calendar, Users, BarChart, ArrowLeft, UserPlus, X, Copy, Check, Clock, Mail, Upload, Image as ImageIcon } from 'lucide-react';
 import InviteManager from '../components/InviteManager';
 import { useToast } from '../lib/useToast';
+import ToastMessage from '../components/ToastMessage';
 
 export default function TeamPage() {
   const { id } = useParams<{ id: string }>();
@@ -152,13 +153,7 @@ export default function TeamPage() {
 
   return (
     <div className="space-y-6">
-      {toast && (
-        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-white ${
-          toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'
-        }`}>
-          {toast.message}
-        </div>
-      )}
+      <ToastMessage toast={toast} />
 
       <div className="flex items-center space-x-4">
         <Link to="/" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">

@@ -5,6 +5,7 @@ import { useAuthStore } from '../store/authStore';
 import { Users, Calendar, BarChart, Upload, Image as ImageIcon } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { useToast } from '../lib/useToast';
+import ToastMessage from '../components/ToastMessage';
 
 export default function TeamsPage() {
   const { user } = useAuthStore();
@@ -75,13 +76,7 @@ export default function TeamsPage() {
 
   return (
     <div className="space-y-6">
-      {toast && (
-        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-white ${
-          toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'
-        }`}>
-          {toast.message}
-        </div>
-      )}
+      <ToastMessage toast={toast} />
 
       <div className="flex justify-between items-center">
         <div>

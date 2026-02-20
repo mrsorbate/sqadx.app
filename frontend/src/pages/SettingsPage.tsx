@@ -4,6 +4,7 @@ import { profileAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import { User, Lock, Camera, Trash2, Check, AlertCircle } from 'lucide-react';
 import { useToast } from '../lib/useToast';
+import ToastMessage from '../components/ToastMessage';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -140,13 +141,7 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {toast && (
-        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-white ${
-          toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'
-        }`}>
-          {toast.message}
-        </div>
-      )}
+      <ToastMessage toast={toast} />
 
       <div className="flex items-center space-x-3">
         <User className="w-8 h-8 text-primary-600" />
