@@ -14,8 +14,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
-        name: 'TeamPilot',
-        short_name: 'TeamPilot',
+        name: 'kadr',
+        short_name: 'kadr',
         description: 'Moderne Team-Management-App für Sportvereine',
         theme_color: '#3b82f6',
         background_color: '#ffffff',

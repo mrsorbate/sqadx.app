@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 TeamPilot - Setup & Start"
+echo "🚀 kadr - Setup & Start"
 echo "================================"
 echo ""
 

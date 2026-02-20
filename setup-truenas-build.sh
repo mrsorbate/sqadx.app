@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# TeamPilot Docker Setup für TrueNAS (lokales Build)
+# kadr Docker Setup für TrueNAS (lokales Build)
 # Dieses Skript bereitet die Umgebung vor und startet die Container mit lokalem Build
 
 set -e
@@ -12,10 +12,10 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-echo -e "${BLUE}🚀 TeamPilot - TrueNAS Setup (Build Mode)${NC}\n"
+echo -e "${BLUE}🚀 kadr - TrueNAS Setup (Build Mode)${NC}\n"
 
 # Konfiguration
-BASE_PATH="${BASE_PATH:-/mnt/DATA/docker/teampilot}"
+BASE_PATH="${BASE_PATH:-/mnt/DATA/docker/kadr}"
 FRONTEND_PORT="${FRONTEND_PORT:-18080}"
 TRUENAS_IP="${TRUENAS_IP:-localhost}"
 COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.build.yml}"
@@ -43,7 +43,7 @@ else
     JWT_SECRET=$(openssl rand -base64 32)
     
     cat > "$ENV_FILE" << EOF
-# TeamPilot - Docker Compose Environment
+# kadr - Docker Compose Environment
 # Generiert am: $(date)
 
 BACKEND_PORT=3000
@@ -74,7 +74,7 @@ fi
 sleep 3
 
 echo -e "\n${GREEN}✅ Setup erfolgreich!${NC}\n"
-echo -e "${YELLOW}📍 TeamPilot erreichbar unter:${NC}"
+echo -e "${YELLOW}📍 kadr erreichbar unter:${NC}"
 echo -e "   ${GREEN}http://${TRUENAS_IP}:${FRONTEND_PORT}${NC}\n"
 
 # Status anzeigen

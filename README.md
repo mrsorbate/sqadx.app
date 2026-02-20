@@ -1,4 +1,4 @@
-# TeamPilot - Moderne Team-Management Software
+# kadr - Moderne Team-Management Software
 
 Eine benutzerfreundliche Team-Management-App für Sportvereine mit Fokus auf Terminverwaltung, Zu-/Absagen und Kaderverwaltung.
 
@@ -53,8 +53,8 @@ ssh root@<TRUENAS-IP>
 
 # Repository klonen
 cd /mnt/DATA/docker
-git clone https://github.com/mrsorbate/TeamPilot-App.git
-cd TeamPilot-App
+git clone https://github.com/mrsorbate/kadr-app.git
+cd kadr-app
 
 # Initial Setup (5-10 Min)
 chmod +x setup-truenas-build.sh

@@ -27,7 +27,7 @@ export default function Layout({ organization }: LayoutProps) {
     navigate('/login');
   };
 
-  const organizationName = organization?.name || 'TeamPilot Verein';
+  const organizationName = organization?.name || 'kadr-Verein';
   const organizationLogo = organization?.logo;
 
   return (
@@ -47,7 +47,7 @@ export default function Layout({ organization }: LayoutProps) {
                   <Users className="w-8 h-8 text-primary-600" />
                 )}
                 <div className="flex flex-col">
-                  <span className="text-sm font-semibold text-gray-500">TeamPilot</span>
+                  <span className="text-sm font-semibold text-gray-500">kadr</span>
                   <span className="text-xs text-gray-700 font-medium">für {organizationName}</span>
                 </div>
               </Link>

@@ -52,7 +52,7 @@ app.use('/uploads', express.static('uploads'));
 // Root route
 app.get('/', (req, res) => {
   res.json({
-    name: 'TeamPilot API',
+    name: 'kadr API',
     version: '1.0.0',
     status: 'running',
     endpoints: {

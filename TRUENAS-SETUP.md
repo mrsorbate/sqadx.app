@@ -1,6 +1,6 @@
-# TeamPilot auf TrueNAS —  Kompletter Setup Guide
+# kadr auf TrueNAS —  Kompletter Setup Guide
 
-Diese Dokumentation erklärt, wie du TeamPilot auf deiner TrueNAS nutzt — mit automatischem Setup, Updates und Backups.
+Diese Dokumentation erklärt, wie du kadr auf deiner TrueNAS nutzt — mit automatischem Setup, Updates und Backups.
 
 ---
 
@@ -17,13 +17,13 @@ ssh root@<TRUENAS-IP>
 **Erste Mal:**
 ```bash
 cd /mnt/DATA/docker
-git clone https://github.com/mrsorbate/TeamPilot-App.git
-cd TeamPilot-App
+git clone https://github.com/mrsorbate/kadr-app.git
+cd kadr-app
 ```
 
 **Wenn Verzeichnis bereits existiert:**
 ```bash
-cd /mnt/DATA/docker/TeamPilot-App
+cd /mnt/DATA/docker/kadr-app
 git pull
 ```
 
@@ -35,7 +35,7 @@ chmod +x setup-truenas-build.sh
 ```
 
 Das Script macht automatisch:
-- ✅ Verzeichnisse erstellen (`/mnt/DATA/docker/teampilot/`)
+- ✅ Verzeichnisse erstellen (`/mnt/DATA/docker/kadr/`)
 - ✅ Sicheres JWT_SECRET generiert
 - ✅ `.env` mit allen Werten erstellt
 - ✅ Docker Images gebaut
@@ -50,7 +50,7 @@ Das Script macht automatisch:
 Regelmäßig Updates einspielen mit einem Befehl:
 
 ```bash
-cd /mnt/DATA/docker/TeamPilot-App
+cd /mnt/DATA/docker/kadr-app
 chmod +x update-truenas.sh
 ./update-truenas.sh
 ```
@@ -68,8 +68,8 @@ Das Script macht:
 
 | Was | Wo | Wichtig |
 |-----|----|----|
-| **Datenbank** | `/mnt/DATA/docker/teampilot/data/database.sqlite` | ⚠️ Backup regelmäßig |
-| **Uploaded Bilder** | `/mnt/DATA/docker/teampilot/uploads/` | ⚠️ Wichtige Daten |
+| **Datenbank** | `/mnt/DATA/docker/kadr/data/database.sqlite` | ⚠️ Backup regelmäßig |
+| **Uploaded Bilder** | `/mnt/DATA/docker/kadr/uploads/` | ⚠️ Wichtige Daten |
 | **Config** | `.env` (root des Repos) | 🔑 Nicht löschen |
 | **Docker Logs** | Container-Logs | 📝 Zum Debugging |
 
@@ -79,7 +79,7 @@ Das Script macht:
 
 ### Status checken
 ```bash
-cd /mnt/DATA/docker/TeamPilot-App
+cd /mnt/DATA/docker/kadr-app
 docker compose --env-file .env -f docker-compose.build.yml ps
 ```
 
@@ -122,19 +122,19 @@ Das `update-truenas.sh`-Script erstellt vor jedem Update ein Backup:
 ### Manuelles Backup der Datenbank
 
 ```bash
-cp -v /mnt/DATA/docker/teampilot/data/database.sqlite \
-      /mnt/DATA/docker/teampilot/data/database.sqlite.backup.$(date +%Y%m%d)
+cp -v /mnt/DATA/docker/kadr/data/database.sqlite \
+      /mnt/DATA/docker/kadr/data/database.sqlite.backup.$(date +%Y%m%d)
 ```
 
 ### Datenbank aus Backup wiederherstellen
 
 ```bash
-cd /mnt/DATA/docker/TeamPilot-App
+cd /mnt/DATA/docker/kadr-app
 docker compose --env-file .env -f docker-compose.build.yml down
 
 # Backup zurück-copy
-cp /mnt/DATA/docker/teampilot/data/database.sqlite.backup.20260220 \
-   /mnt/DATA/docker/teampilot/data/database.sqlite
+cp /mnt/DATA/docker/kadr/data/database.sqlite.backup.20260220 \
+   /mnt/DATA/docker/kadr/data/database.sqlite
 
 # Neu starten
 ./setup-truenas-build.sh
@@ -146,7 +146,7 @@ cp /mnt/DATA/docker/teampilot/data/database.sqlite.backup.20260220 \
 
 ### "Container starten nicht"
 ```bash
-cd /mnt/DATA/docker/TeamPilot-App
+cd /mnt/DATA/docker/kadr-app
 docker compose --env-file .env -f docker-compose.build.yml logs -f
 # Suche nach Fehlermeldungen
 ```
@@ -162,32 +162,32 @@ nano .env
 ### "Datenbank-Fehler"
 ```bash
 # Verzeichnis-Rechte checken
-ls -la /mnt/DATA/docker/teampilot/data/
+ls -la /mnt/DATA/docker/kadr/data/
 
 # Falls nötig:
-chmod 755 /mnt/DATA/docker/teampilot/data
-chmod 755 /mnt/DATA/docker/teampilot/uploads
+chmod 755 /mnt/DATA/docker/kadr/data
+chmod 755 /mnt/DATA/docker/kadr/uploads
 ```
 
 ### "Kompletter Neustart (Daten bleiben)"
 ```bash
-cd /mnt/DATA/docker/TeamPilot-App
+cd /mnt/DATA/docker/kadr-app
 docker compose --env-file .env -f docker-compose.build.yml down
 ./setup-truenas-build.sh
 ```
 
 ### "Build fehlgeschlagen"
 ```bash
-cd /mnt/DATA/docker/TeamPilot-App
+cd /mnt/DATA/docker/kadr-app
 docker compose --env-file .env -f docker-compose.build.yml down
 ./setup-truenas-build.sh
 ```
 
 ### "Repository existiert bereits" (`already exists...`)
-Das Verzeichnis `/mnt/DATA/docker/TeamPilot-App` existiert bereits:
+Das Verzeichnis `/mnt/DATA/docker/kadr-app` existiert bereits:
 ```bash
 # Einfach in das bestehende Verzeichnis wechseln
-cd /mnt/DATA/docker/TeamPilot-App
+cd /mnt/DATA/docker/kadr-app
 
 # Code aktualisieren
 git pull
@@ -200,10 +200,10 @@ git pull
 Ownership-Problem mit Git-Repository (häufig auf TrueNAS):
 ```bash
 # Übergangsweise erlauben:
-git config --global --add safe.directory /mnt/DATA/docker/TeamPilot-App
+git config --global --add safe.directory /mnt/DATA/docker/kadr-app
 
 # Oder Ownership korrigieren (besser):
-sudo chown -R $(whoami):$(whoami) /mnt/DATA/docker/TeamPilot-App
+sudo chown -R $(whoami):$(whoami) /mnt/DATA/docker/kadr-app
 
 # Dann git pull versuchen
 git pull
@@ -231,7 +231,7 @@ cat .gitignore | grep "^\.env"
 
 ## 📞 Support
 
-- **GitHub Issues:** https://github.com/mrsorbate/TeamPilot-App/issues
+- **GitHub Issues:** https://github.com/mrsorbate/kadr-app/issues
 - **Logs checken:** `docker compose --env-file .env -f docker-compose.build.yml logs -f`
 
 ---

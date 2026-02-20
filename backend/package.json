@@ -1,7 +1,7 @@
 {
   "name": "team-manager-backend",
   "version": "1.0.0",
-  "description": "Backend for TeamPilot App",
+  "description": "Backend for kadr App",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",

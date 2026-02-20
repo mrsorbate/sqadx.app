@@ -1,4 +1,4 @@
-# 🚀 TeamPilot - Installation & Start
+# 🚀 kadr - Installation & Start
 
 Eine moderne Team-Management-App für Sportvereine.
 

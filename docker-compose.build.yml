@@ -1,6 +1,6 @@
 services:
-  teampilot-backend:
-    container_name: teampilot-backend
+  kadr-backend:
+    container_name: kadr-backend
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -20,13 +20,13 @@ services:
           - backend
     restart: unless-stopped
 
-  teampilot-frontend:
-    container_name: teampilot-frontend
+  kadr-frontend:
+    container_name: kadr-frontend
     build:
       context: ./frontend
       dockerfile: Dockerfile
     depends_on:
-      - teampilot-backend
+      - kadr-backend
     ports:
       - '${FRONTEND_PORT:-18080}:80'
     restart: unless-stopped
