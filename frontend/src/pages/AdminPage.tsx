@@ -31,6 +31,9 @@ export default function AdminPage() {
   const [showCreateTeam, setShowCreateTeam] = useState(false);
   const [teamName, setTeamName] = useState('');
   const [teamDescription, setTeamDescription] = useState('');
+  const [teamSearch, setTeamSearch] = useState('');
+  const [trainerSearch, setTrainerSearch] = useState('');
+  const [playerSearch, setPlayerSearch] = useState('');
   const [showDeleteTeamConfirmModal, setShowDeleteTeamConfirmModal] = useState(false);
   const [teamToDelete, setTeamToDelete] = useState<any | null>(null);
   
@@ -435,6 +438,37 @@ export default function AdminPage() {
   const trainers = users?.filter((u: any) => u.role === 'trainer') || [];
   const players = users?.filter((u: any) => u.role === 'player') || [];
 
+  const normalizedTeamSearch = teamSearch.trim().toLowerCase();
+  const normalizedTrainerSearch = trainerSearch.trim().toLowerCase();
+  const normalizedPlayerSearch = playerSearch.trim().toLowerCase();
+
+  const filteredTeams = (teams || []).filter((team: any) => {
+    if (!normalizedTeamSearch) return true;
+    const haystack = [team.name, team.description, team.trainer_names]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+    return haystack.includes(normalizedTeamSearch);
+  });
+
+  const filteredTrainers = trainers.filter((trainer: any) => {
+    if (!normalizedTrainerSearch) return true;
+    const haystack = [trainer.name, trainer.username, trainer.email, trainer.team_names]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+    return haystack.includes(normalizedTrainerSearch);
+  });
+
+  const filteredPlayers = players.filter((player: any) => {
+    if (!normalizedPlayerSearch) return true;
+    const haystack = [player.name, player.username, player.email, player.team_names]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+    return haystack.includes(normalizedPlayerSearch);
+  });
+
   const formatTrainerOptionLabel = (trainer: any) => {
     const isPending =
       trainer?.registration_status === 'pending' ||
@@ -598,9 +632,19 @@ export default function AdminPage() {
             <span>Team erstellen</span>
           </button>
         </div>
+
+        <div className="mb-4">
+          <input
+            type="text"
+            value={teamSearch}
+            onChange={(e) => setTeamSearch(e.target.value)}
+            className="input"
+            placeholder="Teams durchsuchen..."
+          />
+        </div>
         
         <div className="space-y-3">
-          {teams?.map((team: any) => (
+          {filteredTeams.map((team: any) => (
             <div key={team.id} className="p-4 bg-gray-50 rounded-lg">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -649,10 +693,10 @@ export default function AdminPage() {
             </div>
           ))}
 
-          {teams?.length === 0 && (
+          {filteredTeams.length === 0 && (
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">
               <Users className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
-              <p>Noch keine Teams erstellt</p>
+              <p>{teams?.length ? 'Keine Teams gefunden' : 'Noch keine Teams erstellt'}</p>
             </div>
           )}
         </div>
@@ -807,6 +851,15 @@ export default function AdminPage() {
         <div className="space-y-6">
           <div>
             <h3 className="text-lg font-semibold mb-3 text-blue-800 dark:text-blue-300">Trainer ({trainers.length})</h3>
+            <div className="mb-3">
+              <input
+                type="text"
+                value={trainerSearch}
+                onChange={(e) => setTrainerSearch(e.target.value)}
+                className="input"
+                placeholder="Trainer durchsuchen..."
+              />
+            </div>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -820,7 +873,7 @@ export default function AdminPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-                  {trainers.map((user: any) => (
+                  {filteredTrainers.map((user: any) => (
                     <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</div>
@@ -873,9 +926,9 @@ export default function AdminPage() {
                       </td>
                     </tr>
                   ))}
-                  {trainers.length === 0 && (
+                  {filteredTrainers.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-6 py-4 text-sm text-gray-500">Keine Trainer vorhanden.</td>
+                      <td colSpan={6} className="px-6 py-4 text-sm text-gray-500">{trainers.length ? 'Keine Trainer gefunden.' : 'Keine Trainer vorhanden.'}</td>
                     </tr>
                   )}
                 </tbody>
@@ -885,6 +938,15 @@ export default function AdminPage() {
 
           <div>
             <h3 className="text-lg font-semibold mb-3 text-green-800 dark:text-green-300">Spieler ({players.length})</h3>
+            <div className="mb-3">
+              <input
+                type="text"
+                value={playerSearch}
+                onChange={(e) => setPlayerSearch(e.target.value)}
+                className="input"
+                placeholder="Spieler durchsuchen..."
+              />
+            </div>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -898,7 +960,7 @@ export default function AdminPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-                  {players.map((user: any) => (
+                  {filteredPlayers.map((user: any) => (
                     <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</div>
@@ -939,9 +1001,9 @@ export default function AdminPage() {
                       </td>
                     </tr>
                   ))}
-                  {players.length === 0 && (
+                  {filteredPlayers.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-6 py-4 text-sm text-gray-500">Keine Spieler vorhanden.</td>
+                      <td colSpan={6} className="px-6 py-4 text-sm text-gray-500">{players.length ? 'Keine Spieler gefunden.' : 'Keine Spieler vorhanden.'}</td>
                     </tr>
                   )}
                 </tbody>
