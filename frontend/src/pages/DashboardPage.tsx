@@ -58,22 +58,32 @@ export default function DashboardPage() {
 
       {/* Team Section (Trainers only) - Only show if team photos exist */}
       {user?.role === 'trainer' && teams && teams.length > 0 && teams.some((t: any) => t.team_picture) && (
-        <div className="card">
-          <h2 className="text-xl font-semibold mb-4 flex items-center justify-center">
-            <Users className="w-6 h-6 mr-2 text-primary-600" />
-            {teams.length === 1 ? 'Mein Team' : 'Meine Teams'}
-          </h2>
+        <div className={`card ${teams.length === 1 ? 'p-0 overflow-hidden' : ''}`}>
+          {teams.length > 1 && (
+            <h2 className="text-xl font-semibold mb-4 flex items-center justify-center">
+              <Users className="w-6 h-6 mr-2 text-primary-600" />
+              Meine Teams
+            </h2>
+          )}
 
           {teams.length === 1 ? (
-            // Single team - simple display without upload
+            // Single team - full image with overlay labels
             getTeamPhotoUrl(teams[0]) && (
-              <div className="text-center space-y-4">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">{teams[0].name}</h3>
+              <div className="relative w-full min-h-[20rem] sm:min-h-[24rem]">
                 <img
                   src={getTeamPhotoUrl(teams[0])}
                   alt={teams[0].name}
-                  className="w-full h-72 sm:h-96 object-cover rounded-xl mx-auto shadow-lg"
+                  className="absolute inset-0 w-full h-full object-cover"
                 />
+                <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 via-black/25 to-transparent" />
+                <div className="absolute top-4 left-4 z-20 space-y-2">
+                  <span className="inline-block px-3 py-1 rounded-md bg-black/55 text-white text-sm font-semibold backdrop-blur-sm">
+                    Mein Team
+                  </span>
+                  <h3 className="inline-block px-3 py-1 rounded-md bg-black/55 text-white text-xl font-bold backdrop-blur-sm">
+                    {teams[0].name}
+                  </h3>
+                </div>
               </div>
             )
           ) : (
