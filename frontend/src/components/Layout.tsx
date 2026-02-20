@@ -30,6 +30,7 @@ export default function Layout({ organization }: LayoutProps) {
   };
 
   const organizationName = organization?.name || 'kadr-Verein';
+  const organizationLogo = organization?.logo;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -39,10 +40,22 @@ export default function Layout({ organization }: LayoutProps) {
             <div className="flex items-center">
               <Link to={user?.role === 'admin' ? '/admin' : '/'} className="flex items-center space-x-2">
                 <img src="/kadr-logo.svg" alt="kadr logo" className="w-6 h-6" />
-                <div className="flex flex-col">
+                <div className="flex items-center space-x-2">
                   <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">kadr</span>
-                  {organizationName !== 'kadr-Verein' && (
-                    <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{organizationName}</span>
+                  {(organizationLogo || organizationName !== 'kadr-Verein') && (
+                    <>
+                      <span className="text-gray-400 dark:text-gray-500">-</span>
+                      {organizationLogo && (
+                        <img 
+                          src={`${API_URL}${organizationLogo}`} 
+                          alt="Vereinslogo" 
+                          className="h-6 w-auto object-contain"
+                        />
+                      )}
+                      {organizationName !== 'kadr-Verein' && (
+                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">{organizationName}</span>
+                      )}
+                    </>
                   )}
                 </div>
               </Link>
