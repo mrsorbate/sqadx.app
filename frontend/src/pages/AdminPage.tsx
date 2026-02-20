@@ -255,6 +255,18 @@ export default function AdminPage() {
     },
   });
 
+  const createBackupMutation = useMutation({
+    mutationFn: () => adminAPI.createBackup(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['admin-system-health'] });
+      await queryClient.refetchQueries({ queryKey: ['admin-system-health'] });
+      showToast('Backup erfolgreich erstellt', 'success');
+    },
+    onError: (error: any) => {
+      showToast(error?.response?.data?.error || 'Backup konnte nicht erstellt werden', 'error');
+    },
+  });
+
   const handleUpdateSettings = (e: React.FormEvent) => {
     e.preventDefault();
     updateSettingsMutation.mutate({ organizationName, timezone });
@@ -478,6 +490,29 @@ export default function AdminPage() {
     setCopiedGeneratedPassword(true);
     setTimeout(() => setCopiedGeneratedPassword(false), 2000);
     showToast('Neues Passwort wurde in die Zwischenablage kopiert', 'info');
+  };
+
+  const handleDownloadBackup = async (fileName?: string | null) => {
+    if (!fileName) {
+      showToast('Kein Backup zum Herunterladen vorhanden', 'warning');
+      return;
+    }
+
+    try {
+      const response = await adminAPI.downloadBackup(fileName);
+      const blob = new Blob([response.data], { type: 'application/octet-stream' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      showToast('Backup wird heruntergeladen', 'info');
+    } catch (error: any) {
+      showToast(error?.response?.data?.error || 'Backup konnte nicht heruntergeladen werden', 'error');
+    }
   };
 
   if (teamsLoading || usersLoading || settingsLoading) {
@@ -1185,6 +1220,24 @@ export default function AdminPage() {
                 </div>
                 <p className="text-sm text-gray-700 dark:text-gray-200">Letztes Backup: {formatDateTime(systemHealth?.backup?.last_backup_at)}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Alter: {systemHealth?.backup?.age_hours ?? '—'} h</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => createBackupMutation.mutate()}
+                    disabled={createBackupMutation.isPending}
+                    className="btn btn-secondary text-xs"
+                  >
+                    {createBackupMutation.isPending ? 'Erstellt...' : 'Backup erstellen'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadBackup(systemHealth?.backup?.last_backup_file)}
+                    disabled={!systemHealth?.backup?.last_backup_file}
+                    className="btn btn-secondary text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Letztes Backup laden
+                  </button>
+                </div>
               </div>
             </div>
 

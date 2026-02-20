@@ -357,6 +357,73 @@ router.get('/health', (req: AuthRequest, res) => {
   }
 });
 
+// Create database backup (admin only)
+router.post('/backup/create', (req: AuthRequest, res) => {
+  try {
+    const dbFilePath = process.env.DATABASE_PATH || path.join(__dirname, '../../database.sqlite');
+
+    if (!fs.existsSync(dbFilePath)) {
+      return res.status(404).json({ error: 'Database file not found' });
+    }
+
+    const backupDir = process.env.BACKUP_DIR || path.join(__dirname, '../../backups');
+    if (!fs.existsSync(backupDir)) {
+      fs.mkdirSync(backupDir, { recursive: true });
+    }
+
+    const now = new Date();
+    const pad = (value: number) => String(value).padStart(2, '0');
+    const stamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+    const fileName = `backup-${stamp}.sqlite`;
+    const backupPath = path.join(backupDir, fileName);
+
+    fs.copyFileSync(dbFilePath, backupPath);
+    const stats = fs.statSync(backupPath);
+
+    logAdminAction(req, 'backup_created', 'backup', undefined, {
+      file_name: fileName,
+      size_bytes: stats.size,
+      backup_dir: backupDir,
+    });
+
+    res.status(201).json({
+      file_name: fileName,
+      path: backupPath,
+      size_bytes: stats.size,
+      created_at: stats.mtime.toISOString(),
+    });
+  } catch (error) {
+    console.error('Create backup error:', error);
+    res.status(500).json({ error: 'Failed to create backup' });
+  }
+});
+
+// Download backup file (admin only)
+router.get('/backup/:fileName/download', (req: AuthRequest, res) => {
+  try {
+    const requestedFileName = path.basename(String(req.params.fileName || ''));
+    if (!requestedFileName) {
+      return res.status(400).json({ error: 'Invalid backup filename' });
+    }
+
+    const backupDir = process.env.BACKUP_DIR || path.join(__dirname, '../../backups');
+    const backupPath = path.join(backupDir, requestedFileName);
+
+    if (!fs.existsSync(backupPath)) {
+      return res.status(404).json({ error: 'Backup file not found' });
+    }
+
+    logAdminAction(req, 'backup_downloaded', 'backup', undefined, {
+      file_name: requestedFileName,
+    });
+
+    res.download(backupPath, requestedFileName);
+  } catch (error) {
+    console.error('Download backup error:', error);
+    res.status(500).json({ error: 'Failed to download backup' });
+  }
+});
+
 // Get all teams (admin only)
 router.get('/teams', (req: AuthRequest, res) => {
   try {
