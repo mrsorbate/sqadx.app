@@ -244,14 +244,14 @@ export default function AdminPage() {
     if (file) {
       // Validate file size
       if (file.size > 5 * 1024 * 1024) {
-        showToast('Datei ist zu groß. Maximale Größe: 5MB', 'error');
+        showToast('Datei ist zu groß. Maximale Größe: 5MB', 'warning');
         return;
       }
       
       // Validate file type
       const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
       if (!allowedTypes.includes(file.type)) {
-        showToast('Ungültiger Dateityp. Erlaubt: JPG, PNG, GIF, WebP', 'error');
+        showToast('Ungültiger Dateityp. Erlaubt: JPG, PNG, GIF, WebP', 'warning');
         return;
       }
       

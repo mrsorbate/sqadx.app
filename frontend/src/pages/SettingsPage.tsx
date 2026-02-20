@@ -108,13 +108,13 @@ export default function SettingsPage() {
     if (file) {
       // Check file size (5MB)
       if (file.size > 5 * 1024 * 1024) {
-        showToast('Die Datei ist zu groß. Maximale Größe: 5MB', 'error');
+        showToast('Die Datei ist zu groß. Maximale Größe: 5MB', 'warning');
         return;
       }
 
       // Check file type
       if (!file.type.startsWith('image/')) {
-        showToast('Bitte wähle eine Bilddatei aus', 'error');
+        showToast('Bitte wähle eine Bilddatei aus', 'warning');
         return;
       }
 

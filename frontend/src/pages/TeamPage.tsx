@@ -97,13 +97,13 @@ export default function TeamPage() {
 
     // Validate file type
     if (!file.type.match(/^image\/(jpeg|jpg|png|gif|webp)$/)) {
-      showToast('Nur Bilddateien (JPEG, PNG, GIF, WEBP) sind erlaubt', 'error');
+      showToast('Nur Bilddateien (JPEG, PNG, GIF, WEBP) sind erlaubt', 'warning');
       return;
     }
 
     // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
-      showToast('Die Datei ist zu groß. Maximale Größe: 5MB', 'error');
+      showToast('Die Datei ist zu groß. Maximale Größe: 5MB', 'warning');
       return;
     }
 
