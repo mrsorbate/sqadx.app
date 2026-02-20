@@ -4,7 +4,6 @@ import { adminAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import { Navigate } from 'react-router-dom';
 import { Plus, Trash2, Users, UserPlus, Shield, Settings, Upload, Copy, Share2, Check, KeyRound } from 'lucide-react';
-import InviteManager from '../components/InviteManager';
 
 const TIMEZONES = [
   'Europe/Berlin',
@@ -36,7 +35,6 @@ export default function AdminPage() {
   const [selectedTeam, setSelectedTeam] = useState<number | null>(null);
   const [showAssignTrainer, setShowAssignTrainer] = useState(false);
   const [selectedTrainer, setSelectedTrainer] = useState('');
-  const [expandedInviteTeamId, setExpandedInviteTeamId] = useState<number | null>(null);
   const [showDeleteOrganizationConfirm, setShowDeleteOrganizationConfirm] = useState(false);
   const [deleteOrganizationConfirmText, setDeleteOrganizationConfirmText] = useState('');
   const [showCreateTrainer, setShowCreateTrainer] = useState(false);
@@ -542,15 +540,6 @@ export default function AdminPage() {
                 
                 <div className="flex space-x-2">
                   <button
-                    onClick={() =>
-                      setExpandedInviteTeamId(expandedInviteTeamId === team.id ? null : team.id)
-                    }
-                    className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
-                    title="Trainer einladen"
-                  >
-                    <Users className="w-5 h-5" />
-                  </button>
-                  <button
                     onClick={() => {
                       setSelectedTeam(team.id);
                       setShowAssignTrainer(true);
@@ -573,12 +562,6 @@ export default function AdminPage() {
                   </button>
                 </div>
               </div>
-
-              {expandedInviteTeamId === team.id && (
-                <div className="mt-4 border-t border-gray-200 dark:border-gray-700 pt-4">
-                  <InviteManager teamId={team.id} teamName={team.name} />
-                </div>
-              )}
             </div>
           ))}
 
