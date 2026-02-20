@@ -1,0 +1,27 @@
+{
+  "name": "team-manager",
+  "version": "1.0.0",
+  "description": "TeamPilot - Moderne Team-Management Software",
+  "scripts": {
+    "setup": "chmod +x setup.sh && ./setup.sh",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build"
+  },
+  "keywords": [
+    "team",
+    "management",
+    "sports"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "@types/multer": "^2.0.0",
+    "multer": "^2.0.2"
+  }
+}

@@ -1,0 +1,345 @@
+import { Router } from 'express';
+import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import db from '../database/init';
+import { authenticate, AuthRequest } from '../middleware/auth';
+
+const router = Router();
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+
+// Create team invite
+router.post('/teams/:teamId/invites', authenticate, (req: AuthRequest, res) => {
+  try {
+    const teamId = parseInt(req.params.teamId);
+    const { role = 'player', expiresInDays = 7, maxUses = null } = req.body;
+
+    // Check if user is trainer of this team
+    const membership = db.prepare(
+      'SELECT role FROM team_members WHERE team_id = ? AND user_id = ?'
+    ).get(teamId, req.user!.id) as any;
+
+    if (!membership || membership.role !== 'trainer') {
+      return res.status(403).json({ error: 'Only trainers can create invites' });
+    }
+
+    // Generate unique token
+    const token = crypto.randomBytes(16).toString('hex');
+    
+    // Calculate expiry date
+    let expiresAt = null;
+    if (expiresInDays) {
+      const expiry = new Date();
+      expiry.setDate(expiry.getDate() + expiresInDays);
+      expiresAt = expiry.toISOString();
+    }
+
+    // Create invite
+    const stmt = db.prepare(
+      'INSERT INTO team_invites (team_id, token, role, created_by, expires_at, max_uses) VALUES (?, ?, ?, ?, ?, ?)'
+    );
+    const result = stmt.run(teamId, token, role, req.user!.id, expiresAt, maxUses);
+
+    // Get team name for response
+    const team = db.prepare('SELECT name FROM teams WHERE id = ?').get(teamId) as any;
+
+    res.status(201).json({
+      id: result.lastInsertRowid,
+      token,
+      team_id: teamId,
+      team_name: team.name,
+      role,
+      expires_at: expiresAt,
+      max_uses: maxUses,
+      invite_url: `${process.env.FRONTEND_URL || 'http://localhost:5174'}/invite/${token}`
+    });
+  } catch (error) {
+    console.error('Create invite error:', error);
+    res.status(500).json({ error: 'Failed to create invite' });
+  }
+});
+
+// Get team invites
+router.get('/teams/:teamId/invites', authenticate, (req: AuthRequest, res) => {
+  try {
+    const teamId = parseInt(req.params.teamId);
+
+    // Check if user is trainer of this team
+    const membership = db.prepare(
+      'SELECT role FROM team_members WHERE team_id = ? AND user_id = ?'
+    ).get(teamId, req.user!.id) as any;
+
+    if (!membership || membership.role !== 'trainer') {
+      return res.status(403).json({ error: 'Only trainers can view invites' });
+    }
+
+    const invites = db.prepare(`
+      SELECT 
+        ti.*,
+        u.name as created_by_name,
+        t.name as team_name
+      FROM team_invites ti
+      INNER JOIN users u ON ti.created_by = u.id
+      INNER JOIN teams t ON ti.team_id = t.id
+      WHERE ti.team_id = ?
+      ORDER BY ti.created_at DESC
+    `).all(teamId);
+
+    res.json(invites);
+  } catch (error) {
+    console.error('Get invites error:', error);
+    res.status(500).json({ error: 'Failed to fetch invites' });
+  }
+});
+
+// Get invite details by token (public)
+router.get('/invites/:token', (req, res) => {
+  try {
+    const { token } = req.params;
+
+    const invite = db.prepare(`
+      SELECT 
+        ti.id,
+        ti.team_id,
+        ti.role,
+        ti.expires_at,
+        ti.max_uses,
+        ti.used_count,
+        ti.player_name,
+        ti.player_birth_date,
+        ti.player_jersey_number,
+        t.name as team_name,
+        t.description as team_description,
+        u.name as invited_by_name
+      FROM team_invites ti
+      INNER JOIN teams t ON ti.team_id = t.id
+      INNER JOIN users u ON ti.created_by = u.id
+      WHERE ti.token = ?
+    `).get(token) as any;
+
+    if (!invite) {
+      return res.status(404).json({ error: 'Invite not found' });
+    }
+
+    // Check if expired
+    if (invite.expires_at && new Date(invite.expires_at) < new Date()) {
+      return res.status(410).json({ error: 'Invite has expired' });
+    }
+
+    // Check if max uses reached
+    if (invite.max_uses && invite.used_count >= invite.max_uses) {
+      return res.status(410).json({ error: 'Invite has reached maximum uses' });
+    }
+
+    res.json(invite);
+  } catch (error) {
+    console.error('Get invite error:', error);
+    res.status(500).json({ error: 'Failed to fetch invite' });
+  }
+});
+
+// Accept invite (for logged-in users)
+router.post('/invites/:token/accept', authenticate, (req: AuthRequest, res) => {
+  try {
+    const { token } = req.params;
+
+    const invite = db.prepare(`
+      SELECT id, team_id, role, expires_at, max_uses, used_count
+      FROM team_invites
+      WHERE token = ?
+    `).get(token) as any;
+
+    if (!invite) {
+      return res.status(404).json({ error: 'Invite not found' });
+    }
+
+    // Check if expired
+    if (invite.expires_at && new Date(invite.expires_at) < new Date()) {
+      return res.status(410).json({ error: 'Invite has expired' });
+    }
+
+    // Check if max uses reached
+    if (invite.max_uses && invite.used_count >= invite.max_uses) {
+      return res.status(410).json({ error: 'Invite has reached maximum uses' });
+    }
+
+    // Check if already a member
+    const existingMember = db.prepare(
+      'SELECT id FROM team_members WHERE team_id = ? AND user_id = ?'
+    ).get(invite.team_id, req.user!.id);
+
+    if (existingMember) {
+      return res.status(409).json({ error: 'You are already a member of this team' });
+    }
+
+    // Add user to team
+    const addMemberStmt = db.prepare(
+      'INSERT INTO team_members (team_id, user_id, role) VALUES (?, ?, ?)'
+    );
+    addMemberStmt.run(invite.team_id, req.user!.id, invite.role);
+
+    // Increment used count
+    db.prepare('UPDATE team_invites SET used_count = used_count + 1 WHERE id = ?').run(invite.id);
+
+    // Create pending responses for all upcoming events
+    const upcomingEvents = db.prepare(
+      'SELECT id FROM events WHERE team_id = ? AND start_time >= datetime("now")'
+    ).all(invite.team_id) as any[];
+
+    const responseStmt = db.prepare(
+      'INSERT INTO event_responses (event_id, user_id, status) VALUES (?, ?, ?)'
+    );
+
+    for (const event of upcomingEvents) {
+      responseStmt.run(event.id, req.user!.id, 'pending');
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'Successfully joined the team',
+      team_id: invite.team_id 
+    });
+  } catch (error: any) {
+    console.error('Accept invite error:', error);
+    if (error.message.includes('UNIQUE constraint failed')) {
+      return res.status(409).json({ error: 'You are already a member of this team' });
+    }
+    res.status(500).json({ error: 'Failed to accept invite' });
+  }
+});
+
+// Delete invite
+router.delete('/invites/:id', authenticate, (req: AuthRequest, res) => {
+  try {
+    const inviteId = parseInt(req.params.id);
+
+    // Get invite to check permissions
+    const invite = db.prepare(
+      'SELECT team_id FROM team_invites WHERE id = ?'
+    ).get(inviteId) as any;
+
+    if (!invite) {
+      return res.status(404).json({ error: 'Invite not found' });
+    }
+
+    // Check if user is trainer of this team
+    const membership = db.prepare(
+      'SELECT role FROM team_members WHERE team_id = ? AND user_id = ?'
+    ).get(invite.team_id, req.user!.id) as any;
+
+    if (!membership || membership.role !== 'trainer') {
+      return res.status(403).json({ error: 'Only trainers can delete invites' });
+    }
+
+    db.prepare('DELETE FROM team_invites WHERE id = ?').run(inviteId);
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Delete invite error:', error);
+    res.status(500).json({ error: 'Failed to delete invite' });
+  }
+});
+
+// Register with player invite (create account and accept invite in one step)
+router.post('/invites/:token/register', async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    const invite = db.prepare(`
+      SELECT id, team_id, role, expires_at, max_uses, used_count, player_name, player_birth_date, player_jersey_number
+      FROM team_invites
+      WHERE token = ?
+    `).get(token) as any;
+
+    if (!invite) {
+      return res.status(404).json({ error: 'Invite not found' });
+    }
+
+    // Check if expired
+    if (invite.expires_at && new Date(invite.expires_at) < new Date()) {
+      return res.status(410).json({ error: 'Invite has expired' });
+    }
+
+    // Check if max uses reached
+    if (invite.max_uses && invite.used_count >= invite.max_uses) {
+      return res.status(410).json({ error: 'Invite has reached maximum uses' });
+    }
+
+    // Check if player_name exists (indicates this is a player invite, not generic invite)
+    if (!invite.player_name) {
+      return res.status(400).json({ error: 'This invite is not for player registration. Please login and accept the invite.' });
+    }
+
+    // Check if user with this email already exists
+    const existingUser = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+    if (existingUser) {
+      return res.status(409).json({ error: 'User with this email already exists' });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create user with data from invite
+    const userStmt = db.prepare(
+      'INSERT INTO users (email, password, name, role, birth_date) VALUES (?, ?, ?, ?, ?)'
+    );
+    const userResult = userStmt.run(email, hashedPassword, invite.player_name, invite.role, invite.player_birth_date);
+
+    // Add user to team
+    const memberStmt = db.prepare(
+      'INSERT INTO team_members (team_id, user_id, role, jersey_number) VALUES (?, ?, ?, ?)'
+    );
+    memberStmt.run(invite.team_id, userResult.lastInsertRowid, invite.role, invite.player_jersey_number);
+
+    // Increment used count
+    db.prepare('UPDATE team_invites SET used_count = used_count + 1 WHERE id = ?').run(invite.id);
+
+    // Create pending responses for all upcoming events
+    const upcomingEvents = db.prepare(
+      'SELECT id FROM events WHERE team_id = ? AND start_time >= datetime("now")'
+    ).all(invite.team_id) as any[];
+
+    const responseStmt = db.prepare(
+      'INSERT INTO event_responses (event_id, user_id, status) VALUES (?, ?, ?)'
+    );
+
+    for (const event of upcomingEvents) {
+      responseStmt.run(event.id, userResult.lastInsertRowid, 'pending');
+    }
+
+    // Generate token
+    const authToken = jwt.sign(
+      { id: userResult.lastInsertRowid, email, role: invite.role },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.status(201).json({
+      token: authToken,
+      user: {
+        id: userResult.lastInsertRowid,
+        email,
+        name: invite.player_name,
+        role: invite.role,
+        birth_date: invite.player_birth_date
+      }
+    });
+  } catch (error: any) {
+    console.error('Register with invite error:', error);
+    if (error.message.includes('UNIQUE constraint failed')) {
+      return res.status(409).json({ error: 'Email already in use' });
+    }
+    res.status(500).json({ error: 'Failed to register' });
+  }
+});
+
+export default router;

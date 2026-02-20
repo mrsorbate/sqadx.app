@@ -1,0 +1,165 @@
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL || '';
+
+const api = axios.create({
+  baseURL: `${API_URL}/api`,
+});
+
+// Add auth token to requests
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('auth-token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Auth API
+export const authAPI = {
+  login: (email: string, password: string) => 
+    api.post('/auth/login', { email, password }),
+  
+  register: (data: { email: string; password: string; name: string; role?: string }) =>
+    api.post('/auth/register', data),
+  
+  getCurrentUser: () => api.get('/auth/me'),
+};
+
+// Teams API
+export const teamsAPI = {
+  getAll: () => api.get('/teams'),
+  
+  getById: (id: number) => api.get(`/teams/${id}`),
+  
+  create: (data: { name: string; description?: string }) =>
+    api.post('/teams', data),
+  
+  getMembers: (id: number) => api.get(`/teams/${id}/members`),
+  
+  addMember: (id: number, data: { user_id: number; role: string; jersey_number?: number; position?: string }) =>
+    api.post(`/teams/${id}/members`, data),
+  
+  createPlayer: (id: number, data: { name: string; birth_date?: string; jersey_number?: number }) =>
+    api.post(`/teams/${id}/players`, data),
+
+  uploadTeamPicture: (id: number, file: File) => {
+    const formData = new FormData();
+    formData.append('picture', file);
+    return api.post(`/teams/${id}/picture`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
+};
+
+// Events API
+export const eventsAPI = {
+  getMyUpcoming: () => api.get('/events/my-upcoming'),
+
+  getMyAll: () => api.get('/events/my-all'),
+  
+  getAll: (teamId: number, from?: string, to?: string) => {
+    const params = new URLSearchParams({ team_id: teamId.toString() });
+    if (from) params.append('from', from);
+    if (to) params.append('to', to);
+    return api.get(`/events?${params}`);
+  },
+  
+  getById: (id: number) => api.get(`/events/${id}`),
+  
+  create: (data: {
+    team_id: number;
+    title: string;
+    type: string;
+    description?: string;
+    location?: string;
+    location_venue?: string;
+    location_street?: string;
+    location_zip_city?: string;
+    pitch_type?: string;
+    meeting_point?: string;
+    arrival_minutes?: number;
+    start_time: string;
+    end_time: string;
+    rsvp_deadline?: string;
+    duration_minutes?: number;
+    visibility_all?: boolean;
+    invite_all?: boolean;
+    invited_user_ids?: number[];
+    repeat_type?: 'none' | 'weekly' | 'custom';
+    repeat_until?: string;
+    repeat_days?: number[];
+  }) => api.post('/events', data),
+  
+  updateResponse: (id: number, data: { status: string; comment?: string }) =>
+    api.post(`/events/${id}/response`, data),
+
+  updatePlayerResponse: (id: number, userId: number, data: { status: string; comment?: string }) =>
+    api.post(`/events/${id}/response/${userId}`, data),
+  
+  delete: (id: number, deleteSeries: boolean = false) => 
+    api.delete(`/events/${id}${deleteSeries ? '?delete_series=true' : ''}`),
+};
+
+// Stats API
+export const statsAPI = {
+  getTeamStats: (teamId: number) => api.get(`/stats/team/${teamId}`),
+  
+  getPlayerStats: (userId: number, teamId: number) =>
+    api.get(`/stats/player/${userId}?team_id=${teamId}`),
+};
+
+// Invites API
+export const invitesAPI = {
+  createInvite: (teamId: number, data: { role?: string; expiresInDays?: number; maxUses?: number }) =>
+    api.post(`/teams/${teamId}/invites`, data),
+  
+  getTeamInvites: (teamId: number) => api.get(`/teams/${teamId}/invites`),
+  
+  getInviteByToken: (token: string) => api.get(`/invites/${token}`),
+  
+  acceptInvite: (token: string) => api.post(`/invites/${token}/accept`),
+  
+  registerWithInvite: (token: string, data: { email: string; password: string }) =>
+    api.post(`/invites/${token}/register`, data),
+  
+  deleteInvite: (inviteId: number) => api.delete(`/invites/${inviteId}`),
+};
+
+// Admin API
+export const adminAPI = {
+  getAllTeams: () => api.get('/admin/teams'),
+  
+  getAllUsers: () => api.get('/admin/users'),
+  
+  createTeam: (data: { name: string; description?: string }) =>
+    api.post('/teams', data),
+  
+  deleteTeam: (teamId: number) => api.delete(`/admin/teams/${teamId}`),
+  
+  addUserToTeam: (teamId: number, data: { user_id: number; role?: string; jersey_number?: number; position?: string }) =>
+    api.post(`/admin/teams/${teamId}/members`, data),
+  
+  removeUserFromTeam: (teamId: number, userId: number) =>
+    api.delete(`/admin/teams/${teamId}/members/${userId}`),
+};
+
+// Profile API
+export const profileAPI = {
+  getProfile: () => api.get('/profile/me'),
+  
+  updatePassword: (data: { currentPassword: string; newPassword: string }) =>
+    api.put('/profile/password', data),
+  
+  uploadPicture: (file: File) => {
+    const formData = new FormData();
+    formData.append('picture', file);
+    return api.post('/profile/picture', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  
+  deletePicture: () => api.delete('/profile/picture'),
+};
+
+export default api;

@@ -1,0 +1,159 @@
+import { Router } from 'express';
+import db from '../database/init';
+import { authenticate, AuthRequest } from '../middleware/auth';
+
+const router = Router();
+
+// All routes require authentication
+router.use(authenticate);
+
+// Middleware to check admin role
+const requireAdmin = (req: AuthRequest, res: any, next: any) => {
+  if (req.user!.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
+  next();
+};
+
+router.use(requireAdmin);
+
+// Get all teams (admin only)
+router.get('/teams', (req: AuthRequest, res) => {
+  try {
+    const teams = db.prepare(`
+      SELECT 
+        t.*,
+        u.name as created_by_name,
+        (SELECT COUNT(*) FROM team_members WHERE team_id = t.id) as member_count
+      FROM teams t
+      INNER JOIN users u ON t.created_by = u.id
+      ORDER BY t.created_at DESC
+    `).all();
+
+    res.json(teams);
+  } catch (error) {
+    console.error('Get all teams error:', error);
+    res.status(500).json({ error: 'Failed to fetch teams' });
+  }
+});
+
+// Get all users (admin only)
+router.get('/users', (req: AuthRequest, res) => {
+  try {
+    const users = db.prepare(`
+      SELECT 
+        u.id,
+        u.name,
+        u.email,
+        u.role,
+        u.created_at,
+        (SELECT COUNT(*) FROM team_members WHERE user_id = u.id) as team_count
+      FROM users u
+      ORDER BY u.created_at DESC
+    `).all();
+
+    res.json(users);
+  } catch (error) {
+    console.error('Get all users error:', error);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
+// Add user to team (admin only)
+router.post('/teams/:teamId/members', (req: AuthRequest, res) => {
+  try {
+    const teamId = parseInt(req.params.teamId);
+    const { user_id, role = 'player', jersey_number, position } = req.body;
+
+    if (!user_id) {
+      return res.status(400).json({ error: 'user_id is required' });
+    }
+
+    // Check if team exists
+    const team = db.prepare('SELECT id FROM teams WHERE id = ?').get(teamId);
+    if (!team) {
+      return res.status(404).json({ error: 'Team not found' });
+    }
+
+    // Check if user exists
+    const user = db.prepare('SELECT id FROM users WHERE id = ?').get(user_id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Add member
+    const stmt = db.prepare(
+      'INSERT INTO team_members (team_id, user_id, role, jersey_number, position) VALUES (?, ?, ?, ?, ?)'
+    );
+    const result = stmt.run(teamId, user_id, role, jersey_number, position);
+
+    // Create pending responses for all upcoming events
+    const upcomingEvents = db.prepare(
+      'SELECT id FROM events WHERE team_id = ? AND start_time >= datetime("now")'
+    ).all(teamId) as any[];
+
+    const responseStmt = db.prepare(
+      'INSERT INTO event_responses (event_id, user_id, status) VALUES (?, ?, ?)'
+    );
+
+    for (const event of upcomingEvents) {
+      responseStmt.run(event.id, user_id, 'pending');
+    }
+
+    res.status(201).json({
+      id: result.lastInsertRowid,
+      team_id: teamId,
+      user_id,
+      role,
+      jersey_number,
+      position
+    });
+  } catch (error: any) {
+    if (error.message.includes('UNIQUE constraint failed')) {
+      return res.status(409).json({ error: 'User is already a team member' });
+    }
+    console.error('Add team member error:', error);
+    res.status(500).json({ error: 'Failed to add team member' });
+  }
+});
+
+// Delete team (admin only)
+router.delete('/teams/:id', (req: AuthRequest, res) => {
+  try {
+    const teamId = parseInt(req.params.id);
+
+    const result = db.prepare('DELETE FROM teams WHERE id = ?').run(teamId);
+
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'Team not found' });
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Delete team error:', error);
+    res.status(500).json({ error: 'Failed to delete team' });
+  }
+});
+
+// Remove user from team (admin only)
+router.delete('/teams/:teamId/members/:userId', (req: AuthRequest, res) => {
+  try {
+    const teamId = parseInt(req.params.teamId);
+    const userId = parseInt(req.params.userId);
+
+    const result = db.prepare(
+      'DELETE FROM team_members WHERE team_id = ? AND user_id = ?'
+    ).run(teamId, userId);
+
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'Membership not found' });
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Remove team member error:', error);
+    res.status(500).json({ error: 'Failed to remove team member' });
+  }
+});
+
+export default router;
