@@ -14,6 +14,9 @@ export default function InviteManager({ teamId }: InviteManagerProps) {
   const { user } = useAuthStore();
   const inviteRole = user?.role === 'admin' ? 'trainer' : 'player';
   const inviteRoleLabel = inviteRole === 'trainer' ? 'Trainer' : 'Spieler';
+  const inviteHeading = inviteRole === 'player' ? 'Spieler anlegen & Einladungslinks' : 'Einladungslinks';
+  const createButtonLabel = inviteRole === 'player' ? 'Spieler anlegen' : 'Neuer Link';
+  const createFormTitle = inviteRole === 'player' ? 'Spieler anlegen' : 'Neuen Einladungslink erstellen';
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
   
@@ -72,7 +75,7 @@ export default function InviteManager({ teamId }: InviteManagerProps) {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold flex items-center">
           <LinkIcon className="w-5 h-5 mr-2 text-primary-600" />
-          Einladungslinks
+          {inviteHeading}
         </h2>
         {!showCreateForm && (
           <button
@@ -80,14 +83,14 @@ export default function InviteManager({ teamId }: InviteManagerProps) {
             className="btn btn-primary flex items-center space-x-2"
           >
             <Plus className="w-4 h-4" />
-            <span>Neuer Link</span>
+            <span>{createButtonLabel}</span>
           </button>
         )}
       </div>
 
       {showCreateForm && (
         <form onSubmit={handleCreate} className="mb-6 p-4 bg-gray-50 rounded-lg space-y-4">
-          <h3 className="font-semibold">Neuen Einladungslink erstellen</h3>
+          <h3 className="font-semibold">{createFormTitle}</h3>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">

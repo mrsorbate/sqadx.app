@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
 import { teamsAPI, invitesAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
-import { Calendar, Users, BarChart, ArrowLeft, UserPlus, X, Copy, Check, Clock, Mail, Phone, Upload, Image as ImageIcon } from 'lucide-react';
+import { Calendar, Users, BarChart, ArrowLeft, Clock, Mail, Phone, Upload, Image as ImageIcon } from 'lucide-react';
 import InviteManager from '../components/InviteManager';
 import { useToast } from '../lib/useToast';
 import { resolveAssetUrl } from '../lib/utils';
@@ -14,12 +14,6 @@ export default function TeamPage() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
 
-  const [showCreatePlayer, setShowCreatePlayer] = useState(false);
-  const [playerName, setPlayerName] = useState('');
-  const [playerBirthDate, setPlayerBirthDate] = useState('');
-  const [playerJerseyNumber, setPlayerJerseyNumber] = useState('');
-  const [createdPlayerInfo, setCreatedPlayerInfo] = useState<{ name: string; invite_url: string } | null>(null);
-  const [copied, setCopied] = useState(false);
   const [uploadingTeamPicture, setUploadingTeamPicture] = useState(false);
   const { showToast } = useToast();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -52,22 +46,6 @@ export default function TeamPage() {
     enabled: (isTrainer || isAdmin) && !!members, // Only load if user is trainer/admin and members are loaded
   });
 
-  const createPlayerMutation = useMutation({
-    mutationFn: (data: { name: string; birth_date?: string; jersey_number?: number }) =>
-      teamsAPI.createPlayer(teamId, data),
-    onSuccess: (response) => {
-      queryClient.invalidateQueries({ queryKey: ['team-members', teamId] });
-      queryClient.invalidateQueries({ queryKey: ['team-invites', teamId] });
-      setCreatedPlayerInfo({
-        name: response.data.name,
-        invite_url: response.data.invite_url,
-      });
-      setPlayerName('');
-      setPlayerBirthDate('');
-      setPlayerJerseyNumber('');
-    },
-  });
-
   const uploadTeamPictureMutation = useMutation({
     mutationFn: (file: File) => teamsAPI.uploadTeamPicture(teamId, file),
     onSuccess: () => {
@@ -82,15 +60,6 @@ export default function TeamPage() {
       setUploadingTeamPicture(false);
     },
   });
-
-  const handleCreatePlayer = (e: React.FormEvent) => {
-    e.preventDefault();
-    createPlayerMutation.mutate({
-      name: playerName,
-      birth_date: playerBirthDate || undefined,
-      jersey_number: playerJerseyNumber ? parseInt(playerJerseyNumber) : undefined,
-    });
-  };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -114,24 +83,6 @@ export default function TeamPage() {
 
   const getTeamPhotoUrl = (): string | undefined => {
     return resolveAssetUrl(team?.team_picture);
-  };
-
-  const handleCloseModal = () => {
-    setShowCreatePlayer(false);
-    setCreatedPlayerInfo(null);
-    setPlayerName('');
-    setPlayerBirthDate('');
-    setPlayerJerseyNumber('');
-    setCopied(false);
-  };
-
-  const handleCopyLink = () => {
-    if (createdPlayerInfo?.invite_url) {
-      navigator.clipboard.writeText(createdPlayerInfo.invite_url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-      showToast('Einladungslink wurde in die Zwischenablage kopiert', 'info');
-    }
   };
 
   if (teamLoading || membersLoading) {
@@ -308,15 +259,6 @@ export default function TeamPage() {
               <span className="mr-2">⚽</span>
               Spieler ({totalPlayers})
             </h2>
-            {isTrainer && (
-              <button
-                onClick={() => setShowCreatePlayer(true)}
-                className="btn btn-primary flex items-center justify-center space-x-2 text-sm w-full sm:w-auto"
-              >
-                <UserPlus className="w-4 h-4" />
-                <span>Spieler anlegen</span>
-              </button>
-            )}
           </div>
           <div className="space-y-2 max-h-96 overflow-y-auto">
             {/* Registered Players */}
@@ -396,143 +338,6 @@ export default function TeamPage() {
         </div>
       </div>
 
-      {/* Create Player Modal */}
-      {showCreatePlayer && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-900 rounded-lg p-4 sm:p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Neuen Spieler anlegen</h3>
-              <button
-                onClick={handleCloseModal}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            {createdPlayerInfo ? (
-              <div className="space-y-4">
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <p className="text-green-800 dark:text-green-200 font-semibold mb-2">
-                    ✅ {createdPlayerInfo.name} wurde erfolgreich angelegt!
-                  </p>
-                  <p className="text-green-700 dark:text-green-300 text-sm">
-                    Der Spieler wurde eingeladen und kann sich mit dem untenstehenden Link registrieren.
-                  </p>
-                </div>
-                
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-blue-800 dark:text-blue-200 font-semibold mb-2">
-                    📩 Einladungslink für {createdPlayerInfo.name}
-                  </p>
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                    <input
-                      type="text"
-                      value={createdPlayerInfo.invite_url}
-                      readOnly
-                      className="input text-sm flex-1"
-                    />
-                    <button
-                      onClick={handleCopyLink}
-                      className="btn btn-secondary flex items-center justify-center space-x-2 w-full sm:w-auto"
-                    >
-                      {copied ? (
-                        <>
-                          <Check className="w-4 h-4" />
-                          <span>Kopiert!</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          <span>Kopieren</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-                
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                  <p className="text-yellow-800 dark:text-yellow-200 text-sm">
-                    ⚠️ Teile diesen Link mit dem Spieler. Er kann sich damit registrieren und wird automatisch dem Team hinzugefügt.
-                  </p>
-                </div>
-                <button
-                  onClick={handleCloseModal}
-                  className="btn btn-primary w-full"
-                >
-                  Schließen
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleCreatePlayer} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={playerName}
-                    onChange={(e) => setPlayerName(e.target.value)}
-                    className="input"
-                    placeholder="z.B. Max Mustermann"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Geburtsdatum
-                  </label>
-                  <input
-                    type="date"
-                    value={playerBirthDate}
-                    onChange={(e) => setPlayerBirthDate(e.target.value)}
-                    className="input"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Trikotnummer (optional)
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="99"
-                    value={playerJerseyNumber}
-                    onChange={(e) => setPlayerJerseyNumber(e.target.value)}
-                    className="input"
-                    placeholder="z.B. 10"
-                  />
-                </div>
-
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                  <p className="text-sm text-blue-800 dark:text-blue-200">
-                    💡 Es wird automatisch ein Account mit E-Mail und Passwort erstellt.
-                  </p>
-                </div>
-
-                <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
-                  <button
-                    type="submit"
-                    disabled={createPlayerMutation.isPending}
-                    className="btn btn-primary w-full sm:flex-1"
-                  >
-                    {createPlayerMutation.isPending ? 'Wird erstellt...' : 'Spieler anlegen'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleCloseModal}
-                    className="btn btn-secondary w-full sm:w-auto"
-                  >
-                    Abbrechen
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
