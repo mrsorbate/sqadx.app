@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
 import { teamsAPI, invitesAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
-import { Calendar, Users, BarChart, ArrowLeft, Clock, Mail, Phone, Upload, Image as ImageIcon } from 'lucide-react';
+import { Calendar, Users, BarChart, ArrowLeft, Clock, Mail, Upload, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '../lib/useToast';
 import { resolveAssetUrl } from '../lib/utils';
 
@@ -220,26 +220,21 @@ export default function TeamPage() {
                 key={trainer.id}
                 className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg flex items-center space-x-3"
               >
-                <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                  <span className="text-primary-600 font-semibold">
-                    {trainer.name.charAt(0)}
-                  </span>
-                </div>
+                {resolveAssetUrl(trainer.profile_picture) ? (
+                  <img
+                    src={resolveAssetUrl(trainer.profile_picture)}
+                    alt={trainer.name}
+                    className="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-700"
+                  />
+                ) : (
+                  <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                    <span className="text-primary-600 font-semibold">
+                      {trainer.name.charAt(0)}
+                    </span>
+                  </div>
+                )}
                 <div>
                   <p className="font-medium text-gray-900 dark:text-white">{trainer.name}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-1">
-                    <Mail className="w-3.5 h-3.5" />
-                    {trainer.email}
-                  </p>
-                  {trainer.phone_number && (
-                    <a
-                      href={`tel:${trainer.phone_number}`}
-                      className="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-1 mt-1 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-                    >
-                      <Phone className="w-3.5 h-3.5" />
-                      {trainer.phone_number}
-                    </a>
-                  )}
                 </div>
               </div>
             ))}
