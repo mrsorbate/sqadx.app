@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
 import { LogOut, User as UserIcon, Menu, X, Moon, Sun, Users, Shield, Home } from 'lucide-react';
 import { useDarkMode } from '../hooks/useDarkMode';
 import { resolveAssetUrl } from '../lib/utils';
+import { teamsAPI } from '../lib/api';
 
 interface Organization {
   id: number;
@@ -31,6 +33,17 @@ export default function Layout({ organization }: LayoutProps) {
   const organizationName = organization?.name || 'Dein Verein';
   const organizationLogo = organization?.logo;
   const firstName = user?.name?.trim().split(/\s+/)[0] || user?.name || '';
+
+  const { data: teams } = useQuery({
+    queryKey: ['teams'],
+    queryFn: async () => {
+      const response = await teamsAPI.getAll();
+      return response.data;
+    },
+    enabled: user?.role !== 'admin',
+  });
+
+  const teamsMenuLabel = teams?.length === 1 ? 'Mein Team' : 'Meine Teams';
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -85,7 +98,7 @@ export default function Layout({ organization }: LayoutProps) {
                     className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                   >
                     <Users className="w-4 h-4" />
-                    <span>Meine Teams</span>
+                    <span>{teamsMenuLabel}</span>
                   </Link>
                 )}
               </div>
@@ -187,7 +200,7 @@ export default function Layout({ organization }: LayoutProps) {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Users className="w-4 h-4" />
-                  <span>Meine Teams</span>
+                  <span>{teamsMenuLabel}</span>
                 </Link>
               )}
               <button
