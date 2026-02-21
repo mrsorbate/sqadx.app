@@ -104,7 +104,7 @@ export default function TeamRosterPage() {
         <div className="card">
           <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-900 dark:text-white">
             <span className="mr-2">⚽</span>
-            Spieler (registriert)
+            Spieler
             <span className="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-200">
               {players.length}
             </span>
