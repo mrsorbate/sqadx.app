@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { invitesAPI } from '../lib/api';
-import { Copy, Plus, Trash2, Check, Mail } from 'lucide-react';
+import { Copy, Plus, Trash2, Check } from 'lucide-react';
 import { useToast } from '../lib/useToast';
 
 interface PlayerInviteManagerProps {
@@ -113,73 +113,74 @@ export default function PlayerInviteManager({ teamId }: PlayerInviteManagerProps
       </div>
 
       {showCreateForm && (
-        <form
-          onSubmit={handleCreate}
-          className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-4 border border-gray-200 dark:border-gray-700"
-        >
-          <h3 className="font-semibold text-gray-900 dark:text-white">Spieler einladen</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="card max-w-xl w-full max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="create-player-title">
+            <h3 id="create-player-title" className="font-semibold text-gray-900 dark:text-white mb-4">Spieler einladen</h3>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Spielername
-            </label>
-            <input
-              type="text"
-              required
-              value={inviteData.inviteeName}
-              onChange={(e) => setInviteData({ ...inviteData, inviteeName: e.target.value })}
-              className="input"
-              placeholder="z. B. Lena Spieler"
-              title="Spielername"
-              aria-label="Spielername"
-            />
+            <form onSubmit={handleCreate} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Spielername
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={inviteData.inviteeName}
+                  onChange={(e) => setInviteData({ ...inviteData, inviteeName: e.target.value })}
+                  className="input"
+                  placeholder="z. B. Lena Spieler"
+                  title="Spielername"
+                  aria-label="Spielername"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Gültig für (Tage)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="365"
+                    value={inviteData.expiresInDays}
+                    onChange={(e) => setInviteData({ ...inviteData, expiresInDays: parseInt(e.target.value) })}
+                    className="input"
+                    title="Gültigkeitsdauer in Tagen"
+                    aria-label="Gültigkeitsdauer in Tagen"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Max. Verwendungen (optional)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    placeholder="Unbegrenzt"
+                    value={inviteData.maxUses || ''}
+                    onChange={(e) =>
+                      setInviteData({ ...inviteData, maxUses: e.target.value ? parseInt(e.target.value) : undefined })
+                    }
+                    className="input"
+                    title="Maximale Anzahl Verwendungen"
+                    aria-label="Maximale Anzahl Verwendungen"
+                  />
+                </div>
+              </div>
+
+              <div className="flex space-x-3">
+                <button type="submit" disabled={createMutation.isPending} className="btn btn-primary">
+                  {createMutation.isPending ? 'Erstellt...' : 'Einladung erstellen'}
+                </button>
+                <button type="button" onClick={() => setShowCreateForm(false)} className="btn btn-secondary">
+                  Abbrechen
+                </button>
+              </div>
+            </form>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Gültig für (Tage)
-              </label>
-              <input
-                type="number"
-                min="1"
-                max="365"
-                value={inviteData.expiresInDays}
-                onChange={(e) => setInviteData({ ...inviteData, expiresInDays: parseInt(e.target.value) })}
-                className="input"
-                title="Gültigkeitsdauer in Tagen"
-                aria-label="Gültigkeitsdauer in Tagen"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Max. Verwendungen (optional)
-              </label>
-              <input
-                type="number"
-                min="1"
-                placeholder="Unbegrenzt"
-                value={inviteData.maxUses || ''}
-                onChange={(e) =>
-                  setInviteData({ ...inviteData, maxUses: e.target.value ? parseInt(e.target.value) : undefined })
-                }
-                className="input"
-                title="Maximale Anzahl Verwendungen"
-                aria-label="Maximale Anzahl Verwendungen"
-              />
-            </div>
-          </div>
-
-          <div className="flex space-x-3">
-            <button type="submit" disabled={createMutation.isPending} className="btn btn-primary">
-              {createMutation.isPending ? 'Erstellt...' : 'Einladung erstellen'}
-            </button>
-            <button type="button" onClick={() => setShowCreateForm(false)} className="btn btn-secondary">
-              Abbrechen
-            </button>
-          </div>
-        </form>
+        </div>
       )}
 
       {invites && invites.length > 0 ? (
@@ -188,7 +189,6 @@ export default function PlayerInviteManager({ teamId }: PlayerInviteManagerProps
             <thead>
               <tr className="border-b border-gray-200 dark:border-gray-700">
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Name</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Status</th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Gültig bis</th>
                 <th className="px-4 py-3 text-right text-sm font-semibold text-gray-900 dark:text-white">
                   Aktionen
@@ -202,12 +202,6 @@ export default function PlayerInviteManager({ teamId }: PlayerInviteManagerProps
                   className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                 >
                   <td className="px-4 py-3 text-sm text-gray-900 dark:text-white font-medium">{invite.player_name}</td>
-                  <td className="px-4 py-3 text-sm">
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200">
-                      <Mail className="w-3 h-3 mr-1" />
-                      Eingeladen
-                    </span>
-                  </td>
                   <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                     {invite.expires_at ? new Date(invite.expires_at).toLocaleDateString('de-DE') : 'Unbegrenzt'}
                   </td>
@@ -246,7 +240,7 @@ export default function PlayerInviteManager({ teamId }: PlayerInviteManagerProps
         </div>
       ) : (
         <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-          <Mail className="w-12 h-12 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
+          <Plus className="w-12 h-12 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
           <p>Noch keine Spieler eingeladen</p>
           <p className="text-sm mt-1">Erstelle eine Einladung, um Spieler hinzuzufügen</p>
         </div>
