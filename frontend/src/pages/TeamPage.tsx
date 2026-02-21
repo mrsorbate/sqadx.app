@@ -179,7 +179,10 @@ export default function TeamPage() {
           </div>
         </Link>
 
-        <button className="card hover:shadow-md transition-shadow flex items-center space-x-3 sm:space-x-4 text-left">
+        <a
+          href="#kader"
+          className="card hover:shadow-md transition-shadow flex items-center space-x-3 sm:space-x-4 text-left"
+        >
           <div className="bg-green-100 p-3 rounded-lg">
             <Users className="w-6 h-6 text-green-600" />
           </div>
@@ -187,7 +190,7 @@ export default function TeamPage() {
             <h3 className="font-semibold text-gray-900 dark:text-white">Kader</h3>
             <p className="text-sm text-gray-600 dark:text-gray-300">{players.length} Spieler</p>
           </div>
-        </button>
+        </a>
 
         <Link
           to={`/teams/${teamId}/stats`}
@@ -204,7 +207,7 @@ export default function TeamPage() {
       </div>
 
       {/* Team Members */}
-      <div className="space-y-6">
+      <div id="kader" className="space-y-6 scroll-mt-24">
         {/* Trainers */}
         <div className="card">
           <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-900 dark:text-white">
