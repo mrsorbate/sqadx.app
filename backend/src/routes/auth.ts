@@ -6,6 +6,7 @@ import { createRateLimiter } from '../middleware/rateLimit';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN || '30d').trim() || '30d';
 const loginRateLimitWindowMs = Number(process.env.LOGIN_RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000);
 const loginRateLimitMax = Number(process.env.LOGIN_RATE_LIMIT_MAX || 8);
 
@@ -60,7 +61,7 @@ router.post('/login', loginAttemptLimiter, async (req, res) => {
     const token = jwt.sign(
       { id: user.id, username: user.username, email: user.email, role: user.role },
       JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'] }
     );
 
     res.json({
