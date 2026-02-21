@@ -1,14 +1,20 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import { teamsAPI, invitesAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
-import { ArrowLeft, Clock, Mail, Users } from 'lucide-react';
+import { ArrowLeft, Clock, Mail, Users, Copy, Trash2, Check } from 'lucide-react';
 import { resolveAssetUrl } from '../lib/utils';
+import { useToast } from '../lib/useToast';
+import { useState } from 'react';
 
 export default function TeamRosterPage() {
   const { id } = useParams<{ id: string }>();
   const teamId = parseInt(id!);
   const { user } = useAuthStore();
+  const { showToast } = useToast();
+  const queryClient = useQueryClient();
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [copiedId, setCopiedId] = useState<number | null>(null);
 
   const { data: team, isLoading: teamLoading } = useQuery({
     queryKey: ['team', teamId],
@@ -48,6 +54,33 @@ export default function TeamRosterPage() {
   const pendingPlayerInvites = invites?.filter((inv: any) =>
     inv.player_name && (!inv.max_uses || inv.used_count < inv.max_uses)
   ) || [];
+
+  const copyLink = async (invite: any) => {
+    try {
+      const inviteLink = `${window.location.origin}/invite/${invite.token}`;
+      await navigator.clipboard.writeText(inviteLink);
+      setCopiedId(invite.id);
+      showToast('Einladungslink kopiert', 'success');
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (err) {
+      showToast('Fehler beim Kopieren des Links', 'error');
+    }
+  };
+
+  const deleteInvite = async (inviteId: number) => {
+    if (!confirm('Soll diese Einladung wirklich gelöscht werden?')) return;
+
+    setDeletingId(inviteId);
+    try {
+      await invitesAPI.deleteInvite(inviteId);
+      showToast('Einladung gelöscht', 'success');
+      queryClient.invalidateQueries({ queryKey: ['team-invites', teamId] });
+    } catch (err) {
+      showToast('Fehler beim Löschen der Einladung', 'error');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -144,50 +177,90 @@ export default function TeamRosterPage() {
         <div className="card">
           <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-900 dark:text-white">
             <span className="mr-2">📩</span>
-            Einladungen &amp; unregistrierte Spieler
+            Spielereinladungen
             <span className="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200">
               {pendingPlayerInvites.length}
             </span>
           </h2>
-          <div className="space-y-2 max-h-96 overflow-y-auto">
-            {pendingPlayerInvites.map((invite: any) => (
-              <div
-                key={`invite-${invite.id}`}
-                className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center justify-between dark:bg-yellow-900/20 dark:border-yellow-800"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
-                    {invite.player_jersey_number ? (
-                      <span className="text-yellow-600 font-semibold">{invite.player_jersey_number}</span>
-                    ) : (
-                      <Clock className="w-5 h-5 text-yellow-600" />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-900 dark:text-white">{invite.player_name}</p>
-                    {invite.player_birth_date && (
-                      <p className="text-sm text-gray-600 dark:text-gray-300">
-                        🎂 {new Date(invite.player_birth_date).toLocaleDateString('de-DE')}
-                      </p>
-                    )}
-                    <div className="flex items-center space-x-2 mt-1">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200">
-                        <Mail className="w-3 h-3 mr-1" />
-                        Eingeladen
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
 
-            {pendingPlayerInvites.length === 0 && (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                <Users className="w-12 h-12 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
-                <p>Keine offenen Einladungen oder unregistrierten Spieler</p>
-              </div>
-            )}
-          </div>
+          {pendingPlayerInvites.length === 0 ? (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <Users className="w-12 h-12 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
+              <p>Keine offenen Einladungen oder unregistrierten Spieler</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
+                      Name
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
+                      Status
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
+                      Gültig bis
+                    </th>
+                    <th className="px-4 py-3 text-right text-sm font-semibold text-gray-900 dark:text-white">
+                      Aktionen
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pendingPlayerInvites.map((invite: any) => (
+                    <tr
+                      key={`invite-${invite.id}`}
+                      className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                    >
+                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-white font-medium">
+                        {invite.player_name}
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200">
+                          <Mail className="w-3 h-3 mr-1" />
+                          Eingeladen
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                        {invite.expires_at
+                          ? new Date(invite.expires_at).toLocaleDateString('de-DE')
+                          : 'Unbegrenzt'}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-right space-x-2 flex items-center justify-end">
+                        <button
+                          onClick={() => copyLink(invite)}
+                          disabled={deletingId === invite.id}
+                          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                          title="Link kopieren"
+                          aria-label={`Einladungslink für ${invite.player_name} kopieren`}
+                        >
+                          {copiedId === invite.id ? (
+                            <Check className="w-5 h-5 text-green-600" />
+                          ) : (
+                            <Copy className="w-5 h-5" />
+                          )}
+                        </button>
+                        <button
+                          onClick={() => deleteInvite(invite.id)}
+                          disabled={deletingId === invite.id}
+                          className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400"
+                          title="Löschen"
+                          aria-label={`Einladung für ${invite.player_name} löschen`}
+                        >
+                          {deletingId === invite.id ? (
+                            <Clock className="w-5 h-5 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-5 h-5" />
+                          )}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>
