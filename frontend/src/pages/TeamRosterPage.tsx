@@ -1,13 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import { teamsAPI } from '../lib/api';
-import { ArrowLeft, Users } from 'lucide-react';
+import { ArrowLeft, Users, X } from 'lucide-react';
 import { resolveAssetUrl } from '../lib/utils';
 import PlayerInviteManager from '../components/PlayerInviteManager';
+import { useState } from 'react';
 
 export default function TeamRosterPage() {
   const { id } = useParams<{ id: string }>();
   const teamId = parseInt(id!);
+  const [selectedMember, setSelectedMember] = useState<any | null>(null);
 
   const { data: team, isLoading: teamLoading } = useQuery({
     queryKey: ['team', teamId],
@@ -59,9 +61,10 @@ export default function TeamRosterPage() {
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
             {trainers.map((trainer: any) => (
-              <div
+              <button
                 key={trainer.id}
-                className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg flex items-center space-x-3"
+                onClick={() => setSelectedMember(trainer)}
+                className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg flex items-center space-x-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer text-left"
               >
                 {resolveAssetUrl(trainer.profile_picture) ? (
                   <img
@@ -79,7 +82,7 @@ export default function TeamRosterPage() {
                 <div>
                   <p className="font-medium text-gray-900 dark:text-white">{trainer.name}</p>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -94,9 +97,10 @@ export default function TeamRosterPage() {
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
             {players.map((player: any) => (
-              <div
+              <button
                 key={player.id}
-                className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg flex items-center space-x-3"
+                onClick={() => setSelectedMember(player)}
+                className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg flex items-center space-x-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer text-left"
               >
                 {resolveAssetUrl(player.profile_picture) ? (
                   <img
@@ -112,7 +116,7 @@ export default function TeamRosterPage() {
                 <div>
                   <p className="font-medium text-gray-900 dark:text-white">{player.name}</p>
                 </div>
-              </div>
+              </button>
             ))}
 
             {players.length === 0 && (
@@ -126,6 +130,85 @@ export default function TeamRosterPage() {
 
         <PlayerInviteManager teamId={teamId} />
       </div>
+
+      {/* Member Profile Modal */}
+      {selectedMember && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="card max-w-md w-full" role="dialog" aria-modal="true" aria-labelledby="member-profile-title">
+            <div className="flex items-start justify-between mb-4">
+              <h3 id="member-profile-title" className="font-semibold text-gray-900 dark:text-white">
+                Profil
+              </h3>
+              <button
+                onClick={() => setSelectedMember(null)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                title="Schließen"
+                aria-label="Modal schließen"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex justify-center">
+                {resolveAssetUrl(selectedMember.profile_picture) ? (
+                  <img
+                    src={resolveAssetUrl(selectedMember.profile_picture)}
+                    alt={selectedMember.name}
+                    className="w-32 h-32 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700"
+                  />
+                ) : (
+                  <div className={`w-32 h-32 rounded-full flex items-center justify-center border-2 ${
+                    selectedMember.role === 'trainer'
+                      ? 'bg-primary-100 border-primary-200 dark:bg-primary-900/40 dark:border-primary-700'
+                      : 'bg-green-100 border-green-200 dark:bg-green-900/40 dark:border-green-700'
+                  }`}>
+                    <span className={`text-5xl font-semibold ${
+                      selectedMember.role === 'trainer'
+                        ? 'text-primary-600 dark:text-primary-300'
+                        : 'text-green-600 dark:text-green-300'
+                    }`}>
+                      {selectedMember.name.charAt(0)}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="text-center">
+                <h4 className="text-lg font-semibold text-gray-900 dark:text-white">{selectedMember.name}</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400 capitalize">
+                  {selectedMember.role === 'trainer' ? 'Trainer' : 'Spieler'}
+                </p>
+              </div>
+
+              {selectedMember.jersey_number && (
+                <div className="grid grid-cols-1 text-center">
+                  <div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Trikotnummer</p>
+                    <p className="text-lg font-semibold text-gray-900 dark:text-white">#{selectedMember.jersey_number}</p>
+                  </div>
+                </div>
+              )}
+
+              {selectedMember.position && (
+                <div className="grid grid-cols-1 text-center">
+                  <div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Position</p>
+                    <p className="text-sm text-gray-900 dark:text-white">{selectedMember.position}</p>
+                  </div>
+                </div>
+              )}
+
+              <button
+                onClick={() => setSelectedMember(null)}
+                className="btn btn-secondary w-full"
+              >
+                Schließen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
