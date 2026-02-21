@@ -49,8 +49,6 @@ export default function TeamRosterPage() {
     inv.player_name && (!inv.max_uses || inv.used_count < inv.max_uses)
   ) || [];
 
-  const totalPlayers = players.length + pendingPlayerInvites.length;
-
   return (
     <div className="space-y-6">
       <div className="flex items-start sm:items-center gap-3 sm:gap-4">
@@ -104,41 +102,54 @@ export default function TeamRosterPage() {
         </div>
 
         <div className="card">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-            <h2 className="text-xl font-semibold flex items-center text-gray-900 dark:text-white">
-              <span className="mr-2">⚽</span>
-              Spieler ({totalPlayers})
-            </h2>
-          </div>
-          <div className="space-y-2 max-h-96 overflow-y-auto">
+          <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-900 dark:text-white">
+            <span className="mr-2">⚽</span>
+            Spieler (registriert)
+            <span className="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-200">
+              {players.length}
+            </span>
+          </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
             {players.map((player: any) => (
               <div
                 key={player.id}
-                className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg flex items-center justify-between"
+                className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg flex items-center space-x-3"
               >
-                <div className="flex items-center space-x-3">
+                {resolveAssetUrl(player.profile_picture) ? (
+                  <img
+                    src={resolveAssetUrl(player.profile_picture)}
+                    alt={player.name}
+                    className="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-700"
+                  />
+                ) : (
                   <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                    {player.jersey_number ? (
-                      <span className="text-green-600 font-semibold">{player.jersey_number}</span>
-                    ) : (
-                      <span className="text-green-600 font-semibold">{player.name.charAt(0)}</span>
-                    )}
+                    <span className="text-green-600 font-semibold">{player.name.charAt(0)}</span>
                   </div>
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-white">{player.name}</p>
-                    {player.birth_date && (
-                      <p className="text-sm text-gray-600 dark:text-gray-300">
-                        🎂 {new Date(player.birth_date).toLocaleDateString('de-DE')}
-                      </p>
-                    )}
-                    {player.position && (
-                      <p className="text-sm text-gray-600 dark:text-gray-300">{player.position}</p>
-                    )}
-                  </div>
+                )}
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">{player.name}</p>
                 </div>
               </div>
             ))}
 
+            {players.length === 0 && (
+              <div className="col-span-full text-center py-8 text-gray-500 dark:text-gray-400">
+                <Users className="w-12 h-12 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
+                <p>Noch keine registrierten Spieler im Team</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="card">
+          <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-900 dark:text-white">
+            <span className="mr-2">📩</span>
+            Einladungen &amp; unregistrierte Spieler
+            <span className="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200">
+              {pendingPlayerInvites.length}
+            </span>
+          </h2>
+          <div className="space-y-2 max-h-96 overflow-y-auto">
             {pendingPlayerInvites.map((invite: any) => (
               <div
                 key={`invite-${invite.id}`}
@@ -170,10 +181,10 @@ export default function TeamRosterPage() {
               </div>
             ))}
 
-            {players.length === 0 && pendingPlayerInvites.length === 0 && (
+            {pendingPlayerInvites.length === 0 && (
               <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                 <Users className="w-12 h-12 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
-                <p>Noch keine Spieler im Team</p>
+                <p>Keine offenen Einladungen oder unregistrierten Spieler</p>
               </div>
             )}
           </div>
