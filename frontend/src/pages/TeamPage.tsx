@@ -165,13 +165,9 @@ export default function TeamPage() {
 
       {/* Team Photo Upload (Trainer only) */}
       {isTrainer && (
-        <div className="card">
-          <h2 className="text-lg font-semibold mb-4 flex items-center">
-            <ImageIcon className="w-5 h-5 mr-2 text-primary-600" />
-            Mannschaftsbild
-          </h2>
+        <div className="card p-0 overflow-hidden">
           {getTeamPhotoUrl() ? (
-            <div className="relative w-full min-h-[20rem] sm:min-h-[24rem] overflow-hidden rounded-xl">
+            <div className="relative w-full min-h-[20rem] sm:min-h-[24rem]">
               <img
                 src={getTeamPhotoUrl()}
                 alt={team?.name}
@@ -179,10 +175,6 @@ export default function TeamPage() {
               />
               <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 via-black/25 to-transparent" />
               <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 px-4 text-center">
-                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-md bg-black/55 text-white text-base font-semibold backdrop-blur-sm">
-                  <Users className="w-4 h-4" />
-                  Mein Team
-                </span>
                 <h3 className="inline-block px-3 py-1 rounded-md bg-black/55 text-white text-xl font-bold backdrop-blur-sm">
                   {team?.name}
                 </h3>
@@ -201,7 +193,7 @@ export default function TeamPage() {
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadingTeamPicture}
-              className="w-full h-64 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg flex flex-col items-center justify-center hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-gray-800/70 transition-colors disabled:opacity-50"
+              className="w-full h-72 sm:h-96 border-2 border-dashed border-gray-300 dark:border-gray-700 flex flex-col items-center justify-center hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-gray-800/70 transition-colors disabled:opacity-50"
             >
               <ImageIcon className="w-16 h-16 text-gray-400 mb-3" />
               <span className="text-base text-gray-600 dark:text-gray-300 font-medium">
