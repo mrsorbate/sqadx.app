@@ -29,5 +29,19 @@ export function resolveAssetUrl(assetPath?: string | null) {
     return assetPath;
   }
 
-  return API_URL ? `${API_URL}${assetPath}` : assetPath;
+  if (API_URL) {
+    return `${API_URL}${assetPath}`;
+  }
+
+  if (typeof window !== 'undefined' && assetPath.startsWith('/uploads/')) {
+    const { protocol, hostname, port } = window.location;
+    const isLocalFrontend = hostname === 'localhost' || hostname === '127.0.0.1';
+    const isViteDevPort = port === '5173' || port === '5174';
+
+    if (isLocalFrontend && isViteDevPort) {
+      return `${protocol}//${hostname}:3000${assetPath}`;
+    }
+  }
+
+  return assetPath;
 }
