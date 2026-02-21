@@ -1,14 +1,27 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { authAPI, settingsAPI } from '../lib/api';
 import { resolveAssetUrl } from '../lib/utils';
 
 export default function LoginPage() {
+  const [searchParams] = useSearchParams();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [sessionExpiredNotice, setSessionExpiredNotice] = useState(false);
   const setAuth = useAuthStore((state) => state.setAuth);
+
+  useEffect(() => {
+    const fromQuery = searchParams.get('reason') === 'session-expired';
+    const fromStorage = localStorage.getItem('session-expired-notice') === '1';
+
+    if (fromQuery || fromStorage) {
+      setSessionExpiredNotice(true);
+      localStorage.removeItem('session-expired-notice');
+    }
+  }, [searchParams]);
 
   // Fetch organization info
   const { data: organization } = useQuery({
@@ -76,6 +89,12 @@ export default function LoginPage() {
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          {sessionExpiredNotice && (
+            <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg text-sm dark:bg-amber-900/30 dark:border-amber-800 dark:text-amber-200">
+              Aus Sicherheitsgründen musst du dich alle 30 Tage neu einloggen.
+            </div>
+          )}
+
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
               {error}

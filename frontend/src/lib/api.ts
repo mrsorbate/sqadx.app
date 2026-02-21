@@ -15,6 +15,27 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error?.response?.status;
+    const requestUrl = String(error?.config?.url || '');
+    const hasToken = Boolean(localStorage.getItem('auth-token'));
+
+    if (status === 401 && hasToken && !requestUrl.includes('/auth/login')) {
+      localStorage.removeItem('auth-token');
+      localStorage.removeItem('auth-user');
+      localStorage.setItem('session-expired-notice', '1');
+
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login?reason=session-expired';
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 // Auth API
 export const authAPI = {
   login: (username: string, password: string) => 
