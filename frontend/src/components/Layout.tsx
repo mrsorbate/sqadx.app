@@ -5,7 +5,7 @@ import { useAuthStore } from '../store/authStore';
 import { LogOut, User as UserIcon, Menu, X, Moon, Sun, Users, Shield, Home } from 'lucide-react';
 import { useDarkMode } from '../hooks/useDarkMode';
 import { resolveAssetUrl } from '../lib/utils';
-import { teamsAPI } from '../lib/api';
+import { profileAPI, teamsAPI } from '../lib/api';
 
 interface Organization {
   id: number;
@@ -43,7 +43,17 @@ export default function Layout({ organization }: LayoutProps) {
     enabled: user?.role !== 'admin',
   });
 
+  const { data: profile } = useQuery({
+    queryKey: ['profile'],
+    queryFn: async () => {
+      const response = await profileAPI.getProfile();
+      return response.data;
+    },
+    enabled: !!user,
+  });
+
   const teamsMenuLabel = teams?.length === 1 ? 'Mein Team' : 'Meine Teams';
+  const menuProfilePicture = profile?.profile_picture || user?.profile_picture;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -103,10 +113,10 @@ export default function Layout({ organization }: LayoutProps) {
                 )}
               </div>
               <div className="md:hidden flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300 min-w-0">
-                {user?.profile_picture ? (
+                {menuProfilePicture ? (
                   <Link to="/settings" aria-label="Zu den Einstellungen">
                     <img
-                      src={resolveAssetUrl(user.profile_picture)}
+                      src={resolveAssetUrl(menuProfilePicture)}
                       alt="Profilbild"
                       className="w-7 h-7 rounded-full object-cover border border-gray-300 dark:border-gray-600 hover:opacity-90"
                     />
@@ -123,10 +133,10 @@ export default function Layout({ organization }: LayoutProps) {
                 </Link>
               </div>
               <div className="hidden md:flex items-center space-x-3 px-2">
-                {user?.profile_picture ? (
+                {menuProfilePicture ? (
                   <Link to="/settings" aria-label="Zu den Einstellungen">
                     <img
-                      src={resolveAssetUrl(user.profile_picture)}
+                      src={resolveAssetUrl(menuProfilePicture)}
                       alt="Profilbild"
                       className="w-8 h-8 rounded-full object-cover border-2 border-gray-300 dark:border-gray-600 hover:opacity-90"
                     />
