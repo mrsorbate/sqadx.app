@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { invitesAPI } from '../lib/api';
-import { Copy, Plus, Trash2, Check } from 'lucide-react';
+import { Copy, Plus, Trash2 } from 'lucide-react';
 import { useToast } from '../lib/useToast';
 
 interface PlayerInviteManagerProps {
@@ -12,8 +12,14 @@ export default function PlayerInviteManager({ teamId }: PlayerInviteManagerProps
   const queryClient = useQueryClient();
   const { showToast } = useToast();
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [copiedId, setCopiedId] = useState<number | null>(null);
+  const [copiedToken, setCopiedToken] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [inviteToDelete, setInviteToDelete] = useState<any | null>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [selectedInviteForShare, setSelectedInviteForShare] = useState<any | null>(null);
+  const [inviteMessageDraft, setInviteMessageDraft] = useState('');
+  const [isEditingInviteMessage, setIsEditingInviteMessage] = useState(false);
 
   const [inviteData, setInviteData] = useState({
     inviteeName: '',
@@ -61,22 +67,74 @@ export default function PlayerInviteManager({ teamId }: PlayerInviteManagerProps
     },
   });
 
-  const copyLink = async (invite: any) => {
+  const buildInviteMessage = (playerName: string, inviteUrl: string) => {
+    return [
+      `Hi ${playerName},`,
+      '',
+      `ab sofort organisieren wir unsere Trainings und Spiele über sqadX.app.`,
+      '',
+      'Hier ist dein persönlicher Einladungslink:',
+      '',
+      inviteUrl,
+      '',
+      'Klick kurz drauf und registriere dich – dann bist du direkt bei allen Trainings, Spielen und Infos am Start.',
+      '',
+      'Sportliche Grüße',
+    ].join('\n');
+  };
+
+  const copyTextToClipboard = async (text: string) => {
     try {
-      const inviteLink = `${window.location.origin}/invite/${invite.token}`;
-      await navigator.clipboard.writeText(inviteLink);
-      setCopiedId(invite.id);
-      showToast('Einladungslink kopiert', 'success');
-      setTimeout(() => setCopiedId(null), 2000);
-    } catch (err) {
-      showToast('Fehler beim Kopieren des Links', 'error');
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      const fallbackTextarea = document.createElement('textarea');
+      fallbackTextarea.value = text;
+      fallbackTextarea.style.position = 'fixed';
+      fallbackTextarea.style.opacity = '0';
+      fallbackTextarea.setAttribute('readonly', '');
+      document.body.appendChild(fallbackTextarea);
+      fallbackTextarea.select();
+      const copied = document.execCommand('copy');
+      document.body.removeChild(fallbackTextarea);
+      return copied;
     }
   };
 
+  const copyInviteText = async (token: string, playerName: string, inviteUrl: string, customMessage?: string) => {
+    const inviteMessage = (customMessage || buildInviteMessage(playerName, inviteUrl)).trim();
+    const copied = await copyTextToClipboard(inviteMessage);
+    if (!copied) {
+      showToast('Fehler beim Kopieren', 'error');
+      return;
+    }
+    setCopiedToken(token);
+    showToast('Einladungstext kopiert', 'success');
+    setTimeout(() => setCopiedToken(null), 2000);
+  };
+
+  const openShareModal = (invite: any) => {
+    setSelectedInviteForShare(invite);
+    const inviteUrl = `${window.location.origin}/invite/${invite.token}`;
+    setInviteMessageDraft(buildInviteMessage(invite.player_name, inviteUrl));
+    setIsEditingInviteMessage(false);
+    setShowShareModal(true);
+  };
+
+  const copyLink = async (invite: any) => {
+    openShareModal(invite);
+  };
+
   const deleteInvite = async (inviteId: number) => {
-    if (!confirm('Soll diese Einladung wirklich gelöscht werden?')) return;
     setDeletingId(inviteId);
     deleteMutation.mutate(inviteId);
+    setShowDeleteModal(false);
+    setInviteToDelete(null);
+  };
+
+  const openDeleteModal = (invite: any) => {
+    setInviteToDelete(invite);
+    setShowDeleteModal(true);
   };
 
   const handleCreate = (e: React.FormEvent) => {
@@ -188,17 +246,13 @@ export default function PlayerInviteManager({ teamId }: PlayerInviteManagerProps
                       onClick={() => copyLink(invite)}
                       disabled={deletingId === invite.id}
                       className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                      title="Link kopieren"
-                      aria-label={`Einladungslink für ${invite.player_name} kopieren`}
+                      title="Einladung teilen"
+                      aria-label={`Einladung für ${invite.player_name} teilen`}
                     >
-                      {copiedId === invite.id ? (
-                        <Check className="w-5 h-5 text-green-600" />
-                      ) : (
-                        <Copy className="w-5 h-5" />
-                      )}
+                      <Copy className="w-5 h-5" />
                     </button>
                     <button
-                      onClick={() => deleteInvite(invite.id)}
+                      onClick={() => openDeleteModal(invite)}
                       disabled={deletingId === invite.id}
                       className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400"
                       title="Löschen"
@@ -221,6 +275,108 @@ export default function PlayerInviteManager({ teamId }: PlayerInviteManagerProps
           <Plus className="w-12 h-12 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
           <p>Noch keine Spieler eingeladen</p>
           <p className="text-sm mt-1">Erstelle eine Einladung, um Spieler hinzuzufügen</p>
+        </div>
+      )}
+
+      {/* Delete Invite Modal */}
+      {showDeleteModal && inviteToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="card max-w-md w-full" role="dialog" aria-modal="true" aria-labelledby="delete-invite-title">
+            <h3 id="delete-invite-title" className="font-semibold text-gray-900 dark:text-white mb-4">
+              Einladung löschen?
+            </h3>
+            <p className="text-gray-700 dark:text-gray-300 mb-6">
+              Soll die Einladung für <strong>{inviteToDelete.player_name}</strong> wirklich gelöscht werden?
+            </p>
+            <div className="flex space-x-3">
+              <button
+                onClick={() => deleteInvite(inviteToDelete.id)}
+                disabled={deletingId === inviteToDelete.id}
+                className="btn btn-primary flex-1"
+              >
+                {deletingId === inviteToDelete.id ? 'Wird gelöscht...' : 'Ja, löschen'}
+              </button>
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setInviteToDelete(null);
+                }}
+                className="btn btn-secondary flex-1"
+              >
+                Abbrechen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Share Invite Modal */}
+      {showShareModal && selectedInviteForShare && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="card max-w-2xl w-full max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="share-invite-title">
+            <h3 id="share-invite-title" className="font-semibold text-gray-900 dark:text-white mb-4">
+              Einladung für {selectedInviteForShare.player_name} teilen
+            </h3>
+
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Einladungstext:</p>
+                <div className="flex gap-2 mb-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!isEditingInviteMessage) {
+                        setIsEditingInviteMessage(true);
+                        return;
+                      }
+                      setIsEditingInviteMessage(false);
+                    }}
+                    className="text-sm text-primary-600 dark:text-primary-400 hover:underline"
+                  >
+                    {isEditingInviteMessage ? 'Vorschau anzeigen' : 'Text bearbeiten'}
+                  </button>
+                </div>
+
+                {isEditingInviteMessage ? (
+                  <textarea
+                    value={inviteMessageDraft}
+                    onChange={(e) => setInviteMessageDraft(e.target.value)}
+                    rows={10}
+                    title="Einladungstext bearbeiten"
+                    aria-label="Einladungstext bearbeiten"
+                    className="input w-full text-sm"
+                  />
+                ) : (
+                  <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300">
+                    {inviteMessageDraft}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => {
+                    const inviteUrl = `${window.location.origin}/invite/${selectedInviteForShare.token}`;
+                    copyInviteText(selectedInviteForShare.token, selectedInviteForShare.player_name, inviteUrl, inviteMessageDraft);
+                  }}
+                  className="btn btn-primary flex-1"
+                >
+                  {copiedToken === selectedInviteForShare.token ? 'Kopiert!' : 'Text kopieren'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowShareModal(false);
+                    setSelectedInviteForShare(null);
+                    setInviteMessageDraft('');
+                    setIsEditingInviteMessage(false);
+                  }}
+                  className="btn btn-secondary flex-1"
+                >
+                  Schließen
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
