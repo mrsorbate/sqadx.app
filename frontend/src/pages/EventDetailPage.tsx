@@ -93,7 +93,12 @@ export default function EventDetailPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
-        <button onClick={() => navigate(-1)} className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+        <button
+          onClick={() => navigate(-1)}
+          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+          aria-label="Zurück"
+          title="Zurück"
+        >
           <ArrowLeft className="w-6 h-6" />
         </button>
         <div className="flex-1">
@@ -340,6 +345,8 @@ export default function EventDetailPage() {
                               });
                             }}
                             disabled={updatePlayerResponseMutation.isPending}
+                            title="Rückmeldestatus ändern"
+                            aria-label="Rückmeldestatus ändern"
                             className="text-sm px-2 py-1 rounded border border-blue-300 bg-white text-gray-700 cursor-pointer hover:border-blue-500"
                           >
                             <option value="accepted">Zugesagt</option>

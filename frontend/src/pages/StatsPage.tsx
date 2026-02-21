@@ -90,12 +90,13 @@ export default function StatsPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-2">
-                        <div
-                          className="bg-green-600 h-2 rounded-full"
-                          style={{ width: `${player.attendance_rate || 0}%` }}
-                        />
-                      </div>
+                      <progress
+                        className="w-24 h-2 mr-2 [&::-webkit-progress-bar]:bg-gray-200 [&::-webkit-progress-bar]:dark:bg-gray-700 [&::-webkit-progress-value]:bg-green-600 [&::-moz-progress-bar]:bg-green-600 rounded-full overflow-hidden"
+                        max={100}
+                        value={player.attendance_rate || 0}
+                        title="Teilnahmequote"
+                        aria-label="Teilnahmequote"
+                      />
                       <span className="text-sm font-medium text-gray-900 dark:text-white">
                         {player.attendance_rate || 0}%
                       </span>

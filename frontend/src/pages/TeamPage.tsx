@@ -141,6 +141,8 @@ export default function TeamPage() {
             type="file"
             accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
             onChange={handleFileSelect}
+            title="Mannschaftsbild auswählen"
+            aria-label="Mannschaftsbild auswählen"
             className="hidden"
           />
         </div>

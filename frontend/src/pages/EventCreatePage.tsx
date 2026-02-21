@@ -203,6 +203,8 @@ export default function EventCreatePage() {
                   value={selectedTeamId ?? ''}
                   onChange={(e) => setSelectedTeamId(parseInt(e.target.value, 10))}
                   className="input mt-1"
+                  title="Team auswählen"
+                  aria-label="Team auswählen"
                   required
                 >
                   {teamsForCreate?.length ? (
@@ -225,6 +227,8 @@ export default function EventCreatePage() {
               <select
                 value={eventData.type}
                 onChange={(e) => setEventData({ ...eventData, type: e.target.value as any })}
+                title="Kategorie auswählen"
+                aria-label="Kategorie auswählen"
                 className="input mt-1"
               >
                 <option value="training">Training</option>
@@ -252,6 +256,8 @@ export default function EventCreatePage() {
                 required
                 value={eventData.start_time}
                 onChange={(e) => setEventData({ ...eventData, start_time: e.target.value })}
+                title="Beginn auswählen"
+                aria-label="Beginn auswählen"
                 className="input mt-1"
               />
             </div>
@@ -310,6 +316,8 @@ export default function EventCreatePage() {
               <select
                 value={eventData.pitch_type}
                 onChange={(e) => setEventData({ ...eventData, pitch_type: e.target.value })}
+                title="Platzart auswählen"
+                aria-label="Platzart auswählen"
                 className="input mt-1"
               >
                 <option value="">Auswaehlen</option>
@@ -409,6 +417,8 @@ export default function EventCreatePage() {
                     type="datetime-local"
                     value={eventData.rsvp_deadline}
                     onChange={(e) => setEventData({ ...eventData, rsvp_deadline: e.target.value })}
+                    title="Rückmeldefrist auswählen"
+                    aria-label="Rückmeldefrist auswählen"
                     className="input mt-1"
                   />
                 </div>
@@ -435,6 +445,8 @@ export default function EventCreatePage() {
                   <select
                     value={eventData.repeat_type}
                     onChange={(e) => setEventData({ ...eventData, repeat_type: e.target.value as any, repeat_days: [] })}
+                    title="Wiederholung auswählen"
+                    aria-label="Wiederholung auswählen"
                     className="input"
                   >
                     <option value="none">Nicht wiederholen</option>
@@ -490,6 +502,8 @@ export default function EventCreatePage() {
                         required={eventData.repeat_type === 'weekly' || eventData.repeat_type === 'custom'}
                         value={eventData.repeat_until}
                         onChange={(e) => setEventData({ ...eventData, repeat_until: e.target.value })}
+                        title="Wiederholungsende auswählen"
+                        aria-label="Wiederholungsende auswählen"
                         className="input mt-1"
                       />
                       <p className="text-xs text-gray-500 mt-1">Bis zu welchem Datum sollen die Termine erstellt werden?</p>

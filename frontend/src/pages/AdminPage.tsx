@@ -896,6 +896,8 @@ export default function AdminPage() {
                 onChange={(e) => setOrganizationName(e.target.value)}
                 className="input"
                 placeholder="z.B. SV Musterdorf"
+                title="Vereinsname"
+                aria-label="Vereinsname"
               />
             </div>
 
@@ -906,6 +908,8 @@ export default function AdminPage() {
               <select
                 value={timezone}
                 onChange={(e) => setTimezone(e.target.value)}
+                title="Zeitzone auswählen"
+                aria-label="Zeitzone auswählen"
                 className="input"
               >
                 {TIMEZONES.map((tz) => (
@@ -960,6 +964,8 @@ export default function AdminPage() {
                 ref={logoFileInputRef}
                 onChange={handleLogoFileSelect}
                 accept="image/*"
+                title="Vereinslogo auswählen"
+                aria-label="Vereinslogo auswählen"
                 className="hidden"
               />
               <button
@@ -1044,6 +1050,8 @@ export default function AdminPage() {
             onChange={(e) => setTeamSearch(e.target.value)}
             className={tableSearchInputClass}
             placeholder="Teams durchsuchen..."
+            title="Teams durchsuchen"
+            aria-label="Teams durchsuchen"
           />
         </div>
         
@@ -1143,6 +1151,8 @@ export default function AdminPage() {
                   required
                   value={selectedTrainer}
                   onChange={(e) => setSelectedTrainer(e.target.value)}
+                  title="Trainer auswählen"
+                  aria-label="Trainer auswählen"
                   className="input"
                 >
                   <option value="">-- Trainer wählen --</option>
@@ -1230,6 +1240,8 @@ export default function AdminPage() {
                   required
                   value={selectedTrainerToRemove}
                   onChange={(e) => setSelectedTrainerToRemove(e.target.value)}
+                  title="Trainer zum Entfernen auswählen"
+                  aria-label="Trainer zum Entfernen auswählen"
                   className="input"
                 >
                   <option value="">-- Trainer wählen --</option>
@@ -1294,6 +1306,8 @@ export default function AdminPage() {
                 onChange={(e) => setAdminSearch(e.target.value)}
                 className={tableSearchInputClass}
                 placeholder="Admins durchsuchen..."
+                title="Admins durchsuchen"
+                aria-label="Admins durchsuchen"
               />
             </div>
             <div className="overflow-x-auto">
@@ -1353,6 +1367,8 @@ export default function AdminPage() {
                 onChange={(e) => setTrainerSearch(e.target.value)}
                 className={tableSearchInputClass}
                 placeholder="Trainer durchsuchen..."
+                title="Trainer durchsuchen"
+                aria-label="Trainer durchsuchen"
               />
             </div>
             <div className="overflow-x-auto">
@@ -1449,6 +1465,8 @@ export default function AdminPage() {
                 onChange={(e) => setPlayerSearch(e.target.value)}
                 className={tableSearchInputClass}
                 placeholder="Spieler durchsuchen..."
+                title="Spieler durchsuchen"
+                aria-label="Spieler durchsuchen"
               />
             </div>
             <div className="overflow-x-auto">
@@ -1554,6 +1572,8 @@ export default function AdminPage() {
               <select
                 value={auditActionFilter}
                 onChange={(e) => setAuditActionFilter(e.target.value)}
+                title="Aktionen filtern"
+                aria-label="Aktionen filtern"
                 className="input"
               >
                 <option value="all">Alle Aktionen</option>
@@ -1567,6 +1587,8 @@ export default function AdminPage() {
               <select
                 value={auditActorFilter}
                 onChange={(e) => setAuditActorFilter(e.target.value)}
+                title="Admins filtern"
+                aria-label="Admins filtern"
                 className="input"
               >
                 <option value="all">Alle Admins</option>
@@ -1580,6 +1602,8 @@ export default function AdminPage() {
               <select
                 value={auditPeriodFilter}
                 onChange={(e) => setAuditPeriodFilter(e.target.value)}
+                title="Zeitraum filtern"
+                aria-label="Zeitraum filtern"
                 className="input"
               >
                 <option value="all">Gesamter Zeitraum</option>
@@ -1723,6 +1747,8 @@ export default function AdminPage() {
               onChange={(e) => setDeleteOrganizationConfirmText(e.target.value)}
               className="input"
               placeholder="Vereinsname eingeben"
+              title="Vereinsnamen zur Bestätigung eingeben"
+              aria-label="Vereinsnamen zur Bestätigung eingeben"
             />
             <div className="flex gap-3">
               <button
@@ -1770,6 +1796,8 @@ export default function AdminPage() {
                   onChange={(e) => setTeamName(e.target.value)}
                   className="input mt-1"
                   placeholder="z.B. FC Musterhausen U19"
+                  title="Teamname"
+                  aria-label="Teamname"
                 />
               </div>
               <div>
@@ -1815,6 +1843,8 @@ export default function AdminPage() {
                   onChange={(e) => setAdminName(e.target.value)}
                   className="input"
                   placeholder="z.B. Max Admin"
+                  title="Admin Name"
+                  aria-label="Admin Name"
                 />
               </div>
               <div>
@@ -1826,6 +1856,8 @@ export default function AdminPage() {
                   onChange={(e) => setAdminUsername(e.target.value)}
                   className="input"
                   placeholder="z.B. max_admin"
+                  title="Admin Benutzername"
+                  aria-label="Admin Benutzername"
                 />
               </div>
               <div>
@@ -1837,6 +1869,8 @@ export default function AdminPage() {
                   onChange={(e) => setAdminEmail(e.target.value)}
                   className="input"
                   placeholder="max.admin@example.com"
+                  title="Admin E-Mail"
+                  aria-label="Admin E-Mail"
                 />
               </div>
               <div>
@@ -1849,6 +1883,8 @@ export default function AdminPage() {
                   onChange={(e) => setAdminPassword(e.target.value)}
                   className="input"
                   placeholder="Mindestens 6 Zeichen"
+                  title="Admin Passwort"
+                  aria-label="Admin Passwort"
                 />
               </div>
 
@@ -1890,6 +1926,8 @@ export default function AdminPage() {
                   onChange={(e) => setTrainerName(e.target.value)}
                   className="input"
                   placeholder="z.B. Max Trainer"
+                  title="Trainername"
+                  aria-label="Trainername"
                 />
               </div>
 
@@ -1902,6 +1940,8 @@ export default function AdminPage() {
                         type="checkbox"
                         checked={trainerTeamIds.includes(team.id)}
                         onChange={() => toggleTrainerTeam(team.id)}
+                        title={`Team ${team.name} auswählen`}
+                        aria-label={`Team ${team.name} auswählen`}
                       />
                       <span>{team.name}</span>
                     </label>
@@ -1924,6 +1964,8 @@ export default function AdminPage() {
                     value={trainerInviteMessage}
                     onChange={(e) => setTrainerInviteMessageDraft(e.target.value)}
                     rows={9}
+                    title="Einladungstext bearbeiten"
+                    aria-label="Einladungstext bearbeiten"
                     className="input text-sm"
                   />
                   <div className="flex flex-col sm:flex-row gap-2">
@@ -2068,6 +2110,8 @@ export default function AdminPage() {
               value={resendInviteMessage}
               onChange={(e) => setResendInviteMessageDraft(e.target.value)}
               rows={9}
+              title="Einladungstext für erneuten Versand"
+              aria-label="Einladungstext für erneuten Versand"
               className="input mb-4 text-sm"
             />
             <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-3">
@@ -2125,6 +2169,8 @@ export default function AdminPage() {
               autoFocus
               readOnly
               value={generatedPassword}
+              title="Generiertes Passwort"
+              aria-label="Generiertes Passwort"
               className="input mb-4"
             />
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">

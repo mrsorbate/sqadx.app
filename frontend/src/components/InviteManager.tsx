@@ -149,6 +149,8 @@ export default function InviteManager({ teamId, teamName }: InviteManagerProps) 
               type="text"
               value={inviteRoleLabel}
               readOnly
+              title="Einladungsart"
+              aria-label="Einladungsart"
               className="input bg-gray-100"
             />
           </div>
@@ -181,6 +183,8 @@ export default function InviteManager({ teamId, teamName }: InviteManagerProps) 
                 max="365"
                 value={inviteData.expiresInDays}
                 onChange={(e) => setInviteData({ ...inviteData, expiresInDays: parseInt(e.target.value) })}
+                title="Gültigkeitsdauer in Tagen"
+                aria-label="Gültigkeitsdauer in Tagen"
                 className="input"
               />
             </div>
@@ -229,6 +233,8 @@ export default function InviteManager({ teamId, teamName }: InviteManagerProps) 
               type="text"
               value={createdInviteUrl}
               readOnly
+              title="Erstellter Einladungslink"
+              aria-label="Erstellter Einladungslink"
               className="input text-sm flex-1"
             />
             <button
@@ -251,6 +257,8 @@ export default function InviteManager({ teamId, teamName }: InviteManagerProps) 
                 value={inviteMessageDraft}
                 onChange={(e) => setInviteMessageDraft(e.target.value)}
                 rows={8}
+                title="Einladungstext bearbeiten"
+                aria-label="Einladungstext bearbeiten"
                 className="input w-full"
               />
             ) : (

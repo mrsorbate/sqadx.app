@@ -166,7 +166,6 @@ export default function Layout({ organization }: LayoutProps) {
                 onClick={() => setMobileMenuOpen((prev) => !prev)}
                 className="md:hidden inline-flex items-center justify-center p-2.5 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 aria-label="Menue"
-                aria-expanded={mobileMenuOpen}
               >
                 {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>

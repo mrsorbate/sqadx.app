@@ -206,6 +206,8 @@ export default function SettingsPage() {
                 ref={fileInputRef}
                 onChange={handleFileSelect}
                 accept="image/*"
+                title="Profilbild auswählen"
+                aria-label="Profilbild auswählen"
                 className="hidden"
               />
               <button

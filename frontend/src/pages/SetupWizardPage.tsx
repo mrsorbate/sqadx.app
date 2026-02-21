@@ -227,6 +227,8 @@ export default function SetupWizardPage() {
                     type="file"
                     accept="image/*"
                     onChange={handleLogoChange}
+                    title="Vereins-Logo auswählen"
+                    aria-label="Vereins-Logo auswählen"
                     className="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
                   />
                 </label>
@@ -313,6 +315,8 @@ export default function SetupWizardPage() {
                 <select
                   value={setupData.timezone}
                   onChange={handleTimezoneChange}
+                  title="Zeitzone auswählen"
+                  aria-label="Zeitzone auswählen"
                   className="input"
                 >
                   {TIMEZONES.map((tz) => (

@@ -125,6 +125,8 @@ export default function TeamsPage() {
                   type="file"
                   accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
                   onChange={(e) => handleFileSelect(team.id, e)}
+                  title="Mannschaftsbild auswählen"
+                  aria-label="Mannschaftsbild auswählen"
                   className="hidden"
                 />
               </div>
