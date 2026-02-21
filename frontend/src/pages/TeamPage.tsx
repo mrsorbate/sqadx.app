@@ -82,7 +82,7 @@ export default function TeamPage() {
   const players = members?.filter((m: any) => m.role === 'player') || [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="flex items-start sm:items-center gap-3 sm:gap-4">
         <Link to="/" className="mt-1 sm:mt-0 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
           <ArrowLeft className="w-6 h-6" />
@@ -99,7 +99,7 @@ export default function TeamPage() {
       {isTrainer && (
         <div className="card p-0 overflow-hidden">
           {getTeamPhotoUrl() ? (
-            <div className="relative w-full min-h-[20rem] sm:min-h-[24rem]">
+            <div className="relative w-full min-h-[14rem] sm:min-h-[20rem] lg:min-h-[24rem]">
               <img
                 src={getTeamPhotoUrl()}
                 alt={team?.name}
@@ -118,7 +118,7 @@ export default function TeamPage() {
                 title="Neues Bild hochladen"
               >
                 <Upload className="w-5 h-5 text-gray-700 dark:text-gray-100" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-100">Ändern</span>
+                <span className="hidden sm:inline text-sm font-medium text-gray-700 dark:text-gray-100">Ändern</span>
               </button>
             </div>
           ) : (

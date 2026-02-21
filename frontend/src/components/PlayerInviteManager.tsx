@@ -152,7 +152,7 @@ export default function PlayerInviteManager({ teamId }: PlayerInviteManagerProps
 
   return (
     <div className="card">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <h2 className="text-xl font-semibold flex items-center text-gray-900 dark:text-white">
           <span className="mr-2">👥</span>
           Spieler anlegen & Einladungen
@@ -160,7 +160,7 @@ export default function PlayerInviteManager({ teamId }: PlayerInviteManagerProps
         {!showCreateForm && (
           <button
             onClick={() => setShowCreateForm(true)}
-            className="btn btn-primary flex items-center space-x-2"
+            className="btn btn-primary w-full sm:w-auto flex items-center justify-center space-x-2"
           >
             <Plus className="w-4 h-4" />
             <span>Neuer Spieler</span>
@@ -169,7 +169,7 @@ export default function PlayerInviteManager({ teamId }: PlayerInviteManagerProps
       </div>
 
       {showCreateForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4">
           <div className="card max-w-xl w-full max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="create-player-title">
             <h3 id="create-player-title" className="font-semibold text-gray-900 dark:text-white mb-4">Spieler einladen</h3>
 
@@ -206,11 +206,11 @@ export default function PlayerInviteManager({ teamId }: PlayerInviteManagerProps
                 />
               </div>
 
-              <div className="flex space-x-3">
-                <button type="submit" disabled={createMutation.isPending} className="btn btn-primary">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button type="submit" disabled={createMutation.isPending} className="btn btn-primary w-full sm:w-auto">
                   {createMutation.isPending ? 'Erstellt...' : 'Einladung erstellen'}
                 </button>
-                <button type="button" onClick={() => setShowCreateForm(false)} className="btn btn-secondary">
+                <button type="button" onClick={() => setShowCreateForm(false)} className="btn btn-secondary w-full sm:w-auto">
                   Abbrechen
                 </button>
               </div>
@@ -220,7 +220,40 @@ export default function PlayerInviteManager({ teamId }: PlayerInviteManagerProps
       )}
 
       {invites && invites.length > 0 ? (
-        <div className="overflow-x-auto">
+        <>
+        <div className="space-y-2 md:hidden">
+          {invites.map((invite: any) => (
+            <div key={`invite-mobile-${invite.id}`} className="rounded-lg border border-gray-200 dark:border-gray-700 p-3 bg-white dark:bg-gray-900">
+              <p className="font-medium text-gray-900 dark:text-white">{invite.player_name}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                Gültig bis: {invite.expires_at ? new Date(invite.expires_at).toLocaleDateString('de-DE') : 'Unbegrenzt'}
+              </p>
+              <div className="flex items-center gap-2 mt-3">
+                <button
+                  onClick={() => copyLink(invite)}
+                  disabled={deletingId === invite.id}
+                  className="btn btn-secondary flex-1 flex items-center justify-center space-x-1"
+                  title="Einladung teilen"
+                  aria-label={`Einladung für ${invite.player_name} teilen`}
+                >
+                  <Copy className="w-4 h-4" />
+                  <span>Teilen</span>
+                </button>
+                <button
+                  onClick={() => openDeleteModal(invite)}
+                  disabled={deletingId === invite.id}
+                  className="btn btn-secondary flex-1 text-red-600 dark:text-red-400"
+                  title="Löschen"
+                  aria-label={`Einladung für ${invite.player_name} löschen`}
+                >
+                  Löschen
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-200 dark:border-gray-700">
@@ -270,6 +303,7 @@ export default function PlayerInviteManager({ teamId }: PlayerInviteManagerProps
             </tbody>
           </table>
         </div>
+        </>
       ) : (
         <div className="text-center py-8 text-gray-500 dark:text-gray-400">
           <Plus className="w-12 h-12 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
@@ -280,7 +314,7 @@ export default function PlayerInviteManager({ teamId }: PlayerInviteManagerProps
 
       {/* Delete Invite Modal */}
       {showDeleteModal && inviteToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4">
           <div className="card max-w-md w-full" role="dialog" aria-modal="true" aria-labelledby="delete-invite-title">
             <h3 id="delete-invite-title" className="font-semibold text-gray-900 dark:text-white mb-4">
               Einladung löschen?
@@ -288,7 +322,7 @@ export default function PlayerInviteManager({ teamId }: PlayerInviteManagerProps
             <p className="text-gray-700 dark:text-gray-300 mb-6">
               Soll die Einladung für <strong>{inviteToDelete.player_name}</strong> wirklich gelöscht werden?
             </p>
-            <div className="flex space-x-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={() => deleteInvite(inviteToDelete.id)}
                 disabled={deletingId === inviteToDelete.id}
@@ -312,7 +346,7 @@ export default function PlayerInviteManager({ teamId }: PlayerInviteManagerProps
 
       {/* Share Invite Modal */}
       {showShareModal && selectedInviteForShare && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4">
           <div className="card max-w-2xl w-full max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="share-invite-title">
             <h3 id="share-invite-title" className="font-semibold text-gray-900 dark:text-white mb-4">
               Einladung für {selectedInviteForShare.player_name} teilen
@@ -353,7 +387,7 @@ export default function PlayerInviteManager({ teamId }: PlayerInviteManagerProps
                 )}
               </div>
 
-              <div className="flex space-x-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={() => {
                     const inviteUrl = `${window.location.origin}/invite/${selectedInviteForShare.token}`;

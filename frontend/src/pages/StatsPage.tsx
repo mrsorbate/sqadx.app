@@ -20,12 +20,12 @@ export default function StatsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center space-x-4">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex items-center space-x-3 sm:space-x-4">
         <Link to={`/teams/${teamId}`} className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
           <ArrowLeft className="w-6 h-6" />
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Statistiken</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Statistiken</h1>
       </div>
 
       {/* Event Summary */}
@@ -61,7 +61,29 @@ export default function StatsPage() {
           <TrendingUp className="w-6 h-6 mr-2 text-primary-600" />
           Anwesenheitsstatistik
         </h2>
-        <div className="overflow-x-auto">
+        <div className="space-y-3 md:hidden">
+          {stats?.attendance?.map((player: any) => (
+            <div key={player.id} className="rounded-lg border border-gray-200 dark:border-gray-700 p-3 bg-white dark:bg-gray-900">
+              <div className="flex items-center justify-between mb-2">
+                <p className="font-medium text-gray-900 dark:text-white">{player.name}</p>
+                <span className="text-sm font-semibold text-gray-900 dark:text-white">{player.attendance_rate || 0}%</span>
+              </div>
+              <progress
+                className="w-full h-2 mb-2 [&::-webkit-progress-bar]:bg-gray-200 [&::-webkit-progress-bar]:dark:bg-gray-700 [&::-webkit-progress-value]:bg-green-600 [&::-moz-progress-bar]:bg-green-600 rounded-full overflow-hidden"
+                max={100}
+                value={player.attendance_rate || 0}
+                title="Teilnahmequote"
+                aria-label="Teilnahmequote"
+              />
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                <span className="text-green-700">✓ {player.accepted}</span>
+                <span className="text-red-700">✗ {player.declined}</span>
+                <span className="text-gray-700 dark:text-gray-300">⏳ {player.pending}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="hidden md:block overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>

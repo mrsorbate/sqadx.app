@@ -35,7 +35,7 @@ export default function TeamRosterPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="flex items-start sm:items-center gap-3 sm:gap-4">
         <Link
           to={`/teams/${teamId}`}
@@ -44,7 +44,7 @@ export default function TeamRosterPage() {
           <ArrowLeft className="w-6 h-6" />
         </Link>
         <div className="flex-1">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white break-words">
+          <h1 className="text-xl sm:text-3xl font-bold text-gray-900 dark:text-white break-words">
             Trainer &amp; Spieler - {team?.name}
           </h1>
         </div>
@@ -59,7 +59,7 @@ export default function TeamRosterPage() {
               {trainers.length}
             </span>
           </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
             {trainers.map((trainer: any) => (
               <button
                 key={trainer.id}
@@ -95,7 +95,7 @@ export default function TeamRosterPage() {
               {players.length}
             </span>
           </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
             {players.map((player: any) => (
               <button
                 key={player.id}
@@ -133,8 +133,8 @@ export default function TeamRosterPage() {
 
       {/* Member Profile Modal */}
       {selectedMember && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="card max-w-md w-full" role="dialog" aria-modal="true" aria-labelledby="member-profile-title">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4">
+          <div className="card max-w-md w-full max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="member-profile-title">
             <div className="flex items-start justify-between mb-4">
               <h3 id="member-profile-title" className="font-semibold text-gray-900 dark:text-white">
                 Profil
