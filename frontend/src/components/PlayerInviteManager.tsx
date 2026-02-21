@@ -18,7 +18,6 @@ export default function PlayerInviteManager({ teamId }: PlayerInviteManagerProps
   const [inviteData, setInviteData] = useState({
     inviteeName: '',
     expiresInDays: 7,
-    maxUses: undefined as number | undefined,
   });
 
   const { data: invites, isLoading } = useQuery({
@@ -38,13 +37,12 @@ export default function PlayerInviteManager({ teamId }: PlayerInviteManagerProps
         role: 'player',
         inviteeName: inviteData.inviteeName,
         expiresInDays: inviteData.expiresInDays,
-        maxUses: inviteData.maxUses,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['team-invites', teamId] });
       showToast('Spieler-Einladung erstellt', 'success');
       setShowCreateForm(false);
-      setInviteData({ inviteeName: '', expiresInDays: 7, maxUses: undefined });
+      setInviteData({ inviteeName: '', expiresInDays: 7 });
     },
     onError: () => {
       showToast('Fehler beim Erstellen der Einladung', 'error');
@@ -134,40 +132,20 @@ export default function PlayerInviteManager({ teamId }: PlayerInviteManagerProps
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Gültig für (Tage)
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="365"
-                    value={inviteData.expiresInDays}
-                    onChange={(e) => setInviteData({ ...inviteData, expiresInDays: parseInt(e.target.value) })}
-                    className="input"
-                    title="Gültigkeitsdauer in Tagen"
-                    aria-label="Gültigkeitsdauer in Tagen"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Max. Verwendungen (optional)
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    placeholder="Unbegrenzt"
-                    value={inviteData.maxUses || ''}
-                    onChange={(e) =>
-                      setInviteData({ ...inviteData, maxUses: e.target.value ? parseInt(e.target.value) : undefined })
-                    }
-                    className="input"
-                    title="Maximale Anzahl Verwendungen"
-                    aria-label="Maximale Anzahl Verwendungen"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Gültig für (Tage)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="365"
+                  value={inviteData.expiresInDays}
+                  onChange={(e) => setInviteData({ ...inviteData, expiresInDays: parseInt(e.target.value) })}
+                  className="input"
+                  title="Gültigkeitsdauer in Tagen"
+                  aria-label="Gültigkeitsdauer in Tagen"
+                />
               </div>
 
               <div className="flex space-x-3">
