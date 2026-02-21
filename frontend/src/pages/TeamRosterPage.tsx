@@ -6,6 +6,7 @@ import { ArrowLeft, Clock, Mail, Users, Copy, Trash2, Check } from 'lucide-react
 import { resolveAssetUrl } from '../lib/utils';
 import { useToast } from '../lib/useToast';
 import { useState } from 'react';
+import InviteManager from '../components/InviteManager';
 
 export default function TeamRosterPage() {
   const { id } = useParams<{ id: string }>();
@@ -173,6 +174,8 @@ export default function TeamRosterPage() {
             )}
           </div>
         </div>
+
+        <InviteManager teamId={teamId} teamName={team?.name || ''} />
 
         <div className="card">
           <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-900 dark:text-white">
