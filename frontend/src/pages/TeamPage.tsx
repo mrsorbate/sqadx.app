@@ -78,6 +78,7 @@ export default function TeamPage() {
     return <div className="text-center py-12">Lädt...</div>;
   }
 
+  const trainers = members?.filter((m: any) => m.role === 'trainer') || [];
   const players = members?.filter((m: any) => m.role === 'player') || [];
 
   return (
@@ -168,8 +169,8 @@ export default function TeamPage() {
             <Users className="w-6 h-6 text-green-600" />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white">Kader</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">{players.length} Spieler</p>
+            <h3 className="font-semibold text-gray-900 dark:text-white">Trainer &amp; Spieler</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">{trainers.length} Trainer • {players.length} Spieler</p>
           </div>
         </Link>
 
