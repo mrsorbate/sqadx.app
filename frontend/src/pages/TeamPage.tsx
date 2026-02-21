@@ -4,7 +4,6 @@ import { useParams, Link } from 'react-router-dom';
 import { teamsAPI, invitesAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import { Calendar, Users, BarChart, ArrowLeft, Clock, Mail, Phone, Upload, Image as ImageIcon } from 'lucide-react';
-import InviteManager from '../components/InviteManager';
 import { useToast } from '../lib/useToast';
 import { resolveAssetUrl } from '../lib/utils';
 
@@ -204,13 +203,8 @@ export default function TeamPage() {
         </Link>
       </div>
 
-      {/* Invite Manager - für Trainer und Admin */}
-      {(isTrainer || isAdmin) && (
-        <InviteManager teamId={teamId} teamName={team?.name || ''} />
-      )}
-
       {/* Team Members */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="space-y-6">
         {/* Trainers */}
         <div className="card">
           <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-900 dark:text-white">
