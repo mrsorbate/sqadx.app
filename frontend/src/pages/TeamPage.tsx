@@ -1,9 +1,9 @@
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
-import { teamsAPI, invitesAPI } from '../lib/api';
+import { teamsAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
-import { Calendar, Users, BarChart, ArrowLeft, Clock, Mail, Upload, Image as ImageIcon } from 'lucide-react';
+import { Calendar, Users, BarChart, ArrowLeft, Upload, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '../lib/useToast';
 import { resolveAssetUrl } from '../lib/utils';
 
@@ -34,16 +34,6 @@ export default function TeamPage() {
   });
 
   const isTrainer = members?.find((m: any) => m.id === user?.id)?.role === 'trainer';
-  const isAdmin = user?.role === 'admin';
-
-  const { data: invites } = useQuery({
-    queryKey: ['team-invites', teamId],
-    queryFn: async () => {
-      const response = await invitesAPI.getTeamInvites(teamId);
-      return response.data;
-    },
-    enabled: (isTrainer || isAdmin) && !!members, // Only load if user is trainer/admin and members are loaded
-  });
 
   const uploadTeamPictureMutation = useMutation({
     mutationFn: (file: File) => teamsAPI.uploadTeamPicture(teamId, file),
@@ -88,16 +78,7 @@ export default function TeamPage() {
     return <div className="text-center py-12">Lädt...</div>;
   }
 
-  const trainers = members?.filter((m: any) => m.role === 'trainer') || [];
   const players = members?.filter((m: any) => m.role === 'player') || [];
-  
-  // Filter player invites that are still pending (not used or not fully used)
-  const pendingPlayerInvites = invites?.filter((inv: any) => 
-    inv.player_name && // Only player invites (not generic invites)
-    (!inv.max_uses || inv.used_count < inv.max_uses) // Not fully used
-  ) || [];
-  
-  const totalPlayers = players.length + pendingPlayerInvites.length;
 
   return (
     <div className="space-y-6">
@@ -179,8 +160,8 @@ export default function TeamPage() {
           </div>
         </Link>
 
-        <a
-          href="#kader"
+        <Link
+          to={`/teams/${teamId}/kader`}
           className="card hover:shadow-md transition-shadow flex items-center space-x-3 sm:space-x-4 text-left"
         >
           <div className="bg-green-100 p-3 rounded-lg">
@@ -190,7 +171,7 @@ export default function TeamPage() {
             <h3 className="font-semibold text-gray-900 dark:text-white">Kader</h3>
             <p className="text-sm text-gray-600 dark:text-gray-300">{players.length} Spieler</p>
           </div>
-        </a>
+        </Link>
 
         <Link
           to={`/teams/${teamId}/stats`}
@@ -204,130 +185,6 @@ export default function TeamPage() {
             <p className="text-sm text-gray-600 dark:text-gray-300">Anwesenheit</p>
           </div>
         </Link>
-      </div>
-
-      {/* Team Members */}
-      <div id="kader" className="space-y-6 scroll-mt-24">
-        {/* Trainers */}
-        <div className="card">
-          <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-900 dark:text-white">
-            <span className="mr-2">👨‍🏫</span>
-            Trainer
-            <span className="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-200">
-              {trainers.length}
-            </span>
-          </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
-            {trainers.map((trainer: any) => (
-              <div
-                key={trainer.id}
-                className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg flex items-center space-x-3"
-              >
-                {resolveAssetUrl(trainer.profile_picture) ? (
-                  <img
-                    src={resolveAssetUrl(trainer.profile_picture)}
-                    alt={trainer.name}
-                    className="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-700"
-                  />
-                ) : (
-                  <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                    <span className="text-primary-600 font-semibold">
-                      {trainer.name.charAt(0)}
-                    </span>
-                  </div>
-                )}
-                <div>
-                  <p className="font-medium text-gray-900 dark:text-white">{trainer.name}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Players */}
-        <div className="card">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-            <h2 className="text-xl font-semibold flex items-center">
-              <span className="mr-2">⚽</span>
-              Spieler ({totalPlayers})
-            </h2>
-          </div>
-          <div className="space-y-2 max-h-96 overflow-y-auto">
-            {/* Registered Players */}
-            {players.map((player: any) => (
-              <div
-                key={player.id}
-                className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg flex items-center justify-between"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                    {player.jersey_number ? (
-                      <span className="text-green-600 font-semibold">
-                        {player.jersey_number}
-                      </span>
-                    ) : (
-                      <span className="text-green-600 font-semibold">
-                        {player.name.charAt(0)}
-                      </span>
-                    )}
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-white">{player.name}</p>
-                    {player.birth_date && (
-                      <p className="text-sm text-gray-600 dark:text-gray-300">
-                        🎂 {new Date(player.birth_date).toLocaleDateString('de-DE')}
-                      </p>
-                    )}
-                    {player.position && (
-                      <p className="text-sm text-gray-600 dark:text-gray-300">{player.position}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-            
-            {/* Pending Player Invites */}
-            {pendingPlayerInvites.map((invite: any) => (
-              <div
-                key={`invite-${invite.id}`}
-                className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center justify-between dark:bg-yellow-900/20 dark:border-yellow-800"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
-                    {invite.player_jersey_number ? (
-                      <span className="text-yellow-600 font-semibold">
-                        {invite.player_jersey_number}
-                      </span>
-                    ) : (
-                      <Clock className="w-5 h-5 text-yellow-600" />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-900 dark:text-white">{invite.player_name}</p>
-                    {invite.player_birth_date && (
-                      <p className="text-sm text-gray-600 dark:text-gray-300">
-                        🎂 {new Date(invite.player_birth_date).toLocaleDateString('de-DE')}
-                      </p>
-                    )}
-                    <div className="flex items-center space-x-2 mt-1">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200">
-                        <Mail className="w-3 h-3 mr-1" />
-                        Eingeladen
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-            
-            {players.length === 0 && pendingPlayerInvites.length === 0 && (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                <Users className="w-12 h-12 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
-                <p>Noch keine Spieler im Team</p>
-              </div>
-            )}
-          </div>
-        </div>
       </div>
 
     </div>

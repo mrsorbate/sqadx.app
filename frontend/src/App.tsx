@@ -6,6 +6,7 @@ import DashboardPage from './pages/DashboardPage';
 import EventCreatePage from './pages/EventCreatePage';
 import TeamsPage from './pages/TeamsPage';
 import TeamPage from './pages/TeamPage';
+import TeamRosterPage from './pages/TeamRosterPage';
 import EventsPage from './pages/EventsPage';
 import EventDetailPage from './pages/EventDetailPage';
 import StatsPage from './pages/StatsPage';
@@ -84,6 +85,7 @@ function App() {
             <Route path="/events" element={<EventsPage />} />
             <Route path="/events/new" element={<EventCreatePage />} />
             <Route path="/teams/:id" element={<TeamPage />} />
+            <Route path="/teams/:id/kader" element={<TeamRosterPage />} />
             <Route path="/teams/:id/events" element={<EventsPage />} />
             <Route path="/teams/:id/events/new" element={<EventCreatePage />} />
             <Route path="/events/:id" element={<EventDetailPage />} />
