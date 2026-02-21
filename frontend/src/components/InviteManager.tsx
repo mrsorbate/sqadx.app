@@ -9,16 +9,20 @@ interface InviteManagerProps {
   teamName: string;
 }
 
-export default function InviteManager({ teamId }: InviteManagerProps) {
+export default function InviteManager({ teamId, teamName }: InviteManagerProps) {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
   const inviteRole = user?.role === 'admin' ? 'trainer' : 'player';
   const inviteRoleLabel = inviteRole === 'trainer' ? 'Trainer' : 'Spieler';
-  const inviteHeading = inviteRole === 'player' ? 'Spieler anlegen & Einladungslinks' : 'Einladungslinks';
+  const inviteHeading = inviteRole === 'player' ? 'Spieler anlegen' : 'Einladungslinks';
   const createButtonLabel = inviteRole === 'player' ? 'Spieler anlegen' : 'Neuer Link';
   const createFormTitle = inviteRole === 'player' ? 'Spieler anlegen' : 'Neuen Einladungslink erstellen';
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
+  const [createdInviteUrl, setCreatedInviteUrl] = useState('');
+  const [createdInviteeName, setCreatedInviteeName] = useState('');
+  const [inviteMessageDraft, setInviteMessageDraft] = useState('');
+  const [isEditingInviteMessage, setIsEditingInviteMessage] = useState(false);
   
   const [inviteData, setInviteData] = useState({
     role: inviteRole,
@@ -37,9 +41,14 @@ export default function InviteManager({ teamId }: InviteManagerProps) {
 
   const createMutation = useMutation({
     mutationFn: () => invitesAPI.createInvite(teamId, inviteData),
-    onSuccess: () => {
+    onSuccess: (response: any) => {
       queryClient.invalidateQueries({ queryKey: ['team-invites', teamId] });
       setShowCreateForm(false);
+      const inviteUrl = response?.data?.invite_url || `${window.location.origin}/invite/${response?.data?.token}`;
+      setCreatedInviteUrl(inviteUrl);
+      setCreatedInviteeName(inviteData.inviteeName || inviteRoleLabel);
+      setInviteMessageDraft('');
+      setIsEditingInviteMessage(false);
       setInviteData({ role: inviteRole, inviteeName: '', expiresInDays: 7, maxUses: undefined });
     },
   });
@@ -51,9 +60,47 @@ export default function InviteManager({ teamId }: InviteManagerProps) {
     },
   });
 
-  const copyInviteLink = (token: string) => {
-    const url = `${window.location.origin}/invite/${token}`;
-    navigator.clipboard.writeText(url);
+  const copyTextToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      const fallbackTextarea = document.createElement('textarea');
+      fallbackTextarea.value = text;
+      fallbackTextarea.style.position = 'fixed';
+      fallbackTextarea.style.opacity = '0';
+      fallbackTextarea.setAttribute('readonly', '');
+      document.body.appendChild(fallbackTextarea);
+      fallbackTextarea.select();
+      const copied = document.execCommand('copy');
+      document.body.removeChild(fallbackTextarea);
+      return copied;
+    }
+  };
+
+  const buildInviteMessage = (inviteeName: string, inviteUrl: string) => {
+    const normalizedInviteeName = (inviteeName || inviteRoleLabel).trim();
+    const normalizedTeamLabel = (teamName || 'deinem Team').trim();
+
+    return [
+      `Hi ${normalizedInviteeName},`,
+      '',
+      `ab sofort organisieren wir unsere ${normalizedTeamLabel} über sqadX.app.`,
+      '',
+      'Hier ist dein persönlicher Einladungslink:',
+      '',
+      inviteUrl,
+      '',
+      'Klick kurz drauf und registriere dich – dann bist du direkt bei allen Trainings, Spielen und Infos am Start.',
+      '',
+      'Sportliche Grüße',
+    ].join('\n');
+  };
+
+  const copyInviteText = async (token: string, inviteeName: string, inviteUrl: string, customMessage?: string) => {
+    const inviteMessage = (customMessage || buildInviteMessage(inviteeName, inviteUrl)).trim();
+    const copied = await copyTextToClipboard(inviteMessage);
+    if (!copied) return;
     setCopiedToken(token);
     setTimeout(() => setCopiedToken(null), 2000);
   };
@@ -69,6 +116,8 @@ export default function InviteManager({ teamId }: InviteManagerProps) {
   if (isLoading) {
     return <div className="text-center py-4">Lädt...</div>;
   }
+
+  const generatedInviteMessage = (inviteMessageDraft || buildInviteMessage(createdInviteeName, createdInviteUrl)).trim();
 
   return (
     <div className="card">
@@ -157,7 +206,7 @@ export default function InviteManager({ teamId }: InviteManagerProps) {
               disabled={createMutation.isPending}
               className="btn btn-primary"
             >
-              {createMutation.isPending ? 'Erstellt...' : 'Link erstellen'}
+              {createMutation.isPending ? 'Erstellt...' : createButtonLabel}
             </button>
             <button
               type="button"
@@ -170,95 +219,123 @@ export default function InviteManager({ teamId }: InviteManagerProps) {
         </form>
       )}
 
-      {invites && invites.length > 0 ? (
-        <div className="space-y-3">
-          {invites.map((invite: any) => {
-            const isExpired = invite.expires_at && new Date(invite.expires_at) < new Date();
-            const isMaxedOut = invite.max_uses && invite.used_count >= invite.max_uses;
-            const inviteUrl = `${window.location.origin}/invite/${invite.token}`;
+      {createdInviteUrl && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-3 dark:bg-blue-900/20 dark:border-blue-800">
+          <p className="text-blue-800 dark:text-blue-200 font-semibold">
+            📩 Einladungslink für {createdInviteeName || inviteRoleLabel}
+          </p>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <input
+              type="text"
+              value={createdInviteUrl}
+              readOnly
+              className="input text-sm flex-1"
+            />
+            <button
+              onClick={() => copyInviteText('latest-invite', createdInviteeName || inviteRoleLabel, createdInviteUrl, generatedInviteMessage)}
+              className="btn btn-secondary w-full sm:w-auto"
+            >
+              {copiedToken === 'latest-invite' ? 'Kopiert!' : 'Einladungstext kopieren'}
+            </button>
+          </div>
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={() => setIsEditingInviteMessage((prev) => !prev)}
+              className="text-sm text-blue-700 dark:text-blue-300 hover:underline"
+            >
+              {isEditingInviteMessage ? 'Textvorschau anzeigen' : 'Text bearbeiten'}
+            </button>
+            {isEditingInviteMessage ? (
+              <textarea
+                value={inviteMessageDraft}
+                onChange={(e) => setInviteMessageDraft(e.target.value)}
+                rows={8}
+                className="input w-full"
+              />
+            ) : (
+              <div className="bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-800 rounded-md p-3 whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-200">
+                {generatedInviteMessage}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
-            return (
-              <div
-                key={invite.id}
-                className={`p-4 rounded-lg border ${
-                  isExpired || isMaxedOut ? 'bg-gray-50 border-gray-300' : 'bg-white border-gray-200'
-                }`}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <span className="text-sm font-medium capitalize text-gray-900">
-                        {invite.role}
-                      </span>
-                      {(isExpired || isMaxedOut) && (
+      {invites && invites.length > 0 ? (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-200 dark:border-gray-700 text-left text-gray-600 dark:text-gray-300">
+                <th className="py-2 pr-3">Name</th>
+                <th className="py-2 pr-3">Status</th>
+                <th className="py-2 pr-3">Gültig bis</th>
+                <th className="py-2 pr-3">Verwendet</th>
+                <th className="py-2 pr-3">Aktionen</th>
+              </tr>
+            </thead>
+            <tbody>
+              {invites.map((invite: any) => {
+                const isExpired = invite.expires_at && new Date(invite.expires_at) < new Date();
+                const isMaxedOut = invite.max_uses && invite.used_count >= invite.max_uses;
+                const inviteUrl = `${window.location.origin}/invite/${invite.token}`;
+                const inviteeName = invite.player_name || inviteRoleLabel;
+
+                return (
+                  <tr key={invite.id} className="border-b border-gray-100 dark:border-gray-800">
+                    <td className="py-3 pr-3 font-medium text-gray-900 dark:text-white">{inviteeName}</td>
+                    <td className="py-3 pr-3">
+                      {(isExpired || isMaxedOut) ? (
                         <span className="px-2 py-0.5 bg-gray-200 text-gray-700 text-xs rounded">
                           {isExpired ? 'Abgelaufen' : 'Limit erreicht'}
                         </span>
+                      ) : (
+                        <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded">Aktiv</span>
                       )}
-                    </div>
-                    
-                    <div className="text-sm text-gray-600 space-y-1">
-                      {invite.player_name && (
-                        <p>
-                          Vorgabe: <span className="font-medium">{invite.player_name}</span>
-                        </p>
-                      )}
-                      <p>
-                        Verwendet: {invite.used_count}
-                        {invite.max_uses && ` / ${invite.max_uses}`}
-                      </p>
-                      {invite.expires_at && (
-                        <p>
-                          Gültig bis: {new Date(invite.expires_at).toLocaleDateString('de-DE')}
-                        </p>
-                      )}
-                      <p className="text-xs text-gray-500">
-                        Erstellt von {invite.created_by_name}
-                      </p>
-                    </div>
-
-                    <div className="mt-3 flex items-center space-x-2">
-                      <input
-                        type="text"
-                        readOnly
-                        value={inviteUrl}
-                        className="input text-sm flex-1 bg-gray-50"
-                      />
-                      <button
-                        onClick={() => copyInviteLink(invite.token)}
-                        className="btn btn-secondary flex items-center space-x-1"
-                        title="Link kopieren"
-                      >
-                        {copiedToken === invite.token ? (
-                          <>
-                            <Check className="w-4 h-4 text-green-600" />
-                            <span className="text-green-600">Kopiert!</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-4 h-4" />
-                            <span>Kopieren</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      if (confirm('Einladungslink wirklich löschen?')) {
-                        deleteMutation.mutate(invite.id);
-                      }
-                    }}
-                    className="ml-4 text-red-600 hover:text-red-700"
-                    title="Link löschen"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+                    </td>
+                    <td className="py-3 pr-3 text-gray-700 dark:text-gray-300">
+                      {invite.expires_at ? new Date(invite.expires_at).toLocaleDateString('de-DE') : '-'}
+                    </td>
+                    <td className="py-3 pr-3 text-gray-700 dark:text-gray-300">
+                      {invite.used_count}{invite.max_uses ? ` / ${invite.max_uses}` : ''}
+                    </td>
+                    <td className="py-3 pr-3">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => copyInviteText(invite.token, inviteeName, inviteUrl)}
+                          className="btn btn-secondary flex items-center space-x-1"
+                          title="Einladungstext kopieren"
+                        >
+                          {copiedToken === invite.token ? (
+                            <>
+                              <Check className="w-4 h-4 text-green-600" />
+                              <span className="text-green-600">Kopiert!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-4 h-4" />
+                              <span>Kopieren</span>
+                            </>
+                          )}
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (confirm('Einladungslink wirklich löschen?')) {
+                              deleteMutation.mutate(invite.id);
+                            }
+                          }}
+                          className="text-red-600 hover:text-red-700"
+                          title="Link löschen"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       ) : (
         <div className="text-center py-8 text-gray-500">
