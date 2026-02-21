@@ -209,7 +209,7 @@ export default function RegisterPage() {
             {registerMutation.isPending ? 'Wird registriert...' : 'Registrieren'}
           </button>
 
-          <p className="text-center text-sm text-gray-600">
+          <p className="text-center text-sm text-gray-300">
             Bereits registriert?{' '}
             <Link to="/login" className="font-medium text-primary-600 hover:text-primary-500">
               Jetzt anmelden

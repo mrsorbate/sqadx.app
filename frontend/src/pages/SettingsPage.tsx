@@ -182,11 +182,11 @@ export default function SettingsPage() {
               <img
                 src={profilePictureUrl}
                 alt="Profilbild"
-                className="w-32 h-32 rounded-full object-cover border-4 border-gray-200"
+                className="w-32 h-32 rounded-full object-cover border-4 border-gray-600"
               />
             ) : (
-              <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center border-4 border-gray-300">
-                <User className="w-16 h-16 text-gray-400" />
+              <div className="w-32 h-32 rounded-full bg-gray-700 flex items-center justify-center border-4 border-gray-600">
+                <User className="w-16 h-16 text-gray-300" />
               </div>
             )}
             {uploadPictureMutation.isPending && (

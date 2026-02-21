@@ -240,7 +240,7 @@ export default function FirstTimeSetupPage() {
                 </p>
                 {logoPreview && (
                   <div className="mt-3 flex items-center space-x-3">
-                    <img src={resolveAssetUrl(logoPreview)} alt="Logo Vorschau" className="h-12 w-12 rounded object-contain bg-white border" />
+                    <img src={resolveAssetUrl(logoPreview)} alt="Logo Vorschau" className="h-12 w-12 rounded object-contain bg-gray-700 border border-gray-600" />
                     <span className="text-sm text-gray-600 dark:text-gray-300">{logoFile?.name}</span>
                   </div>
                 )}
@@ -367,7 +367,7 @@ export default function FirstTimeSetupPage() {
                 <p className="text-sm text-gray-700 dark:text-gray-300"><strong>Zeitzone:</strong> {timezone}</p>
               </div>
 
-              <p className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
+              <p className="text-sm text-blue-200 bg-blue-900/30 border border-blue-800 p-3 rounded-lg">
                 Hinweis: Nach dem Setup sind neue Registrierungen nur per persönlichem Einladungslink möglich.
               </p>
             </div>

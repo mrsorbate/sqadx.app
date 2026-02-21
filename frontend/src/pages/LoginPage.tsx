@@ -141,7 +141,7 @@ export default function LoginPage() {
             {loginMutation.isPending ? 'Wird angemeldet...' : 'Anmelden'}
           </button>
 
-          <p className="text-center text-sm text-gray-600">
+          <p className="text-center text-sm text-gray-300">
             Registrierung nur per persönlichem Einladungslink.
           </p>
         </form>
