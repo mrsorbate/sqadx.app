@@ -62,11 +62,8 @@ export default function TeamRosterPage() {
         </Link>
         <div className="flex-1">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white break-words">
-            Kader
+            Trainer &amp; Spieler - {team?.name}
           </h1>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mt-1 break-words">
-            {team?.name}
-          </p>
         </div>
       </div>
 
