@@ -171,7 +171,7 @@ Hinweise:
 - Backend nutzt Security-Header (`helmet`) und Rate-Limits für API/Auth.
 
 Optionale Feineinstellungen in `.env`:
-- `JWT_EXPIRES_IN` (Standard `30d`, z. B. `7d`, `30d`, `12h`)
+- `JWT_EXPIRES_IN` (aktuell `1h` zum Testen, z. B. `7d`, `30d`, `12h`)
 - `API_RATE_LIMIT_WINDOW_MS` (Standard `900000` = 15 Min)
 - `API_RATE_LIMIT_MAX` (Standard `300` Requests/Window)
 - `AUTH_RATE_LIMIT_MAX` (Standard `20` Requests/Window)
