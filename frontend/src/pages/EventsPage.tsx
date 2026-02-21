@@ -45,9 +45,9 @@ export default function EventsPage() {
           </h1>
         </div>
 
-        {isTrainer && !teamId && (
+        {isTrainer && (
           <Link
-            to="/events/new"
+            to={teamId ? `/teams/${teamId}/events/new` : '/events/new'}
             className="btn btn-primary flex items-center space-x-2"
           >
             <Plus className="w-5 h-5" />
