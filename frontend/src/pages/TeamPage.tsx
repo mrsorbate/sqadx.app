@@ -171,16 +171,26 @@ export default function TeamPage() {
             Mannschaftsbild
           </h2>
           {getTeamPhotoUrl() ? (
-            <div className="relative w-full">
+            <div className="relative w-full min-h-[20rem] sm:min-h-[24rem] overflow-hidden rounded-xl">
               <img
                 src={getTeamPhotoUrl()}
                 alt={team?.name}
-                className="w-full h-64 object-cover rounded-lg shadow-lg"
+                className="absolute inset-0 w-full h-full object-cover"
               />
+              <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 via-black/25 to-transparent" />
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 px-4 text-center">
+                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-md bg-black/55 text-white text-base font-semibold backdrop-blur-sm">
+                  <Users className="w-4 h-4" />
+                  Mein Team
+                </span>
+                <h3 className="inline-block px-3 py-1 rounded-md bg-black/55 text-white text-xl font-bold backdrop-blur-sm">
+                  {team?.name}
+                </h3>
+              </div>
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingTeamPicture}
-                className="absolute bottom-3 right-3 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-700 p-3 rounded-full shadow-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
+                className="absolute bottom-3 right-3 z-30 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-700 p-3 rounded-full shadow-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
                 title="Neues Bild hochladen"
               >
                 <Upload className="w-5 h-5 text-gray-700 dark:text-gray-100" />
